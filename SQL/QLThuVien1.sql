@@ -1,0 +1,338 @@
+
+-- 1. KHIỂN TẠO CSDL
+CREATE DATABASE QLThuVien;
+GO
+USE QLThuVien;
+GO
+
+-------------------------------------------------------------------
+-- 2. TẠO CÁC BẢNG DÀNH CHO DANH MỤC NỀN & THỰC THỂ ĐỘC LẬP
+-------------------------------------------------------------------
+
+-- Bảng Nhà Xuất Bản
+CREATE TABLE NhaXuatBan (
+    MaNXB VARCHAR(20) NOT NULL PRIMARY KEY,
+    TenNXB NVARCHAR(100) NOT NULL,
+    DiaChi NVARCHAR(200) NULL
+);
+
+-- Bảng Tác Giả
+CREATE TABLE TacGia (
+    MaTG VARCHAR(20) NOT NULL PRIMARY KEY,
+    HoLot NVARCHAR(50) NULL,
+    TenTG NVARCHAR(50) NOT NULL,
+    NgaySinh DATE NULL,
+    SDT VARCHAR(15) NULL
+);
+
+-- Bảng Thể Loại
+CREATE TABLE TheLoai (
+    MaTL VARCHAR(20) NOT NULL PRIMARY KEY,
+    TenTL NVARCHAR(100) NOT NULL
+);
+
+-- Bảng Nhà Cung Cấp
+CREATE TABLE NhaCungCap (
+    MaNCC VARCHAR(20) NOT NULL PRIMARY KEY,
+    TenNCC NVARCHAR(100) NOT NULL
+);
+
+-- Bảng Nhân Viên
+CREATE TABLE NhanVien (
+    MaNV VARCHAR(20) NOT NULL PRIMARY KEY,
+    HoLot NVARCHAR(50) NULL,
+    TenNV NVARCHAR(50) NOT NULL,
+    ChucVu NVARCHAR(50) NULL
+);
+
+-- Bảng Loại Độc Giả
+CREATE TABLE LoaiDocGia (
+    MaLDG VARCHAR(20) NOT NULL PRIMARY KEY,
+    TenLDG NVARCHAR(100) NOT NULL
+);
+
+-- Bảng Độc Giả
+CREATE TABLE DocGia (
+    MaDG VARCHAR(20) NOT NULL PRIMARY KEY,
+    HoLot NVARCHAR(50) NULL,
+    TenDG NVARCHAR(50) NOT NULL,
+    NgaySinh DATE NULL,
+    SDT VARCHAR(15) NULL,
+    MaLDG VARCHAR(20) NOT NULL,
+    CONSTRAINT FK_DocGia_LoaiDocGia FOREIGN KEY (MaLDG) REFERENCES LoaiDocGia(MaLDG)
+);
+
+-- Bảng Quy Định Phạt
+CREATE TABLE QuyDinhPhat (
+    MaQD VARCHAR(20) NOT NULL PRIMARY KEY,
+    TenQD NVARCHAR(100) NOT NULL,
+    LoaiPhat NVARCHAR(50) NULL,
+    CachTinh NVARCHAR(100) NULL,
+    DonViTinh NVARCHAR(20) NULL,
+    MucPhat DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (MucPhat >= 0)
+);
+
+-------------------------------------------------------------------
+-- 3. TẠO BẢNG ĐẦU SÁCH VÀ CUỐN SÁCH
+-------------------------------------------------------------------
+
+-- Bảng Đầu Sách
+CREATE TABLE DauSach (
+    MaDauSach VARCHAR(20) NOT NULL PRIMARY KEY,
+    MaNXB VARCHAR(20) NOT NULL,
+    MaTG VARCHAR(20) NOT NULL,
+    MaTL VARCHAR(20) NOT NULL,
+    TenSach NVARCHAR(200) NOT NULL,
+    NamXB INT NULL CHECK (NamXB <= YEAR(GETDATE())),
+    SoLuong INT NOT NULL DEFAULT 0 CHECK (SoLuong >= 0),
+    SLChoMuon INT NOT NULL DEFAULT 0 CHECK (SLChoMuon >= 0),
+    SLConLai INT NOT NULL DEFAULT 0 CHECK (SLConLai >= 0),
+    DonGia DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (DonGia >= 0),
+    CONSTRAINT FK_DauSach_NhaXuatBan FOREIGN KEY (MaNXB) REFERENCES NhaXuatBan(MaNXB),
+    CONSTRAINT FK_DauSach_TacGia FOREIGN KEY (MaTG) REFERENCES TacGia(MaTG),
+    CONSTRAINT FK_DauSach_TheLoai FOREIGN KEY (MaTL) REFERENCES TheLoai(MaTL)
+);
+
+-- Bảng Cuốn Sách (Sách)
+CREATE TABLE Sach (
+    MaSach VARCHAR(20) NOT NULL PRIMARY KEY,
+    MaDauSach VARCHAR(20) NOT NULL,
+    TinhTrang NVARCHAR(50) NULL,
+    ViTri NVARCHAR(100) NULL,
+    CONSTRAINT FK_Sach_DauSach FOREIGN KEY (MaDauSach) REFERENCES DauSach(MaDauSach)
+);
+
+-------------------------------------------------------------------
+-- 4. TẠO CÁC BẢNG GIAO DỊCH (NHẬP, MƯỢN, PHẠT)
+-------------------------------------------------------------------
+
+-- Bảng Phiếu Nhập
+CREATE TABLE PhieuNhap (
+    MaPN VARCHAR(20) NOT NULL PRIMARY KEY,
+    MaNCC VARCHAR(20) NOT NULL,
+    MaNV VARCHAR(20) NOT NULL,
+    NgayNhap DATETIME NOT NULL DEFAULT GETDATE(),
+    TongTien DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (TongTien >= 0),
+    CONSTRAINT FK_PhieuNhap_NhaCungCap FOREIGN KEY (MaNCC) REFERENCES NhaCungCap(MaNCC),
+    CONSTRAINT FK_PhieuNhap_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
+);
+
+-- Bảng Chi Tiết Phiếu Nhập
+CREATE TABLE ChiTietPhieuNhap (
+    MaPN VARCHAR(20) NOT NULL,
+    MaDauSach VARCHAR(20) NOT NULL,
+    DonGia DECIMAL(18, 2) NOT NULL CHECK (DonGia >= 0),
+    SoLuong INT NOT NULL CHECK (SoLuong > 0),
+    ThanhTien AS (DonGia * SoLuong) PERSISTED,
+    PRIMARY KEY (MaPN, MaDauSach),
+    CONSTRAINT FK_CTPN_PhieuNhap FOREIGN KEY (MaPN) REFERENCES PhieuNhap(MaPN) ON DELETE CASCADE,
+    CONSTRAINT FK_CTPN_DauSach FOREIGN KEY (MaDauSach) REFERENCES DauSach(MaDauSach)
+);
+
+-- Bảng Phiếu Mượn
+CREATE TABLE PhieuMuon (
+    MaPM VARCHAR(20) NOT NULL PRIMARY KEY,
+    MaDocGia VARCHAR(20) NOT NULL,
+    MaNV VARCHAR(20) NOT NULL,
+    NgayMuon DATETIME NOT NULL DEFAULT GETDATE(),
+    HanTra DATE NOT NULL,
+    CONSTRAINT FK_PhieuMuon_DocGia FOREIGN KEY (MaDocGia) REFERENCES DocGia(MaDG),
+    CONSTRAINT FK_PhieuMuon_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV),
+    CONSTRAINT CK_PhieuMuon_HanTra CHECK (HanTra >= CAST(NgayMuon AS DATE))
+);
+
+-- Bảng Chi Tiết Phiếu Mượn
+CREATE TABLE ChiTietPhieuMuon (
+    MaPhieuMuon VARCHAR(20) NOT NULL,
+    MaSach VARCHAR(20) NOT NULL,
+    TinhTrang NVARCHAR(50) NULL,
+    NgayThucTra DATE NULL,
+    PRIMARY KEY (MaPhieuMuon, MaSach),
+    CONSTRAINT FK_CTPM_PhieuMuon FOREIGN KEY (MaPhieuMuon) REFERENCES PhieuMuon(MaPM) ON DELETE CASCADE,
+    CONSTRAINT FK_CTPM_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach)
+);
+
+-- Bảng Phiếu Phạt
+CREATE TABLE PhieuPhat (
+    MaPhieuPhat VARCHAR(20) NOT NULL PRIMARY KEY,
+    MaDocGia VARCHAR(20) NOT NULL,
+    MaPhieuMuon VARCHAR(20) NULL,
+    MaNV VARCHAR(20) NOT NULL,
+    NgayLap DATETIME NOT NULL DEFAULT GETDATE(),
+    TrangThai NVARCHAR(50) NULL,
+    TongTienPhat DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (TongTienPhat >= 0),
+    CONSTRAINT FK_PhieuPhat_DocGia FOREIGN KEY (MaDocGia) REFERENCES DocGia(MaDG),
+    CONSTRAINT FK_PhieuPhat_PhieuMuon FOREIGN KEY (MaPhieuMuon) REFERENCES PhieuMuon(MaPM),
+    CONSTRAINT FK_PhieuPhat_NhanVien FOREIGN KEY (MaNV) REFERENCES NhanVien(MaNV)
+);
+
+-- Bảng Chi Tiết Phiếu Phạt
+CREATE TABLE ChiTietPhieuPhat (
+    MaPhieuPhat VARCHAR(20) NOT NULL,
+    MaQD VARCHAR(20) NOT NULL,
+    MaSach VARCHAR(20) NULL,
+    DonGia DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (DonGia >= 0),
+    SoNgayTre INT NULL CHECK (SoNgayTre >= 0),
+    GhiChu NVARCHAR(200) NULL,
+    TienPhat DECIMAL(18, 2) NOT NULL CHECK (TienPhat >= 0),
+    PRIMARY KEY (MaPhieuPhat, MaQD),
+    CONSTRAINT FK_CTPP_PhieuPhat FOREIGN KEY (MaPhieuPhat) REFERENCES PhieuPhat(MaPhieuPhat) ON DELETE CASCADE,
+    CONSTRAINT FK_CTPP_QuyDinhPhat FOREIGN KEY (MaQD) REFERENCES QuyDinhPhat(MaQD),
+    CONSTRAINT FK_CTPP_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach)
+);
+GO
+
+-------------------------------------------------------------------
+-- 5. CÀI ĐẶT CÁC TRIGGER NGHIỆP VỤ TỰ ĐỘNG
+-------------------------------------------------------------------
+
+-- Trigger 1: Tự động trừ số lượng sách khả dụng khi mượn
+CREATE TRIGGER trg_ChiTietPhieuMuon_Insert
+ON ChiTietPhieuMuon
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF EXISTS (
+        SELECT 1 
+        FROM inserted i
+        JOIN Sach s ON i.MaSach = s.MaSach
+        JOIN DauSach ds ON s.MaDauSach = ds.MaDauSach
+        WHERE ds.SLConLai < 1
+    )
+    BEGIN
+        RAISERROR (N'Sách này đã hết bản sẵn có trong thư viện, không thể mượn!', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
+    UPDATE ds
+    SET ds.SLChoMuon = ds.SLChoMuon + 1,
+        ds.SLConLai = ds.SLConLai - 1
+    FROM DauSach ds
+    JOIN Sach s ON ds.MaDauSach = s.MaDauSach
+    JOIN inserted i ON s.MaSach = i.MaSach;
+END;
+GO
+
+-- Trigger 2: Tự động hồi phục số lượng sách khi trả
+CREATE TRIGGER trg_ChiTietPhieuMuon_UpdateTraSach
+ON ChiTietPhieuMuon
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF UPDATE(NgayThucTra)
+    BEGIN
+        UPDATE ds
+        SET ds.SLChoMuon = ds.SLChoMuon - 1,
+            ds.SLConLai = ds.SLConLai + 1
+        FROM DauSach ds
+        JOIN Sach s ON ds.MaDauSach = s.MaDauSach
+        JOIN inserted i ON s.MaSach = i.MaSach
+        JOIN deleted d ON i.MaPhieuMuon = d.MaPhieuMuon AND i.MaSach = d.MaSach
+        WHERE d.NgayThucTra IS NULL AND i.NgayThucTra IS NOT NULL;
+    END
+END;
+GO
+
+-------------------------------------------------------------------
+-- 6. CHÈN DỮ LIỆU MẪU (BẢN CHUẨN ĐÃ ĐỔI QD03 NGHỆ THUẬT VỀ HỆ SỐ 1.00)
+-------------------------------------------------------------------
+
+PRINT N'==================================================';
+PRINT N'     BẮT ĐẦU CHÈN DỮ LIỆU MẪU VÀO 16 BẢNG';
+PRINT N'==================================================';
+
+-- 1. Danh mục nền
+INSERT INTO NhaXuatBan (MaNXB, TenNXB, DiaChi) VALUES
+('NXB01', N'Nhà Xuất Bản Trẻ', N'161 Lý Chính Thắng, Phường 7, Quận 3, TP.HCM'),
+('NXB02', N'Nhà Xuất Bản Giáo Dục', N'231 Nguyễn Văn Cừ, Quận 5, TP.HCM'),
+('NXB03', N'Nhà Xuất Bản Kim Đồng', N'248 Cống Quỳnh, Quận 1, TP.HCM');
+
+INSERT INTO TacGia (MaTG, HoLot, TenTG, NgaySinh, SDT) VALUES
+('TG01', N'Nguyễn Nhật', N'Ánh', '1955-05-07', '0901234567'),
+('TG02', N'Robert C.', N'Martin', '1952-12-05', '0918765432'),
+('TG03', N'Andrew', N'Tanenbaum', '1944-03-16', '0922334455');
+
+INSERT INTO TheLoai (MaTL, TenTL) VALUES
+('TL01', N'Công nghệ thông tin'),
+('TL02', N'Văn học thiếu nhi'),
+('TL03', N'Kỹ thuật phần mềm');
+
+INSERT INTO NhaCungCap (MaNCC, TenNCC) VALUES
+('NCC01', N'Công ty Cổ phần Sách Fahasa'),
+('NCC02', N'Nhà sách Phương Nam'),
+('NCC03', N'Công ty Sách Tiki');
+
+INSERT INTO NhanVien (MaNV, HoLot, TenNV, ChucVu) VALUES
+('NV01', N'Đặng Phú', N'Thành', N'Thủ thư chính'),
+('NV02', N'Lê Thị', N'Mai', N'Thủ thư'),
+('NV03', N'Trần Văn', N'Nam', N'Quản lý kho');
+
+INSERT INTO LoaiDocGia (MaLDG, TenLDG) VALUES
+('LDG01', N'Sinh viên đại học'),
+('LDG02', N'Giảng viên'),
+('LDG03', N'Nghiên cứu sinh');
+
+INSERT INTO DocGia (MaDG, HoLot, TenDG, NgaySinh, SDT, MaLDG) VALUES
+('DG01', N'Nguyễn Văn', N'An', '2004-03-15', '0938111222', 'LDG01'),
+('DG02', N'Trần Thị', N'Bình', '2003-08-22', '0945333444', 'LDG01'),
+('DG03', N'Phạm Hoàng', N'Cường', '1988-11-10', '0967555666', 'LDG02');
+
+-- Cập nhật bảng QuyDinhPhat với QD03 dùng Hệ số 1.00 (Đền 100% đơn giá thực tế)
+INSERT INTO QuyDinhPhat (MaQD, TenQD, LoaiPhat, CachTinh, DonViTinh, MucPhat) VALUES
+('QD01', N'Phạt trễ hạn trả sách', N'Phạt tiền', N'Theo ngày trễ', N'Ngày', 5000.00),
+('QD02', N'Phạt rách/hỏng trang sách', N'Bồi thường', N'Cố định', N'Cuốn', 30000.00),
+('QD03', N'Phạt làm mất sách', N'Bồi thường', N'100% Giá bìa sách', N'Hệ số', 1.00);
+
+-- 2. Đầu sách & Sách
+INSERT INTO DauSach (MaDauSach, MaNXB, MaTG, MaTL, TenSach, NamXB, SoLuong, SLChoMuon, SLConLai, DonGia) VALUES
+('DS01', 'NXB01', 'TG01', 'TL02', N'Mắt Biếc', 2021, 3, 1, 2, 110000.00),
+('DS02', 'NXB02', 'TG02', 'TL03', N'Clean Code (Mã Sạch)', 2020, 2, 1, 1, 250000.00),
+('DS03', 'NXB03', 'TG03', 'TL01', N'Mạng Máy Tính Cơ Bản', 2022, 2, 0, 2, 180000.00);
+
+INSERT INTO Sach (MaSach, MaDauSach, TinhTrang, ViTri) VALUES
+('S01_01', 'DS01', N'Mới', N'Kệ A1 - Tầng 1'),
+('S01_02', 'DS01', N'Tốt', N'Kệ A1 - Tầng 1'),
+('S01_03', 'DS01', N'Cũ nhẹ', N'Kệ A1 - Tầng 1'),
+('S02_01', 'DS02', N'Mới', N'Kệ B2 - Tầng 2'),
+('S02_02', 'DS02', N'Mới', N'Kệ B2 - Tầng 2'),
+('S03_01', 'DS03', N'Tốt', N'Kệ C1 - Tầng 3'),
+('S03_02', 'DS03', N'Mới', N'Kệ C1 - Tầng 3');
+
+-- 3. Phiếu Nhập
+INSERT INTO PhieuNhap (MaPN, MaNCC, MaNV, NgayNhap, TongTien) VALUES
+('PN01', 'NCC01', 'NV03', '2026-10-01 09:00:00', 830000.00),
+('PN02', 'NCC02', 'NV03', '2026-10-15 14:30:00', 360000.00);
+
+INSERT INTO ChiTietPhieuNhap (MaPN, MaDauSach, DonGia, SoLuong) VALUES
+('PN01', 'DS01', 110000.00, 3),
+('PN01', 'DS02', 250000.00, 2),
+('PN02', 'DS03', 180000.00, 2);
+
+-- 4. Phiếu Mượn
+INSERT INTO PhieuMuon (MaPM, MaDocGia, MaNV, NgayMuon, HanTra) VALUES
+('PM01', 'DG01', 'NV01', '2026-10-20', '2026-10-27'),
+('PM02', 'DG02', 'NV02', '2026-11-01', '2026-11-08'),
+('PM03', 'DG03', 'NV01', '2026-11-05', '2026-11-12');
+
+INSERT INTO ChiTietPhieuMuon (MaPhieuMuon, MaSach, TinhTrang, NgayThucTra) VALUES
+('PM01', 'S01_01', N'Tốt', '2026-11-02'),
+('PM02', 'S02_01', N'Đang mượn', NULL),
+('PM03', 'S01_02', N'Đang mượn', NULL);
+
+-- 5. Phiếu Phạt
+INSERT INTO PhieuPhat (MaPhieuPhat, MaDocGia, MaPhieuMuon, MaNV, NgayLap, TrangThai, TongTienPhat) VALUES
+('PP01', 'DG01', 'PM01', 'NV01', '2026-11-02 10:15:00', N'Chưa thanh toán', 30000.00);
+
+INSERT INTO ChiTietPhieuPhat (MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat) VALUES
+('PP01', 'QD01', 'S01_01', 5000.00, 6, N'Trả trễ 6 ngày', 30000.00);
+
+GO
+
+PRINT N'==================================================';
+PRINT N' HOÀN TẤT TẠO CSDL VÀ CHÈN DỮ LIỆU THÀNH CÔNG! ';
+PRINT N'==================================================';
