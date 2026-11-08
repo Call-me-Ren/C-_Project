@@ -38,7 +38,7 @@ flowchart LR
 - [x] **Bước 0.2 — Khởi tạo CSDL ban đầu trên SQL Server Management Studio (SSMS):**
   - Mở **SQL Server Management Studio (SSMS)**, kết nối tới Server local.
   - Mở file `requirement_input/my_friend_work/QLThuVien1.sql` và nhấn **F5 (Execute)** để tạo database `QLThuVien` cùng 16 bảng và dữ liệu mẫu.
-- [ ] **Bước 0.3 — Cập nhật CSDL để xử lý các điểm mâu thuẫn trên SQL Server Management Studio (SSMS):**
+- [x] **Bước 0.3 — Cập nhật CSDL để xử lý các điểm mâu thuẫn trên SQL Server Management Studio (SSMS):**
   - **Vì sao cần bước này?** Bạn đã chạy `QLThuVien1.sql` trên SSMS, nhưng cần:
     1. Xóa 2 Trigger tự động (`trg_ChiTietPhieuMuon_Insert` và `trg_ChiTietPhieuMuon_UpdateTraSach`) để khi viết code cộng/trừ tồn kho ở lớp `BUS` **không bị cộng/trừ 2 lần**.
     2. Bổ sung bảng thứ 17 là **`ThamSo`** (theo đúng Yêu cầu số 9 của cô Trang).

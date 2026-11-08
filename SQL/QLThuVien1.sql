@@ -72,6 +72,13 @@ CREATE TABLE QuyDinhPhat (
     MucPhat DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (MucPhat >= 0)
 );
 
+-- Bảng Tham Số (Bảng thứ 17 - Yêu cầu bắt buộc số 9 của Giáo viên: 2 cột Mã - Giá trị)
+CREATE TABLE ThamSo (
+    MaTS VARCHAR(50) NOT NULL PRIMARY KEY,
+    TenTS NVARCHAR(100) NOT NULL,
+    GiaTri NVARCHAR(100) NOT NULL
+);
+
 -------------------------------------------------------------------
 -- 3. TẠO BẢNG ĐẦU SÁCH VÀ CUỐN SÁCH
 -------------------------------------------------------------------
@@ -118,12 +125,13 @@ CREATE TABLE PhieuNhap (
 );
 
 -- Bảng Chi Tiết Phiếu Nhập
+-- Lưu ý: Cột ThanhTien để kiểu DECIMAL(18,2) thường để tầng BUS tự tính toán và lưu xuống (không dùng computed PERSISTED)
 CREATE TABLE ChiTietPhieuNhap (
     MaPN VARCHAR(20) NOT NULL,
     MaDauSach VARCHAR(20) NOT NULL,
     DonGia DECIMAL(18, 2) NOT NULL CHECK (DonGia >= 0),
     SoLuong INT NOT NULL CHECK (SoLuong > 0),
-    ThanhTien AS (DonGia * SoLuong) PERSISTED,
+    ThanhTien DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (ThanhTien >= 0),
     PRIMARY KEY (MaPN, MaDauSach),
     CONSTRAINT FK_CTPN_PhieuNhap FOREIGN KEY (MaPN) REFERENCES PhieuNhap(MaPN) ON DELETE CASCADE,
     CONSTRAINT FK_CTPN_DauSach FOREIGN KEY (MaDauSach) REFERENCES DauSach(MaDauSach)
@@ -183,9 +191,13 @@ CREATE TABLE ChiTietPhieuPhat (
 GO
 
 -------------------------------------------------------------------
--- 5. CÀI ĐẶT CÁC TRIGGER NGHIỆP VỤ TỰ ĐỘNG
+-- 5. TRIGGER NGHIỆP VỤ (LƯU Ý QUAN TRỌNG TỪ GIÁO VIÊN)
+-- Nghiệp vụ cộng/trừ tồn kho (khi mượn/trả sách) được xử lý 100% tại tầng BUS
+-- theo đúng yêu cầu kiểm tra code của GV (tránh trừ/cộng 2 lần).
+-- Do đó, 2 trigger dưới đây được comment lại và không kích hoạt trên CSDL.
 -------------------------------------------------------------------
 
+/*
 -- Trigger 1: Tự động trừ số lượng sách khả dụng khi mượn
 CREATE TRIGGER trg_ChiTietPhieuMuon_Insert
 ON ChiTietPhieuMuon
@@ -237,13 +249,14 @@ BEGIN
     END
 END;
 GO
+*/
 
 -------------------------------------------------------------------
--- 6. CHÈN DỮ LIỆU MẪU (BẢN CHUẨN ĐÃ ĐỔI QD03 NGHỆ THUẬT VỀ HỆ SỐ 1.00)
+-- 6. CHÈN DỮ LIỆU MẪU (CHUẨN 17 BẢNG)
 -------------------------------------------------------------------
 
 PRINT N'==================================================';
-PRINT N'     BẮT ĐẦU CHÈN DỮ LIỆU MẪU VÀO 16 BẢNG';
+PRINT N'     BẮT ĐẦU CHÈN DỮ LIỆU MẪU VÀO 17 BẢNG';
 PRINT N'==================================================';
 
 -- 1. Danh mục nền
@@ -282,11 +295,18 @@ INSERT INTO DocGia (MaDG, HoLot, TenDG, NgaySinh, SDT, MaLDG) VALUES
 ('DG02', N'Trần Thị', N'Bình', '2003-08-22', '0945333444', 'LDG01'),
 ('DG03', N'Phạm Hoàng', N'Cường', '1988-11-10', '0967555666', 'LDG02');
 
--- Cập nhật bảng QuyDinhPhat với QD03 dùng Hệ số 1.00 (Đền 100% đơn giá thực tế)
+-- Bảng QuyDinhPhat: QD03 dùng Hệ số 1.00 (Đền 100% đơn giá thực tế)
 INSERT INTO QuyDinhPhat (MaQD, TenQD, LoaiPhat, CachTinh, DonViTinh, MucPhat) VALUES
 ('QD01', N'Phạt trễ hạn trả sách', N'Phạt tiền', N'Theo ngày trễ', N'Ngày', 5000.00),
 ('QD02', N'Phạt rách/hỏng trang sách', N'Bồi thường', N'Cố định', N'Cuốn', 30000.00),
 ('QD03', N'Phạt làm mất sách', N'Bồi thường', N'100% Giá bìa sách', N'Hệ số', 1.00);
+
+-- Bảng ThamSo (Bảng thứ 17 - Yêu cầu số 9 của GV)
+INSERT INTO ThamSo (MaTS, TenTS, GiaTri) VALUES
+('SO_SACH_MUON_TOI_DA', N'Số cuốn sách tối đa mỗi lần mượn', '5'),
+('SO_NGAY_MUON_TOI_DA', N'Số ngày mượn tối đa mặc định', '7'),
+('TIEN_PHAT_MOI_NGAY', N'Tiền phạt trễ hạn mỗi ngày (VNĐ)', '5000'),
+('NAM_XB_TOI_THIEU', N'Năm xuất bản tối thiểu hợp lệ', '1900');
 
 -- 2. Đầu sách & Sách
 INSERT INTO DauSach (MaDauSach, MaNXB, MaTG, MaTL, TenSach, NamXB, SoLuong, SLChoMuon, SLConLai, DonGia) VALUES
@@ -308,10 +328,10 @@ INSERT INTO PhieuNhap (MaPN, MaNCC, MaNV, NgayNhap, TongTien) VALUES
 ('PN01', 'NCC01', 'NV03', '2026-10-01 09:00:00', 830000.00),
 ('PN02', 'NCC02', 'NV03', '2026-10-15 14:30:00', 360000.00);
 
-INSERT INTO ChiTietPhieuNhap (MaPN, MaDauSach, DonGia, SoLuong) VALUES
-('PN01', 'DS01', 110000.00, 3),
-('PN01', 'DS02', 250000.00, 2),
-('PN02', 'DS03', 180000.00, 2);
+INSERT INTO ChiTietPhieuNhap (MaPN, MaDauSach, DonGia, SoLuong, ThanhTien) VALUES
+('PN01', 'DS01', 110000.00, 3, 330000.00),
+('PN01', 'DS02', 250000.00, 2, 500000.00),
+('PN02', 'DS03', 180000.00, 2, 360000.00);
 
 -- 4. Phiếu Mượn
 INSERT INTO PhieuMuon (MaPM, MaDocGia, MaNV, NgayMuon, HanTra) VALUES
