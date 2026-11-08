@@ -31,7 +31,7 @@ namespace QLThuVien.DAO
         }
 
         /// <summary>
-        /// Tạo và trả về một đối tượng SqlConnection mới
+        /// Tạo và trả về một đối tượng SqlConnection mới (chưa mở kết nối)
         /// </summary>
         public static SqlConnection GetConnection()
         {
@@ -39,8 +39,8 @@ namespace QLThuVien.DAO
         }
 
         /// <summary>
-        /// Thực thi câu lệnh SELECT để lấy dữ liệu (trả về DataTable để nạp vào ArrayList ở lớp BUS)
-        /// Sử dụng SqlParameter để chống SQL Injection
+        /// 1. Thực thi câu lệnh SELECT trả về DataTable (đóng kết nối ngay, an toàn không sợ leak connection).
+        /// Dùng để nạp dữ liệu lên DataGridView hoặc chuyển đổi sang ArrayList trong lớp BUS.
         /// </summary>
         public static DataTable ExecuteQuery(string query, SqlParameter[]? parameters = null)
         {
@@ -61,15 +61,32 @@ namespace QLThuVien.DAO
                         adapter.Fill(dataTable);
                     }
                 }
-                // conn tự động đóng khi ra khỏi khối using
             }
 
             return dataTable;
         }
 
         /// <summary>
-        /// Thực thi các câu lệnh thay đổi dữ liệu: INSERT, UPDATE, DELETE
-        /// Trả về số dòng bị ảnh hưởng (int)
+        /// 2. Thực thi câu lệnh SELECT trả về SqlDataReader dạng đọc tuần tự (Stream), đúng chuẩn slide bài giảng của GV.
+        /// Sử dụng CommandBehavior.CloseConnection để tự động đóng kết nối khi SqlDataReader đóng hoặc ra khỏi khối using.
+        /// </summary>
+        public static SqlDataReader ExecuteReader(string query, SqlParameter[]? parameters = null)
+        {
+            SqlConnection conn = GetConnection();
+            conn.Open();
+
+            SqlCommand cmd = new SqlCommand(query, conn);
+            if (parameters != null && parameters.Length > 0)
+            {
+                cmd.Parameters.AddRange(parameters);
+            }
+
+            return cmd.ExecuteReader(CommandBehavior.CloseConnection);
+        }
+
+        /// <summary>
+        /// 3. Thực thi các câu lệnh thay đổi dữ liệu: INSERT, UPDATE, DELETE.
+        /// Trả về số dòng bị ảnh hưởng (int).
         /// </summary>
         public static int ExecuteNonQuery(string query, SqlParameter[]? parameters = null)
         {
@@ -93,7 +110,7 @@ namespace QLThuVien.DAO
         }
 
         /// <summary>
-        /// Thực thi câu lệnh trả về giá trị đơn lẻ (Ví dụ: SELECT COUNT(*), SELECT MAX(Ma)...)
+        /// 4. Thực thi câu lệnh trả về giá trị đơn lẻ (Ví dụ: SELECT COUNT(*), SELECT MAX(Ma)...)
         /// </summary>
         public static object? ExecuteScalar(string query, SqlParameter[]? parameters = null)
         {
