@@ -22,7 +22,7 @@
 ## 4. Nguồn tài liệu (thứ tự ưu tiên)
 1. `requirement_input/markdown_ver/File_của_giaovien` và `Chú_thích_world` (**quan trọng nhất**, do GV gửi và căn dặn).
 2. `requirement_input/Note.md` (3 quy tắc 3 lớp, yêu cầu trang web).
-3. `requirement_input/my_friend_work` (SQL Server `QLThuVien1.sql`, danh sách chức năng, ràng buộc toàn vẹn) và `Database/ERD.drawio.xml`.
+3. `requirement_input/team_specs` (SQL Server `QLThuVien1.sql`, danh sách chức năng, ràng buộc toàn vẹn) và `Database/ERD.drawio.xml`.
 4. `Đồ_án_tham_khảo`: chỉ tham khảo ý tưởng.
 
 ## 5. Kiến trúc & cấu trúc project (đề xuất)

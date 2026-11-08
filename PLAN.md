@@ -37,7 +37,7 @@ flowchart LR
   - Chia sẵn 4 thư mục chuẩn: `DTO/`, `DAO/`, `BUS/`, `GUI/`.
 - [x] **Bước 0.2 — Khởi tạo CSDL ban đầu trên SQL Server Management Studio (SSMS):**
   - Mở **SQL Server Management Studio (SSMS)**, kết nối tới Server local.
-  - Mở file `requirement_input/my_friend_work/QLThuVien1.sql` và nhấn **F5 (Execute)** để tạo database `QLThuVien` cùng 16 bảng và dữ liệu mẫu.
+  - Mở file `requirement_input/team_specs/QLThuVien1.sql` và nhấn **F5 (Execute)** để tạo database `QLThuVien` cùng 16 bảng và dữ liệu mẫu.
 - [x] **Bước 0.3 — Cập nhật CSDL để xử lý các điểm mâu thuẫn trên SQL Server Management Studio (SSMS):**
   - **Vì sao cần bước này?** Bạn đã chạy `QLThuVien1.sql` trên SSMS, nhưng cần:
     1. Xóa 2 Trigger tự động (`trg_ChiTietPhieuMuon_Insert` và `trg_ChiTietPhieuMuon_UpdateTraSach`) để khi viết code cộng/trừ tồn kho ở lớp `BUS` **không bị cộng/trừ 2 lần**.
@@ -74,12 +74,23 @@ flowchart LR
     GO
 
     -- 3. Chuyển cột ThanhTien trong ChiTietPhieuNhap thành cột thường để lớp BUS tự tính
+    -- Bước 3.1: Xóa cột tự tính cũ
     IF EXISTS (SELECT 1 FROM sys.computed_columns WHERE name = 'ThanhTien' AND object_id = OBJECT_ID('ChiTietPhieuNhap'))
     BEGIN
         ALTER TABLE ChiTietPhieuNhap DROP COLUMN ThanhTien;
-        ALTER TABLE ChiTietPhieuNhap ADD ThanhTien DECIMAL(18, 2) NOT NULL DEFAULT 0;
-        UPDATE ChiTietPhieuNhap SET ThanhTien = DonGia * SoLuong;
     END
+    GO
+
+    -- Bước 3.2: Thêm lại cột ThanhTien là kiểu số DECIMAL thông thường
+    IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE name = 'ThanhTien' AND object_id = OBJECT_ID('ChiTietPhieuNhap'))
+    BEGIN
+        ALTER TABLE ChiTietPhieuNhap ADD ThanhTien DECIMAL(18, 2) NOT NULL DEFAULT 0;
+    END
+    GO
+
+    -- Bước 3.3: Cập nhật giá trị dữ liệu mẫu
+    UPDATE ChiTietPhieuNhap 
+    SET ThanhTien = DonGia * SoLuong;
     GO
     ```
 - [x] **Bước 0.4 — Xây dựng class `DAO/MyConnection.cs` (Trên VS Code + Antigravity):**

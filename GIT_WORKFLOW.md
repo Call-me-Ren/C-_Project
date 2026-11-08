@@ -61,7 +61,7 @@ flowchart LR
     cd QLThuVien_CSHARP
     ```
 - [ ] **3. Chạy CSDL trên SQL Server Management Studio (SSMS) ở máy mình:**
-  - Mở SSMS trên máy cá nhân $\rightarrow$ mở file `requirement_input/my_friend_work/QLThuVien1.sql` bấm **F5**.
+  - Mở SSMS trên máy cá nhân $\rightarrow$ mở file `requirement_input/team_specs/QLThuVien1.sql` bấm **F5**.
   - Mở tiếp đoạn script ở **Bước 0.3 trong PLAN.md** bấm **F5** để xóa 2 trigger và thêm bảng `ThamSo`.
 - [ ] **4. Tạo và chuyển sang nhánh riêng của mình:**
   - Thành viên 2: `git checkout -b member2-import`
