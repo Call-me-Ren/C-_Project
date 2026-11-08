@@ -33,14 +33,12 @@ flowchart LR
 ## PHẦN 2: THIẾT LẬP BAN ĐẦU (CHỈ LÀM 1 LẦN DUY NHẤT Ở NGÀY ĐẦU TIÊN)
 
 ### 👤 Bước 2.1: Dành cho Nhóm trưởng (Bạn)
-- [ ] **1. Đưa dự án gốc lên GitHub:**
-  - Lên trang [github.com](https://github.com), bấm **New repository** đặt tên `QLThuVien_CSHARP` (chế độ Public hoặc Private).
-  - Mở Terminal tại thư mục `D:\code\C#\TestProject` và chạy:
+- [x] **1. Đưa dự án gốc lên GitHub:**
+  - Dự án đã được đưa lên repo chính thức: [Call-me-Ren/C-_Project](https://github.com/Call-me-Ren/C-_Project)
+  - Các lệnh khởi tạo và liên kết đã hoàn tất:
     ```bash
-    git add .gitignore README.md AGENTS.md RULE.md INSTRUCTIONS.md PLAN.md YEU_CAU_DO_AN.md GIT_WORKFLOW.md src/
-    git commit -m "feat: khoi tao du an QLThuVien 3 lop .NET 10"
     git branch -M main
-    git remote add origin https://github.com/<tai-khoan-cua-ban>/QLThuVien_CSHARP.git
+    git remote add origin https://github.com/Call-me-Ren/C-_Project.git
     git push -u origin main
     ```
 - [ ] **2. Thêm 3 thành viên vào dự án:**
@@ -57,12 +55,12 @@ flowchart LR
 - [ ] **2. Tải toàn bộ dự án về máy:**
   - Mở VS Code hoặc PowerShell tại thư mục muốn lưu code:
     ```bash
-    git clone https://github.com/<tai-khoan-nhom-truong>/QLThuVien_CSHARP.git
-    cd QLThuVien_CSHARP
+    git clone https://github.com/Call-me-Ren/C-_Project.git
+    cd C-_Project
     ```
 - [ ] **3. Chạy CSDL trên SQL Server Management Studio (SSMS) ở máy mình:**
-  - Mở SSMS trên máy cá nhân $\rightarrow$ mở file `requirement_input/team_specs/QLThuVien1.sql` bấm **F5**.
-  - Mở tiếp đoạn script ở **Bước 0.3 trong PLAN.md** bấm **F5** để xóa 2 trigger và thêm bảng `ThamSo`.
+  - Mở SSMS trên máy cá nhân $\rightarrow$ mở file `SQL/QLThuVien1.sql` (bản chuẩn mới nhất có đủ 17 bảng, dữ liệu mẫu và không bị trigger đè) bấm **F5 (Execute)**.
+  - *(Lưu ý: Nếu máy đã chạy DB cũ từ trước, chỉ cần mở file `SQL/Patch_0.3_CapNhatCSDL.sql` và bấm **F5** để cập nhật mà không phải xóa database).*
 - [ ] **4. Tạo và chuyển sang nhánh riêng của mình:**
   - Thành viên 2: `git checkout -b member2-import`
   - Thành viên 3: `git checkout -b member3-borrow`
