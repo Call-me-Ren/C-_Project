@@ -1,3 +1,14 @@
+-- ===================================================================
+-- CƠ SỞ DỮ LIỆU: QLTHUVIEN (PHIÊN BẢN CHUẨN 17 BẢNG)
+-- ĐỒ ÁN MÔN HỌC: QUẢN LÝ THƯ VIỆN - C# WINFORMS (MÔ HÌNH 3 LỚP)
+-- 
+-- CÁC QUY TẮC BẮT BUỘC TỪ GIÁO VIÊN ĐÃ ÁP DỤNG TRONG SCRIPT NÀY:
+-- 1. Chuẩn hóa 17 bảng (đã bổ sung bảng ThamSo cấu hình nghiệp vụ).
+-- 2. Tách bạch trạng thái cuốn sách (Sach.TrangThai: 0=Chưa mượn, 1=Đang mượn).
+-- 3. Cột ThanhTien ở ChiTietPhieuNhap là DECIMAL thường (tầng BUS tự tính).
+-- 4. Không dùng Trigger tồn kho trên DB (tầng BUS kiểm soát 100% tồn kho).
+-- ===================================================================
+
 -- 1. KHỞI TẠO CSDL
 CREATE DATABASE QLThuVien;
 GO
@@ -71,7 +82,7 @@ CREATE TABLE QuyDinhPhat (
     MucPhat DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (MucPhat >= 0)
 );
 
--- Bảng Tham Số (Bảng thứ 17)
+-- Bảng Tham Số (Bảng thứ 17 - Yêu cầu bắt buộc số 9 của Giáo viên)
 CREATE TABLE ThamSo (
     MaTS VARCHAR(50) NOT NULL PRIMARY KEY,
     TenTS NVARCHAR(100) NOT NULL,
@@ -126,6 +137,7 @@ CREATE TABLE PhieuNhap (
 );
 
 -- Bảng Chi Tiết Phiếu Nhập
+-- Lưu ý: Cột ThanhTien để kiểu DECIMAL(18,2) thường để tầng BUS tự tính toán và lưu xuống
 CREATE TABLE ChiTietPhieuNhap (
     MaPN VARCHAR(20) NOT NULL,
     MaDauSach VARCHAR(20) NOT NULL,
@@ -191,7 +203,14 @@ CREATE TABLE ChiTietPhieuPhat (
 GO
 
 -------------------------------------------------------------------
--- 5. CHÈN DỮ LIỆU MẪU (CHUẨN TRẠNG THÁI SÁCH 0 VÀ 1)
+-- 5. LƯU Ý VỀ TRIGGER TỒN KHO (QUY TẮC BẮT BUỘC TỪ GIÁO VIÊN)
+-- Nghiệp vụ cộng/trừ tồn kho (khi mượn/trả sách) được xử lý 100% tại tầng BUS
+-- theo đúng yêu cầu kiểm tra code của GV (tránh trừ/cộng 2 lần).
+-- Do đó, CSDL không dùng trigger tự động trừ/cộng SLChoMuon/SLConLai.
+-------------------------------------------------------------------
+
+-------------------------------------------------------------------
+-- 6. CHÈN DỮ LIỆU MẪU (CHUẨN TRẠNG THÁI SÁCH 0 VÀ 1)
 -------------------------------------------------------------------
 
 PRINT N'==================================================';
