@@ -31,3 +31,6 @@ bld/
 ## Others
 *.DS_Store
 Thumbs.db
+
+## Personal notes / scratch
+personal_notes/
