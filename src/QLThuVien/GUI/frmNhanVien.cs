@@ -9,15 +9,31 @@ namespace QLThuVien.GUI
     public partial class frmNhanVien : Form
     {
         private readonly NhanVienBUS bus = new NhanVienBUS();
+        private string hoLotHopLe = string.Empty;
+        private string tenHopLe = string.Empty;
+        private bool dangGanTen;
 
         public frmNhanVien()
         {
             InitializeComponent();
+            txtHoLot.TextChanged += (_, _) => KiemTraKyTuTen(txtHoLot, ref hoLotHopLe);
+            txtTenNV.TextChanged += (_, _) => KiemTraKyTuTen(txtTenNV, ref tenHopLe);
+            txtHoLot.Leave += (_, _) => ChuanHoaO(txtHoLot, ref hoLotHopLe);
+            txtTenNV.Leave += (_, _) => ChuanHoaO(txtTenNV, ref tenHopLe);
         }
 
         private void frmNhanVien_Load(object sender, EventArgs e)
         {
-            HienThiDanhSach(bus.DocDS());
+            try
+            {
+                NapDanhSachChucVu(null);
+                HienThiDanhSach(bus.DocDS());
+                LamMoiForm();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void HienThiDanhSach(List<NhanVienDTO> list)
@@ -29,16 +45,14 @@ namespace QLThuVien.GUI
 
         private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0 && e.RowIndex < dgvNhanVien.Rows.Count)
-            {
-                DataGridViewRow row = dgvNhanVien.Rows[e.RowIndex];
-                txtMaNV.Text = row.Cells["colMaNV"].Value?.ToString() ?? string.Empty;
-                txtHoLot.Text = row.Cells["colHoLot"].Value?.ToString() ?? string.Empty;
-                txtTenNV.Text = row.Cells["colTenNV"].Value?.ToString() ?? string.Empty;
-                txtChucVu.Text = row.Cells["colChucVu"].Value?.ToString() ?? string.Empty;
-
-                txtMaNV.ReadOnly = true;
-            }
+            if (e.RowIndex < 0 || e.RowIndex >= dgvNhanVien.Rows.Count) return;
+            DataGridViewRow row = dgvNhanVien.Rows[e.RowIndex];
+            txtMaNV.Text = row.Cells["colMaNV"].Value?.ToString() ?? string.Empty;
+            GanTen(txtHoLot, row.Cells["colHoLot"].Value?.ToString() ?? string.Empty, ref hoLotHopLe);
+            GanTen(txtTenNV, row.Cells["colTenNV"].Value?.ToString() ?? string.Empty, ref tenHopLe);
+            string? chucVu = row.Cells["colChucVu"].Value?.ToString();
+            NapDanhSachChucVu(chucVu);
+            txtMaNV.ReadOnly = true;
         }
 
         private void btnThem_Click(object sender, EventArgs e)
@@ -46,22 +60,18 @@ namespace QLThuVien.GUI
             try
             {
                 NhanVienDTO nv = new NhanVienDTO(
-                    txtMaNV.Text,
+                    string.Empty,
                     txtHoLot.Text,
                     txtTenNV.Text,
-                    txtChucVu.Text
-                );
+                    cboChucVu.SelectedItem?.ToString());
 
-                if (bus.Them(nv))
-                {
-                    MessageBox.Show("Thêm nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    HienThiDanhSach(bus.LayDanhSach());
-                    LamMoiForm();
-                }
+                if (!bus.Them(nv)) throw new InvalidOperationException();
+                HienThiDanhSach(bus.LayDanhSach(reload: true));
+                LamMoiForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Lỗi kiểm tra dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FormErrors.Show(ex);
             }
         }
 
@@ -70,28 +80,21 @@ namespace QLThuVien.GUI
             try
             {
                 if (string.IsNullOrWhiteSpace(txtMaNV.Text))
-                {
-                    MessageBox.Show("Vui lòng chọn nhân viên cần sửa từ danh sách.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                    throw new BusinessRuleException("Hãy chọn nhân viên cần sửa.");
 
                 NhanVienDTO nv = new NhanVienDTO(
                     txtMaNV.Text,
                     txtHoLot.Text,
                     txtTenNV.Text,
-                    txtChucVu.Text
-                );
+                    cboChucVu.SelectedItem?.ToString());
 
-                if (bus.Sua(nv))
-                {
-                    MessageBox.Show("Cập nhật thông tin nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    HienThiDanhSach(bus.LayDanhSach());
-                    LamMoiForm();
-                }
+                if (!bus.Sua(nv)) throw new InvalidOperationException();
+                HienThiDanhSach(bus.LayDanhSach(reload: true));
+                LamMoiForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Lỗi cập nhật", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FormErrors.Show(ex);
             }
         }
 
@@ -100,74 +103,104 @@ namespace QLThuVien.GUI
             try
             {
                 string maNV = txtMaNV.Text.Trim();
-                if (string.IsNullOrWhiteSpace(maNV))
-                {
-                    MessageBox.Show("Vui lòng chọn hoặc nhập mã nhân viên cần xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
+                if (maNV.Length == 0) throw new BusinessRuleException("Hãy chọn nhân viên cần xóa.");
                 DialogResult result = MessageBox.Show(
-                    $"Bạn có chắc chắn muốn xóa nhân viên có mã '{maNV}'?",
-                    "Xác nhận xóa",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
-
-                if (result == DialogResult.Yes)
-                {
-                    if (bus.Xoa(maNV))
-                    {
-                        MessageBox.Show("Xóa nhân viên thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        HienThiDanhSach(bus.LayDanhSach());
-                        LamMoiForm();
-                    }
-                }
+                    $"Xóa nhân viên {maNV}?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result != DialogResult.Yes) return;
+                if (!bus.Xoa(maNV)) throw new InvalidOperationException();
+                HienThiDanhSach(bus.LayDanhSach(reload: true));
+                LamMoiForm();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Không thể xóa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                FormErrors.Show(ex);
             }
         }
 
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
-            LamMoiForm();
-            HienThiDanhSach(bus.DocDS());
+            try
+            {
+                HienThiDanhSach(bus.DocDS());
+                LamMoiForm();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void LamMoiForm()
         {
-            txtMaNV.Clear();
-            txtHoLot.Clear();
-            txtTenNV.Clear();
-            txtChucVu.Clear();
+            txtMaNV.Text = bus.TaoMaNhanVienTiepTheo();
+            txtMaNV.ReadOnly = true;
+            GanTen(txtHoLot, string.Empty, ref hoLotHopLe);
+            GanTen(txtTenNV, string.Empty, ref tenHopLe);
+            NapDanhSachChucVu(null);
             txtTimKiem.Clear();
+            txtTenNV.Focus();
+        }
 
-            txtMaNV.ReadOnly = false;
-            txtMaNV.Focus();
+        private void NapDanhSachChucVu(string? selected)
+        {
+            cboChucVu.Items.Clear();
+            foreach (string chucVu in NhanVienBUS.DanhSachChucVu) cboChucVu.Items.Add(chucVu);
+            if (!string.IsNullOrWhiteSpace(selected) && !cboChucVu.Items.Contains(selected))
+                cboChucVu.Items.Add(selected);
+            cboChucVu.SelectedIndex = selected == null ? -1 : cboChucVu.Items.IndexOf(selected);
         }
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            string tuKhoa = txtTimKiem.Text.Trim();
-            List<NhanVienDTO> ketQua = bus.TimKiem(tuKhoa);
-            HienThiDanhSach(ketQua);
+            HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
         }
 
         private void btnTatCa_Click(object sender, EventArgs e)
         {
-            txtTimKiem.Clear();
-            HienThiDanhSach(bus.LayDanhSach());
+            try
+            {
+                txtTimKiem.Clear();
+                HienThiDanhSach(bus.LayDanhSach(reload: true));
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void txtTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode != Keys.Enter) return;
+            btnTimKiem_Click(sender, e);
+            e.Handled = true;
+            e.SuppressKeyPress = true;
+        }
+
+        private void KiemTraKyTuTen(TextBox textBox, ref string lastValid)
+        {
+            if (dangGanTen) return;
+            foreach (char c in textBox.Text)
             {
-                btnTimKiem_Click(sender, e);
-                e.Handled = true;
-                e.SuppressKeyPress = true;
+                if (NhanVienBUS.KyTuTenHopLe(c)) continue;
+                int selectionStart = Math.Min(textBox.SelectionStart, lastValid.Length);
+                GanTen(textBox, lastValid, ref lastValid);
+                textBox.SelectionStart = selectionStart;
+                return;
             }
+            lastValid = textBox.Text;
+        }
+
+        private void ChuanHoaO(TextBox item, ref string lastValid)
+        {
+            GanTen(item, NhanVienBUS.ChuanHoaHoTen(item.Text), ref lastValid);
+        }
+
+        private void GanTen(TextBox textBox, string value, ref string lastValid)
+        {
+            dangGanTen = true;
+            textBox.Text = value;
+            lastValid = value;
+            dangGanTen = false;
         }
     }
 }

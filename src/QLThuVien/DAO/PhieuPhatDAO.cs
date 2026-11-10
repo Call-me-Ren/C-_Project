@@ -184,6 +184,18 @@ namespace QLThuVien.DAO
             return result != null && Convert.ToInt32(result) > 0;
         }
 
+        public DateTime? LayNgayMuon(string maPM)
+        {
+            string query = "SELECT NgayMuon FROM PhieuMuon WHERE MaPM = @MaPM";
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@MaPM", SqlDbType.VarChar, 20) { Value = maPM }
+            };
+
+            object? result = MyConnection.ExecuteScalar(query, parameters);
+            return result == null || result == DBNull.Value ? null : Convert.ToDateTime(result);
+        }
+
         public bool KiemTraPhieuMuonCuaDocGia(string maPM, string maDG)
         {
             string query = "SELECT COUNT(1) FROM PhieuMuon WHERE MaPM = @MaPM AND MaDocGia = @MaDG";

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -25,7 +26,7 @@ namespace QLThuVien.GUI
         private readonly Button btnXoa = new Button();
         private readonly Button btnLamMoi = new Button();
         private readonly Button btnDong = new Button();
-        private string? maQDDangChon;
+        private int? maCTPPDangChon;
         private bool dangNap;
 
         public frmChiTietPhieuPhat(PhieuPhatDTO phieu)
@@ -43,8 +44,8 @@ namespace QLThuVien.GUI
             });
             btnSua.Click += (_, _) => ThucHien(() =>
             {
-                if (string.IsNullOrWhiteSpace(maQDDangChon)) throw new InvalidOperationException("Hãy chọn vi phạm cần sửa.");
-                bus.SuaChiTiet(phieu.MaPhieuPhat, maQDDangChon, TaoChiTiet());
+                if (!maCTPPDangChon.HasValue) throw new BusinessRuleException("Hãy chọn vi phạm cần sửa.");
+                bus.SuaChiTiet(maCTPPDangChon.Value, TaoChiTiet());
                 NapDanhSachVaLamMoi();
             });
             btnXoa.Click += (_, _) => XoaChiTiet();
@@ -61,8 +62,7 @@ namespace QLThuVien.GUI
             ClientSize = new Size(1080, 700);
             Font = new Font("Segoe UI", 9F);
 
-            Label title = TaoNhan($"CHI TIẾT VI PHẠM - {phieu.MaPhieuPhat}", 18, 12, 700, 32, 16F, true);
-            GroupBox grp = new GroupBox { Text = "Thông tin vi phạm", Location = new Point(16, 54), Size = new Size(1048, 188), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
+            GroupBox grp = new GroupBox { Text = "Thông tin vi phạm", Location = new Point(16, 12), Size = new Size(1048, 188), Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right };
 
             grp.Controls.Add(TaoNhan("Cuốn sách:", 18, 32, 90));
             cboSach.DropDownStyle = ComboBoxStyle.DropDownList;
@@ -117,8 +117,8 @@ namespace QLThuVien.GUI
             dgvChiTiet.AutoGenerateColumns = false;
             dgvChiTiet.BackgroundColor = SystemColors.Window;
             dgvChiTiet.ColumnHeadersHeight = 32;
-            dgvChiTiet.Location = new Point(16, 254);
-            dgvChiTiet.Size = new Size(1048, 370);
+            dgvChiTiet.Location = new Point(16, 212);
+            dgvChiTiet.Size = new Size(1048, 408);
             dgvChiTiet.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvChiTiet.MultiSelect = false;
             dgvChiTiet.ReadOnly = true;
@@ -126,13 +126,15 @@ namespace QLThuVien.GUI
             dgvChiTiet.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvChiTiet.Columns.AddRange(new DataGridViewColumn[]
             {
-                TaoCot("MaSach", "Mã cuốn", 90),
-                TaoCot("MaQD", "Mã quy định", 105),
-                TaoCot("DonGia", "Đơn giá", 120, "N0"),
-                TaoCot("SoNgayTre", "Ngày trễ", 90),
-                TaoCot("GhiChu", "Ghi chú", 400),
-                TaoCot("TienPhat", "Tiền phạt", 140, "N0")
+                TaoCot(nameof(ChiTietPhieuPhatDTO.MaCTPP), "Mã vi phạm", 120),
+                TaoCot("MaSach", "Mã cuốn", 110),
+                TaoCot("MaQD", "Mã quy định", 120),
+                TaoCot("DonGia", "Đơn giá", 100, "N0"),
+                TaoCot("SoNgayTre", "Số ngày trễ", 140),
+                TaoCot("GhiChu", "Ghi chú", 250),
+                TaoCot("TienPhat", "Tiền phạt", 120, "N0")
             });
+            dgvChiTiet.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             lblTongTien.AutoSize = true;
             lblTongTien.Font = new Font(Font, FontStyle.Bold);
@@ -142,7 +144,7 @@ namespace QLThuVien.GUI
             btnDong.SetBounds(954, 634, 110, 32);
             btnDong.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
 
-            Controls.AddRange(new Control[] { title, grp, dgvChiTiet, lblTongTien, btnDong });
+            Controls.AddRange(new Control[] { grp, dgvChiTiet, lblTongTien, btnDong });
         }
 
         private void Form_Load(object? sender, EventArgs e)
@@ -178,8 +180,8 @@ namespace QLThuVien.GUI
             if (e.RowIndex < 0 || e.RowIndex >= dgvChiTiet.Rows.Count) return;
             if (dgvChiTiet.Rows[e.RowIndex].DataBoundItem is not ChiTietPhieuPhatDTO ct) return;
 
-            maQDDangChon = ct.MaQD;
-            cboSach.SelectedValue = ct.MaSach ?? string.Empty;
+            maCTPPDangChon = ct.MaCTPP;
+            cboSach.SelectedValue = ct.MaSach;
             cboQuyDinh.SelectedValue = ct.MaQD;
             txtGhiChu.Text = ct.GhiChu ?? string.Empty;
             CapNhatTienDuKien();
@@ -209,8 +211,9 @@ namespace QLThuVien.GUI
                 txtDonGia.Text = ct.DonGia.ToString("N0");
                 txtTienPhat.Text = ct.TienPhat.ToString("N0");
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine(ex);
                 txtSoNgayTre.Clear();
                 txtDonGia.Clear();
                 txtTienPhat.Clear();
@@ -219,17 +222,17 @@ namespace QLThuVien.GUI
 
         private void XoaChiTiet()
         {
-            if (string.IsNullOrWhiteSpace(maQDDangChon))
+            if (!maCTPPDangChon.HasValue)
             {
                 MessageBox.Show("Hãy chọn vi phạm cần xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            DialogResult confirm = MessageBox.Show("Xóa vi phạm đang chọn?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult confirm = MessageBox.Show("Xóa vi phạm này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
             ThucHien(() =>
             {
-                bus.XoaChiTiet(phieu.MaPhieuPhat, maQDDangChon);
+                bus.XoaChiTiet(maCTPPDangChon.Value);
                 NapDanhSachVaLamMoi();
             });
         }
@@ -257,7 +260,7 @@ namespace QLThuVien.GUI
 
         private void LamMoiDong()
         {
-            maQDDangChon = null;
+            maCTPPDangChon = null;
             if (cboSach.Items.Count > 0) cboSach.SelectedIndex = 0;
             if (cboQuyDinh.Items.Count > 0) cboQuyDinh.SelectedIndex = 0;
             txtGhiChu.Clear();
@@ -290,7 +293,7 @@ namespace QLThuVien.GUI
 
         private static void BaoLoi(Exception ex)
         {
-            MessageBox.Show(ex.Message, "Không thể xử lý chi tiết vi phạm", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            FormErrors.Show(ex);
         }
     }
 }

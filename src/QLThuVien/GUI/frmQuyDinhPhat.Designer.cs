@@ -22,11 +22,11 @@ namespace QLThuVien.GUI
             grpThongTin = new GroupBox();
             numMucPhat = new NumericUpDown();
             lblMucPhat = new Label();
-            txtDonViTinh = new TextBox();
+            cboDonViTinh = new ComboBox();
             lblDonViTinh = new Label();
-            txtCachTinh = new TextBox();
+            cboCachTinh = new ComboBox();
             lblCachTinh = new Label();
-            txtLoaiPhat = new TextBox();
+            cboLoaiPhat = new ComboBox();
             lblLoaiPhat = new Label();
             txtTenQD = new TextBox();
             lblTenQD = new Label();
@@ -82,11 +82,11 @@ namespace QLThuVien.GUI
             //
             grpThongTin.Controls.Add(numMucPhat);
             grpThongTin.Controls.Add(lblMucPhat);
-            grpThongTin.Controls.Add(txtDonViTinh);
+            grpThongTin.Controls.Add(cboDonViTinh);
             grpThongTin.Controls.Add(lblDonViTinh);
-            grpThongTin.Controls.Add(txtCachTinh);
+            grpThongTin.Controls.Add(cboCachTinh);
             grpThongTin.Controls.Add(lblCachTinh);
-            grpThongTin.Controls.Add(txtLoaiPhat);
+            grpThongTin.Controls.Add(cboLoaiPhat);
             grpThongTin.Controls.Add(lblLoaiPhat);
             grpThongTin.Controls.Add(txtTenQD);
             grpThongTin.Controls.Add(lblTenQD);
@@ -122,14 +122,14 @@ namespace QLThuVien.GUI
             lblMucPhat.TabIndex = 10;
             lblMucPhat.Text = "Mức phạt:";
             //
-            // txtDonViTinh
+            // cboDonViTinh
             //
-            txtDonViTinh.Font = new Font("Segoe UI", 9.5F);
-            txtDonViTinh.Location = new Point(95, 110);
-            txtDonViTinh.MaxLength = 20;
-            txtDonViTinh.Name = "txtDonViTinh";
-            txtDonViTinh.Size = new Size(185, 24);
-            txtDonViTinh.TabIndex = 9;
+            cboDonViTinh.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboDonViTinh.Font = new Font("Segoe UI", 9.5F);
+            cboDonViTinh.Location = new Point(95, 110);
+            cboDonViTinh.Name = "cboDonViTinh";
+            cboDonViTinh.Size = new Size(185, 25);
+            cboDonViTinh.TabIndex = 9;
             //
             // lblDonViTinh
             //
@@ -141,14 +141,14 @@ namespace QLThuVien.GUI
             lblDonViTinh.TabIndex = 8;
             lblDonViTinh.Text = "Đơn vị tính:";
             //
-            // txtCachTinh
+            // cboCachTinh
             //
-            txtCachTinh.Font = new Font("Segoe UI", 9.5F);
-            txtCachTinh.Location = new Point(390, 70);
-            txtCachTinh.MaxLength = 100;
-            txtCachTinh.Name = "txtCachTinh";
-            txtCachTinh.Size = new Size(175, 24);
-            txtCachTinh.TabIndex = 7;
+            cboCachTinh.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboCachTinh.Font = new Font("Segoe UI", 9.5F);
+            cboCachTinh.Location = new Point(390, 70);
+            cboCachTinh.Name = "cboCachTinh";
+            cboCachTinh.Size = new Size(175, 25);
+            cboCachTinh.TabIndex = 7;
             //
             // lblCachTinh
             //
@@ -160,14 +160,14 @@ namespace QLThuVien.GUI
             lblCachTinh.TabIndex = 6;
             lblCachTinh.Text = "Cách tính:";
             //
-            // txtLoaiPhat
+            // cboLoaiPhat
             //
-            txtLoaiPhat.Font = new Font("Segoe UI", 9.5F);
-            txtLoaiPhat.Location = new Point(95, 70);
-            txtLoaiPhat.MaxLength = 50;
-            txtLoaiPhat.Name = "txtLoaiPhat";
-            txtLoaiPhat.Size = new Size(185, 24);
-            txtLoaiPhat.TabIndex = 5;
+            cboLoaiPhat.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboLoaiPhat.Font = new Font("Segoe UI", 9.5F);
+            cboLoaiPhat.Location = new Point(95, 70);
+            cboLoaiPhat.Name = "cboLoaiPhat";
+            cboLoaiPhat.Size = new Size(185, 25);
+            cboLoaiPhat.TabIndex = 5;
             //
             // lblLoaiPhat
             //
@@ -196,7 +196,7 @@ namespace QLThuVien.GUI
             lblTenQD.Name = "lblTenQD";
             lblTenQD.Size = new Size(54, 17);
             lblTenQD.TabIndex = 2;
-            lblTenQD.Text = "Tên QĐ:";
+            lblTenQD.Text = "Tên quy định:";
             //
             // txtMaQD
             //
@@ -204,6 +204,7 @@ namespace QLThuVien.GUI
             txtMaQD.Location = new Point(95, 30);
             txtMaQD.MaxLength = 20;
             txtMaQD.Name = "txtMaQD";
+            txtMaQD.ReadOnly = true;
             txtMaQD.Size = new Size(185, 24);
             txtMaQD.TabIndex = 1;
             //
@@ -215,7 +216,7 @@ namespace QLThuVien.GUI
             lblMaQD.Name = "lblMaQD";
             lblMaQD.Size = new Size(53, 17);
             lblMaQD.TabIndex = 0;
-            lblMaQD.Text = "Mã QĐ:";
+            lblMaQD.Text = "Mã quy định:";
             //
             // grpChucNang
             //
@@ -229,7 +230,7 @@ namespace QLThuVien.GUI
             grpChucNang.Size = new Size(306, 150);
             grpChucNang.TabIndex = 2;
             grpChucNang.TabStop = false;
-            grpChucNang.Text = "Thao tác";
+            grpChucNang.Text = string.Empty;
             //
             // btnLamMoi
             //
@@ -293,7 +294,7 @@ namespace QLThuVien.GUI
             grpTimKiem.Size = new Size(896, 60);
             grpTimKiem.TabIndex = 3;
             grpTimKiem.TabStop = false;
-            grpTimKiem.Text = "Tìm kiếm";
+            grpTimKiem.Text = string.Empty;
             //
             // btnTatCa
             //
@@ -316,7 +317,7 @@ namespace QLThuVien.GUI
             btnTimKiem.Name = "btnTimKiem";
             btnTimKiem.Size = new Size(110, 28);
             btnTimKiem.TabIndex = 1;
-            btnTimKiem.Text = "Tìm kiếm";
+            btnTimKiem.Text = "Tìm";
             btnTimKiem.UseVisualStyleBackColor = false;
             btnTimKiem.Click += btnTimKiem_Click;
             //
@@ -325,7 +326,7 @@ namespace QLThuVien.GUI
             txtTimKiem.Font = new Font("Segoe UI", 9.5F);
             txtTimKiem.Location = new Point(15, 22);
             txtTimKiem.Name = "txtTimKiem";
-            txtTimKiem.PlaceholderText = "Nhập mã, tên quy định hoặc loại phạt để tìm...";
+            txtTimKiem.PlaceholderText = "Tìm theo mã, tên hoặc loại phạt";
             txtTimKiem.Size = new Size(630, 24);
             txtTimKiem.TabIndex = 0;
             txtTimKiem.KeyDown += txtTimKiem_KeyDown;
@@ -351,8 +352,8 @@ namespace QLThuVien.GUI
             // colMaQD
             //
             colMaQD.DataPropertyName = "MaQD";
-            colMaQD.FillWeight = 75F;
-            colMaQD.HeaderText = "Mã QĐ";
+            colMaQD.FillWeight = 105F;
+            colMaQD.HeaderText = "Mã quy định";
             colMaQD.Name = "colMaQD";
             colMaQD.ReadOnly = true;
             //
@@ -433,11 +434,11 @@ namespace QLThuVien.GUI
         private GroupBox grpThongTin;
         private NumericUpDown numMucPhat;
         private Label lblMucPhat;
-        private TextBox txtDonViTinh;
+        private ComboBox cboDonViTinh;
         private Label lblDonViTinh;
-        private TextBox txtCachTinh;
+        private ComboBox cboCachTinh;
         private Label lblCachTinh;
-        private TextBox txtLoaiPhat;
+        private ComboBox cboLoaiPhat;
         private Label lblLoaiPhat;
         private TextBox txtTenQD;
         private Label lblTenQD;

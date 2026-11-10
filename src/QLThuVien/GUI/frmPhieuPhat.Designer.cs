@@ -63,7 +63,7 @@ namespace QLThuVien.GUI
             ((System.ComponentModel.ISupportInitialize)dgvPhieuPhat).BeginInit();
             SuspendLayout();
 
-            Text = "Quản lý Phiếu phạt";
+            Text = "Quản lý phiếu phạt";
             StartPosition = FormStartPosition.CenterScreen;
             ClientSize = new Size(1120, 760);
             MinimumSize = new Size(1000, 680);
@@ -82,7 +82,7 @@ namespace QLThuVien.GUI
 
             lblMaPhieu.AutoSize = true;
             lblMaPhieu.Location = new Point(18, 34);
-            lblMaPhieu.Text = "Mã phiếu:";
+            lblMaPhieu.Text = "Mã phiếu phạt:";
             txtMaPhieuPhat.Location = new Point(115, 30);
             txtMaPhieuPhat.Size = new Size(190, 23);
             txtMaPhieuPhat.ReadOnly = true;
@@ -92,6 +92,7 @@ namespace QLThuVien.GUI
             lblNgayLap.Location = new Point(335, 34);
             lblNgayLap.Text = "Ngày lập:";
             dtpNgayLap.Format = DateTimePickerFormat.Short;
+            dtpNgayLap.MaxDate = DateTime.Today;
             dtpNgayLap.Location = new Point(410, 30);
             dtpNgayLap.Size = new Size(180, 23);
 
@@ -159,7 +160,7 @@ namespace QLThuVien.GUI
 
             txtTimKiem.Location = new Point(20, 276);
             txtTimKiem.Size = new Size(360, 23);
-            txtTimKiem.PlaceholderText = "Tìm mã phiếu, độc giả hoặc phiếu mượn";
+            txtTimKiem.PlaceholderText = "Tìm phiếu, độc giả, phiếu mượn";
             btnTimKiem.Location = new Point(390, 273);
             btnTimKiem.Size = new Size(80, 29);
             btnTimKiem.Text = "Tìm";
@@ -171,6 +172,7 @@ namespace QLThuVien.GUI
             dgvPhieuPhat.AllowUserToDeleteRows = false;
             dgvPhieuPhat.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvPhieuPhat.AutoGenerateColumns = false;
+            dgvPhieuPhat.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvPhieuPhat.BackgroundColor = SystemColors.Window;
             dgvPhieuPhat.ColumnHeadersHeight = 32;
             dgvPhieuPhat.Location = new Point(16, 311);
@@ -181,13 +183,13 @@ namespace QLThuVien.GUI
             dgvPhieuPhat.Size = new Size(1088, 430);
             dgvPhieuPhat.Columns.AddRange(new DataGridViewColumn[]
             {
-                TaoCot("MaPhieuPhat", "Mã phiếu", 95),
-                TaoCot("MaDocGia", "Mã độc giả", 90),
-                TaoCot("MaPhieuMuon", "Mã phiếu mượn", 110),
-                TaoCot("MaNV", "Mã nhân viên", 95),
+                TaoCot("MaPhieuPhat", "Mã phiếu phạt", 125),
+                TaoCot("MaDocGia", "Mã độc giả", 105),
+                TaoCot("MaPhieuMuon", "Mã phiếu mượn", 125),
+                TaoCot("MaNV", "Mã nhân viên", 110),
                 TaoCot("NgayLap", "Ngày lập", 105, "d"),
                 TaoCot("TrangThai", "Trạng thái", 145),
-                TaoCot("TongTienPhat", "Tổng tiền phạt", 130, "N0")
+                TaoCot("TongTienPhat", "Tổng tiền phạt", 145, "N0")
             });
 
             Controls.Add(lblTitle);

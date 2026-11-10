@@ -8,17 +8,17 @@ namespace QLThuVien.DAO
 {
     public class ChiTietPhieuPhatDAO
     {
-        private const string CacCot = "MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat";
+        private const string CacCot = "MaCTPP, MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat";
 
         public List<ChiTietPhieuPhatDTO> LayTatCa()
         {
-            string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat ORDER BY MaPhieuPhat, MaQD";
+            string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat ORDER BY MaPhieuPhat, MaCTPP";
             return DocDanhSach(query);
         }
 
         public List<ChiTietPhieuPhatDTO> LayDanhSachTheoPhieu(string maPhieuPhat)
         {
-            string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat WHERE MaPhieuPhat = @MaPhieuPhat ORDER BY MaQD";
+            string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat WHERE MaPhieuPhat = @MaPhieuPhat ORDER BY MaCTPP";
             SqlParameter[] parameters =
             {
                 new SqlParameter("@MaPhieuPhat", SqlDbType.VarChar, 20) { Value = maPhieuPhat }
@@ -26,61 +26,63 @@ namespace QLThuVien.DAO
             return DocDanhSach(query, parameters);
         }
 
-        public ChiTietPhieuPhatDTO? LayTheoKhoa(string maPhieuPhat, string maQD)
+        public ChiTietPhieuPhatDTO? LayTheoMaCTPP(int maCTPP)
         {
-            string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat WHERE MaPhieuPhat = @MaPhieuPhat AND MaQD = @MaQD";
+            string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat WHERE MaCTPP = @MaCTPP";
             SqlParameter[] parameters =
             {
-                new SqlParameter("@MaPhieuPhat", SqlDbType.VarChar, 20) { Value = maPhieuPhat },
-                new SqlParameter("@MaQD", SqlDbType.VarChar, 20) { Value = maQD }
+                new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = maCTPP }
             };
             DataTable dt = MyConnection.ExecuteQuery(query, parameters);
             return dt.Rows.Count == 0 ? null : DocDongDuLieu(dt.Rows[0]);
         }
 
-        public bool Them(ChiTietPhieuPhatDTO ct)
+        public int Them(ChiTietPhieuPhatDTO ct)
         {
             string query = @"INSERT INTO ChiTietPhieuPhat (MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat)
+                             OUTPUT INSERTED.MaCTPP
                              VALUES (@MaPhieuPhat, @MaQD, @MaSach, @DonGia, @SoNgayTre, @GhiChu, @TienPhat)";
-            return MyConnection.ExecuteNonQuery(query, TaoThamSo(ct)) > 0;
+            object? result = MyConnection.ExecuteScalar(query, TaoThamSo(ct));
+            return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
         }
 
-        public bool Sua(string maQDTruoc, ChiTietPhieuPhatDTO ct)
+        public bool Sua(ChiTietPhieuPhatDTO ct)
         {
             string query = @"UPDATE ChiTietPhieuPhat
                              SET MaQD = @MaQD, MaSach = @MaSach, DonGia = @DonGia,
                                  SoNgayTre = @SoNgayTre, GhiChu = @GhiChu, TienPhat = @TienPhat
-                             WHERE MaPhieuPhat = @MaPhieuPhat AND MaQD = @MaQDTruoc";
+                             WHERE MaCTPP = @MaCTPP";
             List<SqlParameter> parameters = new List<SqlParameter>(TaoThamSo(ct))
             {
-                new SqlParameter("@MaQDTruoc", SqlDbType.VarChar, 20) { Value = maQDTruoc }
+                new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = ct.MaCTPP }
             };
             return MyConnection.ExecuteNonQuery(query, parameters.ToArray()) > 0;
         }
 
-        public bool Xoa(string maPhieuPhat, string maQD)
+        public bool Xoa(int maCTPP)
         {
-            string query = "DELETE FROM ChiTietPhieuPhat WHERE MaPhieuPhat = @MaPhieuPhat AND MaQD = @MaQD";
+            string query = "DELETE FROM ChiTietPhieuPhat WHERE MaCTPP = @MaCTPP";
             SqlParameter[] parameters =
             {
-                new SqlParameter("@MaPhieuPhat", SqlDbType.VarChar, 20) { Value = maPhieuPhat },
-                new SqlParameter("@MaQD", SqlDbType.VarChar, 20) { Value = maQD }
+                new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = maCTPP }
             };
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
-        public bool KiemTraTrung(string maPhieuPhat, string maQD, string? boQuaMaQD = null)
+        public bool KiemTraTrung(string maPhieuPhat, string maSach, string maQD, int? boQuaMaCTPP = null)
         {
             string query = @"SELECT COUNT(1)
                              FROM ChiTietPhieuPhat
                              WHERE MaPhieuPhat = @MaPhieuPhat
                                AND MaQD = @MaQD
-                               AND (@MaQDBoQua IS NULL OR MaQD <> @MaQDBoQua)";
+                               AND MaSach = @MaSach
+                               AND (@MaCTPPBoQua IS NULL OR MaCTPP <> @MaCTPPBoQua)";
             SqlParameter[] parameters =
             {
                 new SqlParameter("@MaPhieuPhat", SqlDbType.VarChar, 20) { Value = maPhieuPhat },
+                new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = maSach },
                 new SqlParameter("@MaQD", SqlDbType.VarChar, 20) { Value = maQD },
-                new SqlParameter("@MaQDBoQua", SqlDbType.VarChar, 20) { Value = (object?)boQuaMaQD ?? DBNull.Value }
+                new SqlParameter("@MaCTPPBoQua", SqlDbType.Int) { Value = (object?)boQuaMaCTPP ?? DBNull.Value }
             };
             object? result = MyConnection.ExecuteScalar(query, parameters);
             return result != null && Convert.ToInt32(result) > 0;
@@ -140,7 +142,7 @@ namespace QLThuVien.DAO
             {
                 new SqlParameter("@MaPhieuPhat", SqlDbType.VarChar, 20) { Value = ct.MaPhieuPhat },
                 new SqlParameter("@MaQD", SqlDbType.VarChar, 20) { Value = ct.MaQD },
-                new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = ct.MaSach ?? (object)DBNull.Value },
+                new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = ct.MaSach },
                 new SqlParameter("@DonGia", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = ct.DonGia },
                 new SqlParameter("@SoNgayTre", SqlDbType.Int) { Value = (object?)ct.SoNgayTre ?? DBNull.Value },
                 new SqlParameter("@GhiChu", SqlDbType.NVarChar, 200) { Value = (object?)ct.GhiChu ?? DBNull.Value },
@@ -161,11 +163,12 @@ namespace QLThuVien.DAO
             return new ChiTietPhieuPhatDTO(
                 row["MaPhieuPhat"].ToString() ?? string.Empty,
                 row["MaQD"].ToString() ?? string.Empty,
-                row["MaSach"] == DBNull.Value ? null : row["MaSach"].ToString(),
+                row["MaSach"].ToString() ?? string.Empty,
                 row["DonGia"] == DBNull.Value ? 0 : Convert.ToDecimal(row["DonGia"]),
                 row["SoNgayTre"] == DBNull.Value ? null : Convert.ToInt32(row["SoNgayTre"]),
                 row["GhiChu"] == DBNull.Value ? null : row["GhiChu"].ToString(),
-                row["TienPhat"] == DBNull.Value ? 0 : Convert.ToDecimal(row["TienPhat"]));
+                row["TienPhat"] == DBNull.Value ? 0 : Convert.ToDecimal(row["TienPhat"]),
+                Convert.ToInt32(row["MaCTPP"]));
         }
     }
 }

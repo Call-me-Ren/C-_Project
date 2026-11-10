@@ -188,14 +188,16 @@ CREATE TABLE PhieuPhat (
 
 -- Bảng Chi Tiết Phiếu Phạt
 CREATE TABLE ChiTietPhieuPhat (
+    MaCTPP INT IDENTITY(1,1) NOT NULL,
     MaPhieuPhat VARCHAR(20) NOT NULL,
     MaQD VARCHAR(20) NOT NULL,
-    MaSach VARCHAR(20) NULL,
+    MaSach VARCHAR(20) NOT NULL,
     DonGia DECIMAL(18, 2) NOT NULL DEFAULT 0 CHECK (DonGia >= 0),
     SoNgayTre INT NULL CHECK (SoNgayTre >= 0),
     GhiChu NVARCHAR(200) NULL,
     TienPhat DECIMAL(18, 2) NOT NULL CHECK (TienPhat >= 0),
-    PRIMARY KEY (MaPhieuPhat, MaQD),
+    CONSTRAINT PK_ChiTietPhieuPhat PRIMARY KEY (MaCTPP),
+    CONSTRAINT UQ_ChiTietPhieuPhat_Phieu_Sach_QuyDinh UNIQUE (MaPhieuPhat, MaSach, MaQD),
     CONSTRAINT FK_CTPP_PhieuPhat FOREIGN KEY (MaPhieuPhat) REFERENCES PhieuPhat(MaPhieuPhat) ON DELETE CASCADE,
     CONSTRAINT FK_CTPP_QuyDinhPhat FOREIGN KEY (MaQD) REFERENCES QuyDinhPhat(MaQD),
     CONSTRAINT FK_CTPP_Sach FOREIGN KEY (MaSach) REFERENCES Sach(MaSach)

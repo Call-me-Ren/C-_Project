@@ -54,7 +54,7 @@ namespace QLThuVien.GUI
             catch (Exception ex)
             {
                 dangNapDuLieu = false;
-                MessageBox.Show(ex.Message, "Không thể tải dữ liệu phiếu phạt", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                HienThiLoi(ex);
             }
         }
 
@@ -117,7 +117,7 @@ namespace QLThuVien.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Không thể thêm phiếu phạt", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                HienThiLoi(ex);
             }
         }
 
@@ -126,7 +126,7 @@ namespace QLThuVien.GUI
             try
             {
                 if (string.IsNullOrWhiteSpace(maPhieuDangChon))
-                    throw new InvalidOperationException("Hãy chọn phiếu phạt cần sửa trong danh sách.");
+                    throw new BusinessRuleException("Hãy chọn phiếu phạt cần sửa.");
 
                 PhieuPhatDTO pp = TaoPhieuTuForm();
                 pp.MaPhieuPhat = maPhieuDangChon;
@@ -136,7 +136,7 @@ namespace QLThuVien.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Không thể sửa phiếu phạt", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                HienThiLoi(ex);
             }
         }
 
@@ -144,13 +144,13 @@ namespace QLThuVien.GUI
         {
             if (string.IsNullOrWhiteSpace(maPhieuDangChon))
             {
-                MessageBox.Show("Hãy chọn phiếu phạt cần xóa trong danh sách.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Hãy chọn phiếu phạt cần xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             DialogResult confirm = MessageBox.Show(
-                $"Xóa phiếu '{maPhieuDangChon}' và toàn bộ vi phạm của phiếu?",
-                "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                $"Xóa phiếu {maPhieuDangChon} và các vi phạm của phiếu?",
+                "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (confirm != DialogResult.Yes) return;
 
             try
@@ -160,7 +160,7 @@ namespace QLThuVien.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Không thể xóa phiếu phạt", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                HienThiLoi(ex);
             }
         }
 
@@ -264,6 +264,11 @@ namespace QLThuVien.GUI
         private static string? GiaTri(ComboBox combo)
         {
             return combo.SelectedValue?.ToString();
+        }
+
+        private static void HienThiLoi(Exception ex)
+        {
+            FormErrors.Show(ex);
         }
     }
 }

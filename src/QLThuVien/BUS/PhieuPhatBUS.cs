@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using Microsoft.Data.SqlClient;
 using QLThuVien.DAO;
 using QLThuVien.DTO;
 
@@ -116,68 +117,77 @@ namespace QLThuVien.BUS
             return true;
         }
 
-        public bool KiemTraChiTietDuyNhat(string maPhieuPhat, string maQD, string? boQuaMaQD = null)
+        public bool KiemTraChiTietDuyNhat(string maPhieuPhat, string maSach, string maQD, int? boQuaMaCTPP = null)
         {
             EnsureLoaded();
-            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maQD)) return false;
+            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maSach) || string.IsNullOrWhiteSpace(maQD)) return false;
 
             return !dsChiTiet_arr.Cast<object>().OfType<ChiTietPhieuPhatDTO>().Any(ct =>
                 Same(ct.MaPhieuPhat, maPhieuPhat) &&
+                Same(ct.MaSach, maSach) &&
                 Same(ct.MaQD, maQD) &&
-                !Same(ct.MaQD, boQuaMaQD));
+                (!boQuaMaCTPP.HasValue || ct.MaCTPP != boQuaMaCTPP.Value));
         }
 
         public void KiemTraHopLePhieuPhat(PhieuPhatDTO pp, bool isThemMoi)
         {
             if (pp == null) throw new ArgumentNullException(nameof(pp), "Dữ liệu phiếu phạt không được null.");
 
-            if (string.IsNullOrWhiteSpace(pp.MaPhieuPhat)) throw new ArgumentException("Mã phiếu phạt không được để trống.");
-            if (pp.MaPhieuPhat.Trim().Length > 20) throw new ArgumentException("Mã phiếu phạt không được vượt quá 20 ký tự.");
+            if (string.IsNullOrWhiteSpace(pp.MaPhieuPhat)) throw new BusinessRuleException("Mã phiếu phạt không được để trống.");
+            if (pp.MaPhieuPhat.Trim().Length > 20) throw new BusinessRuleException("Mã phiếu phạt không được vượt quá 20 ký tự.");
 
             if (isThemMoi)
             {
                 if (!KiemTraMaPhieuDuyNhat(pp.MaPhieuPhat))
                 {
-                    throw new InvalidOperationException($"Mã phiếu phạt '{pp.MaPhieuPhat.Trim()}' đã tồn tại.");
+                    throw new BusinessRuleException($"Mã phiếu phạt '{pp.MaPhieuPhat.Trim()}' đã tồn tại.");
                 }
                 if (daoPhieu.KiemTraTonTai(pp.MaPhieuPhat.Trim()))
                 {
-                    throw new InvalidOperationException($"Mã phiếu phạt '{pp.MaPhieuPhat.Trim()}' đã tồn tại trong cơ sở dữ liệu.");
+                    throw new BusinessRuleException($"Mã phiếu phạt '{pp.MaPhieuPhat.Trim()}' đã tồn tại.");
                 }
             }
 
-            if (string.IsNullOrWhiteSpace(pp.MaDocGia)) throw new ArgumentException("Mã độc giả không được để trống.");
-            if (pp.MaDocGia.Trim().Length > 20) throw new ArgumentException("Mã độc giả không được vượt quá 20 ký tự.");
+            if (string.IsNullOrWhiteSpace(pp.MaDocGia)) throw new BusinessRuleException("Mã độc giả không được để trống.");
+            if (pp.MaDocGia.Trim().Length > 20) throw new BusinessRuleException("Mã độc giả không được vượt quá 20 ký tự.");
             if (!daoPhieu.KiemTraDocGiaTonTai(pp.MaDocGia.Trim()))
             {
-                throw new InvalidOperationException($"Mã độc giả '{pp.MaDocGia.Trim()}' không tồn tại trong hệ thống.");
+                throw new BusinessRuleException($"Độc giả '{pp.MaDocGia.Trim()}' không tồn tại.");
             }
 
-            if (string.IsNullOrWhiteSpace(pp.MaNV)) throw new ArgumentException("Mã nhân viên lập phiếu không được để trống.");
-            if (pp.MaNV.Trim().Length > 20) throw new ArgumentException("Mã nhân viên không được vượt quá 20 ký tự.");
+            if (string.IsNullOrWhiteSpace(pp.MaNV)) throw new BusinessRuleException("Mã nhân viên lập phiếu không được để trống.");
+            if (pp.MaNV.Trim().Length > 20) throw new BusinessRuleException("Mã nhân viên không được vượt quá 20 ký tự.");
             if (!busNhanVien.LayDanhSach(reload: true).Any(nv => Same(nv.MaNV, pp.MaNV)))
             {
-                throw new InvalidOperationException($"Mã nhân viên '{pp.MaNV.Trim()}' không tồn tại trong hệ thống.");
+                throw new BusinessRuleException($"Nhân viên '{pp.MaNV.Trim()}' không tồn tại.");
             }
 
             if (string.IsNullOrWhiteSpace(pp.MaPhieuMuon))
             {
-                throw new ArgumentException("Mã phiếu mượn không được để trống.");
+                throw new BusinessRuleException("Mã phiếu mượn không được để trống.");
             }
-            if (pp.MaPhieuMuon.Trim().Length > 20) throw new ArgumentException("Mã phiếu mượn không được vượt quá 20 ký tự.");
+            if (pp.MaPhieuMuon.Trim().Length > 20) throw new BusinessRuleException("Mã phiếu mượn không được vượt quá 20 ký tự.");
             if (!daoPhieu.KiemTraPhieuMuonTonTai(pp.MaPhieuMuon.Trim()))
             {
-                throw new InvalidOperationException($"Mã phiếu mượn '{pp.MaPhieuMuon.Trim()}' không tồn tại trong hệ thống.");
+                throw new BusinessRuleException($"Phiếu mượn '{pp.MaPhieuMuon.Trim()}' không tồn tại.");
             }
             if (!daoPhieu.KiemTraPhieuMuonCuaDocGia(pp.MaPhieuMuon.Trim(), pp.MaDocGia.Trim()))
             {
-                throw new InvalidOperationException($"Phiếu mượn '{pp.MaPhieuMuon.Trim()}' không thuộc độc giả '{pp.MaDocGia.Trim()}'.");
+                throw new BusinessRuleException($"Phiếu mượn '{pp.MaPhieuMuon.Trim()}' không thuộc độc giả '{pp.MaDocGia.Trim()}'.");
             }
+
+            if (pp.NgayLap.Date > DateTime.Today)
+                throw new BusinessRuleException("Ngày lập không được ở tương lai.");
+            DateTime? ngayMuon = daoPhieu.LayNgayMuon(pp.MaPhieuMuon.Trim());
+            if (!ngayMuon.HasValue)
+                throw new BusinessRuleException($"Phiếu mượn '{pp.MaPhieuMuon.Trim()}' không tồn tại.");
+            if (pp.NgayLap.Date < ngayMuon.Value.Date)
+                throw new BusinessRuleException("Ngày lập không được trước ngày mượn.");
 
             string trangThai = string.IsNullOrWhiteSpace(pp.TrangThai) ? "Chưa thanh toán" : pp.TrangThai.Trim();
             if (!Same(trangThai, "Chưa thanh toán") && !Same(trangThai, "Đã thanh toán"))
             {
-                throw new ArgumentException("Trạng thái chỉ nhận 'Chưa thanh toán' hoặc 'Đã thanh toán'.");
+                throw new BusinessRuleException("Trạng thái chỉ nhận 'Chưa thanh toán' hoặc 'Đã thanh toán'.");
             }
         }
 
@@ -185,54 +195,51 @@ namespace QLThuVien.BUS
         {
             EnsureLoaded();
             if (ct == null) throw new ArgumentNullException(nameof(ct), "Dữ liệu chi tiết phiếu phạt không được null.");
-            if (string.IsNullOrWhiteSpace(ct.MaPhieuPhat)) throw new ArgumentException("Mã phiếu phạt không được để trống.");
-            if (ct.MaPhieuPhat.Trim().Length > 20) throw new ArgumentException("Mã phiếu phạt không được vượt quá 20 ký tự.");
-            if (string.IsNullOrWhiteSpace(ct.MaQD)) throw new ArgumentException("Mã quy định phạt không được để trống.");
-            if (ct.MaQD.Trim().Length > 20) throw new ArgumentException("Mã quy định phạt không được vượt quá 20 ký tự.");
-            if (string.IsNullOrWhiteSpace(ct.MaSach)) throw new ArgumentException("Mỗi vi phạm phải gắn với một cuốn sách.");
-            if (ct.MaSach.Trim().Length > 20) throw new ArgumentException("Mã sách không được vượt quá 20 ký tự.");
+            if (string.IsNullOrWhiteSpace(ct.MaPhieuPhat)) throw new BusinessRuleException("Mã phiếu phạt không được để trống.");
+            if (ct.MaPhieuPhat.Trim().Length > 20) throw new BusinessRuleException("Mã phiếu phạt không được vượt quá 20 ký tự.");
+            if (string.IsNullOrWhiteSpace(ct.MaQD)) throw new BusinessRuleException("Mã quy định phạt không được để trống.");
+            if (ct.MaQD.Trim().Length > 20) throw new BusinessRuleException("Mã quy định phạt không được vượt quá 20 ký tự.");
+            if (string.IsNullOrWhiteSpace(ct.MaSach)) throw new BusinessRuleException("Vi phạm phải có cuốn sách.");
+            if (ct.MaSach.Trim().Length > 20) throw new BusinessRuleException("Mã sách không được vượt quá 20 ký tự.");
             if (!string.IsNullOrWhiteSpace(ct.GhiChu) && ct.GhiChu.Trim().Length > 200)
             {
-                throw new ArgumentException("Ghi chú không được vượt quá 200 ký tự.");
+                throw new BusinessRuleException("Ghi chú không được vượt quá 200 ký tự.");
             }
-            if (ct.DonGia < 0) throw new ArgumentException("Đơn giá không được âm.");
-            if (ct.SoNgayTre.HasValue && ct.SoNgayTre.Value < 0) throw new ArgumentException("Số ngày trễ không được âm.");
-            if (ct.TienPhat < 0) throw new ArgumentException("Tiền phạt không được âm.");
+            if (ct.DonGia < 0) throw new BusinessRuleException("Đơn giá không được âm.");
+            if (ct.SoNgayTre.HasValue && ct.SoNgayTre.Value < 0) throw new BusinessRuleException("Số ngày trễ không được âm.");
+            if (ct.TienPhat < 0) throw new BusinessRuleException("Tiền phạt không được âm.");
 
             if (!daoPhieu.KiemTraTonTai(ct.MaPhieuPhat.Trim()))
             {
-                throw new InvalidOperationException($"Phiếu phạt '{ct.MaPhieuPhat.Trim()}' không tồn tại.");
+                throw new BusinessRuleException($"Phiếu phạt '{ct.MaPhieuPhat.Trim()}' không tồn tại.");
             }
             PhieuPhatDTO? phieu = dsPhieuPhat_arr.Cast<object>().OfType<PhieuPhatDTO>()
                 .FirstOrDefault(item => Same(item.MaPhieuPhat, ct.MaPhieuPhat));
             phieu ??= daoPhieu.LayTheoMa(ct.MaPhieuPhat.Trim());
-            if (phieu == null) throw new InvalidOperationException($"Phiếu phạt '{ct.MaPhieuPhat.Trim()}' không tồn tại.");
+            if (phieu == null) throw new BusinessRuleException($"Phiếu phạt '{ct.MaPhieuPhat.Trim()}' không tồn tại.");
             if (string.IsNullOrWhiteSpace(phieu.MaPhieuMuon))
-                throw new InvalidOperationException($"Phiếu phạt '{phieu.MaPhieuPhat}' chưa gắn phiếu mượn.");
+                throw new BusinessRuleException("Phiếu phạt chưa gắn phiếu mượn.");
             if (!daoPhieu.KiemTraPhieuMuonCuaDocGia(phieu.MaPhieuMuon, phieu.MaDocGia))
-                throw new InvalidOperationException($"Phiếu mượn '{phieu.MaPhieuMuon}' không thuộc độc giả '{phieu.MaDocGia}'.");
+                throw new BusinessRuleException($"Phiếu mượn '{phieu.MaPhieuMuon}' không thuộc độc giả '{phieu.MaDocGia}'.");
             if (TimQuyDinh(ct.MaQD.Trim()) == null)
             {
-                throw new InvalidOperationException($"Quy định phạt '{ct.MaQD.Trim()}' không tồn tại.");
+                throw new BusinessRuleException($"Quy định '{ct.MaQD.Trim()}' không tồn tại.");
             }
             if (!daoChiTiet.KiemTraSachTonTai(ct.MaSach.Trim()))
             {
-                throw new InvalidOperationException($"Cuốn sách có mã '{ct.MaSach.Trim()}' không tồn tại.");
+                throw new BusinessRuleException($"Cuốn '{ct.MaSach.Trim()}' không tồn tại.");
             }
             if (!daoChiTiet.LaySachTheoPhieuMuon(phieu.MaPhieuMuon).Any(s => Same(s.MaSach, ct.MaSach)))
             {
-                throw new InvalidOperationException($"Cuốn sách '{ct.MaSach.Trim()}' không thuộc phiếu mượn '{phieu.MaPhieuMuon}'.");
+                throw new BusinessRuleException($"Cuốn '{ct.MaSach.Trim()}' không thuộc phiếu mượn này.");
             }
 
             if (isThemMoi)
             {
-                if (!KiemTraChiTietDuyNhat(ct.MaPhieuPhat, ct.MaQD))
+                if (!KiemTraChiTietDuyNhat(ct.MaPhieuPhat, ct.MaSach, ct.MaQD) ||
+                    daoChiTiet.KiemTraTrung(ct.MaPhieuPhat.Trim(), ct.MaSach.Trim(), ct.MaQD.Trim()))
                 {
-                    throw new InvalidOperationException($"Quy định '{ct.MaQD}' đã có trên phiếu '{ct.MaPhieuPhat}'. Theo khóa của QLThuVien_2, mỗi quy định chỉ được ghi một lần trên một phiếu phạt.");
-                }
-                if (daoChiTiet.KiemTraTrung(ct.MaPhieuPhat.Trim(), ct.MaQD.Trim()))
-                {
-                    throw new InvalidOperationException($"Quy định '{ct.MaQD}' đã có trên phiếu '{ct.MaPhieuPhat}'. Theo khóa của QLThuVien_2, mỗi quy định chỉ được ghi một lần trên một phiếu phạt.");
+                    throw new BusinessRuleException(ThongBaoViPhamTrung(ct));
                 }
             }
         }
@@ -245,9 +252,9 @@ namespace QLThuVien.BUS
         public static decimal TinhTienPhat(QuyDinhPhatDTO quyDinh, int soNgayTre, decimal donGiaSach)
         {
             if (quyDinh == null) throw new ArgumentNullException(nameof(quyDinh));
-            if (quyDinh.MucPhat < 0) throw new ArgumentException("Mức phạt không được âm.", nameof(quyDinh));
-            if (soNgayTre < 0) throw new ArgumentException("Số ngày trễ không được âm.", nameof(soNgayTre));
-            if (donGiaSach < 0) throw new ArgumentException("Đơn giá sách không được âm.", nameof(donGiaSach));
+            if (quyDinh.MucPhat < 0) throw new BusinessRuleException("Mức phạt phải từ 0 trở lên.");
+            if (soNgayTre < 0) throw new BusinessRuleException("Số ngày trễ không được âm.");
+            if (donGiaSach < 0) throw new BusinessRuleException("Đơn giá sách không được âm.");
 
             decimal tienPhat = LoaiQuyDinh(quyDinh) switch
             {
@@ -259,40 +266,36 @@ namespace QLThuVien.BUS
             return decimal.Round(tienPhat, 2, MidpointRounding.AwayFromZero);
         }
 
-        public decimal TinhTienPhat(string maQD, int soNgayTre, decimal donGiaSach)
-        {
-            if (string.IsNullOrWhiteSpace(maQD)) return 0;
-            QuyDinhPhatDTO? qd = TimQuyDinh(maQD.Trim());
-            return qd == null ? 0 : TinhTienPhat(qd, soNgayTre, donGiaSach);
-        }
-
         public ChiTietPhieuPhatDTO TinhChiTietPhat(string maPhieuPhat, string maQD, string? maSach, string? ghiChu = null)
         {
-            if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new ArgumentException("Vui lòng chọn phiếu phạt.");
+            if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new BusinessRuleException("Vui lòng chọn phiếu phạt.");
             EnsureLoaded();
             PhieuPhatDTO? pp = dsPhieuPhat_arr.Cast<object>().OfType<PhieuPhatDTO>()
                 .FirstOrDefault(item => Same(item.MaPhieuPhat, maPhieuPhat));
-            if (pp == null) throw new KeyNotFoundException($"Không tìm thấy phiếu phạt '{maPhieuPhat.Trim()}'.");
+            if (pp == null) throw new BusinessRuleException($"Không tìm thấy phiếu phạt '{maPhieuPhat.Trim()}'.");
 
-            if (string.IsNullOrWhiteSpace(maQD)) throw new ArgumentException("Vui lòng chọn quy định phạt.");
+            return TinhChiTietPhat(pp, maQD, maSach, ghiChu);
+        }
+
+        private ChiTietPhieuPhatDTO TinhChiTietPhat(PhieuPhatDTO pp, string maQD, string? maSach, string? ghiChu = null)
+        {
+            if (string.IsNullOrWhiteSpace(maQD)) throw new BusinessRuleException("Vui lòng chọn quy định phạt.");
             QuyDinhPhatDTO? qd = TimQuyDinh(maQD.Trim());
-            if (qd == null) throw new InvalidOperationException($"Quy định phạt '{maQD.Trim()}' không tồn tại.");
+            if (qd == null) throw new BusinessRuleException($"Quy định '{maQD.Trim()}' không tồn tại.");
 
-            if (string.IsNullOrWhiteSpace(maSach)) throw new ArgumentException("Vui lòng nhập mã cuốn sách vi phạm.");
+            if (string.IsNullOrWhiteSpace(maSach)) throw new BusinessRuleException("Vui lòng chọn cuốn sách vi phạm.");
             string sachTrim = maSach.Trim();
-            if (!daoChiTiet.KiemTraSachTonTai(sachTrim)) throw new InvalidOperationException($"Cuốn sách '{sachTrim}' không tồn tại.");
+            if (!daoChiTiet.KiemTraSachTonTai(sachTrim)) throw new BusinessRuleException($"Cuốn '{sachTrim}' không tồn tại.");
 
             if (string.IsNullOrWhiteSpace(pp.MaPhieuMuon))
-                throw new InvalidOperationException($"Phiếu phạt '{pp.MaPhieuPhat}' chưa gắn phiếu mượn.");
+                throw new BusinessRuleException("Phiếu phạt chưa gắn phiếu mượn.");
             string maPhieuMuon = pp.MaPhieuMuon.Trim();
             if (!daoPhieu.KiemTraPhieuMuonCuaDocGia(maPhieuMuon, pp.MaDocGia))
-                throw new InvalidOperationException($"Phiếu mượn '{maPhieuMuon}' không thuộc độc giả '{pp.MaDocGia}'.");
-            if (!daoChiTiet.KiemTraSachTonTai(sachTrim))
-                throw new InvalidOperationException($"Cuốn sách '{sachTrim}' không tồn tại trong hệ thống.");
+                throw new BusinessRuleException($"Phiếu mượn '{maPhieuMuon}' không thuộc độc giả '{pp.MaDocGia}'.");
             SachMuonDTO? sachMuon = daoChiTiet.LaySachTheoPhieuMuon(maPhieuMuon)
                 .FirstOrDefault(item => Same(item.MaSach, sachTrim));
             if (sachMuon == null)
-                throw new InvalidOperationException($"Cuốn sách '{sachTrim}' không thuộc phiếu mượn '{maPhieuMuon}'.");
+                throw new BusinessRuleException($"Cuốn '{sachTrim}' không thuộc phiếu mượn này.");
 
             LoaiPhat loaiPhat = LoaiQuyDinh(qd);
             decimal giaSach = daoChiTiet.LayDonGiaSach(sachTrim);
@@ -301,7 +304,11 @@ namespace QLThuVien.BUS
 
             if (loaiPhat == LoaiPhat.TreHan)
             {
-                DateTime ngayTinhPhat = sachMuon.NgayThucTra?.Date ?? DateTime.Today;
+                if (pp.NgayLap.Date <= sachMuon.HanTra.Date)
+                    throw new BusinessRuleException("Ngày lập phải sau hạn trả để ghi vi phạm trễ hạn.");
+                if (sachMuon.NgayThucTra.HasValue && pp.NgayLap.Date < sachMuon.NgayThucTra.Value.Date)
+                    throw new BusinessRuleException("Ngày lập không được trước ngày thực trả.");
+                DateTime ngayTinhPhat = sachMuon.NgayThucTra?.Date ?? pp.NgayLap.Date;
                 soNgayTre = TinhSoNgayTre(sachMuon.HanTra, ngayTinhPhat);
                 donGia = qd.MucPhat;
             }
@@ -327,20 +334,6 @@ namespace QLThuVien.BUS
                 string.IsNullOrWhiteSpace(ghiChu) ? ghiChuMacDinh : ghiChu.Trim(),
                 tienPhat
             );
-        }
-
-        public decimal LayDonGiaSach(string? maSach)
-        {
-            if (string.IsNullOrWhiteSpace(maSach)) return 0;
-            return daoChiTiet.LayDonGiaSach(maSach.Trim());
-        }
-
-        public (DateTime? HanTra, DateTime? NgayThucTra) LayThongTinMuonTra(string? maPhieuMuon, string? maSach)
-        {
-            if (string.IsNullOrWhiteSpace(maPhieuMuon) || string.IsNullOrWhiteSpace(maSach)) return (null, null);
-            SachMuonDTO? sach = daoChiTiet.LaySachTheoPhieuMuon(maPhieuMuon.Trim())
-                .FirstOrDefault(item => Same(item.MaSach, maSach));
-            return sach == null ? (null, null) : (sach.HanTra, sach.NgayThucTra);
         }
 
         public bool ThemPhieu(PhieuPhatDTO pp)
@@ -371,7 +364,7 @@ namespace QLThuVien.BUS
             KiemTraHopLePhieuPhat(pp, isThemMoi: false);
 
             string maTrim = pp.MaPhieuPhat.Trim();
-            if (!daoPhieu.KiemTraTonTai(maTrim)) throw new KeyNotFoundException($"Không tìm thấy phiếu phạt '{maTrim}' để cập nhật.");
+            if (!daoPhieu.KiemTraTonTai(maTrim)) throw new BusinessRuleException($"Không tìm thấy phiếu phạt '{maTrim}'.");
 
             PhieuPhatDTO normalized = new PhieuPhatDTO(
                 maTrim,
@@ -390,7 +383,7 @@ namespace QLThuVien.BUS
             if (phieuHienTai != null && chiTiet.Count > 0 &&
                 (!Same(phieuHienTai.MaDocGia, normalized.MaDocGia) || !Same(phieuHienTai.MaPhieuMuon, normalized.MaPhieuMuon)))
             {
-                throw new InvalidOperationException("Hãy xóa các vi phạm trước khi đổi độc giả hoặc phiếu mượn của phiếu phạt.");
+                throw new BusinessRuleException("Xóa các vi phạm trước khi đổi độc giả hoặc phiếu mượn.");
             }
             KiemTraLienKetChiTiet(normalized, chiTiet);
             normalized.TongTienPhat = TongTien(chiTiet);
@@ -413,10 +406,10 @@ namespace QLThuVien.BUS
         public bool XoaPhieu(string maPhieuPhat)
         {
             EnsureLoaded();
-            if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new ArgumentException("Mã phiếu phạt cần xóa không được để trống.");
+            if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new BusinessRuleException("Mã phiếu phạt cần xóa không được để trống.");
 
             string maTrim = maPhieuPhat.Trim();
-            if (!daoPhieu.KiemTraTonTai(maTrim)) throw new KeyNotFoundException($"Không tìm thấy phiếu phạt '{maTrim}' để xóa.");
+            if (!daoPhieu.KiemTraTonTai(maTrim)) throw new BusinessRuleException($"Không tìm thấy phiếu phạt '{maTrim}'.");
 
             bool success = daoPhieu.Xoa(maTrim);
             if (success)
@@ -430,32 +423,34 @@ namespace QLThuVien.BUS
         public bool ThemChiTiet(ChiTietPhieuPhatDTO ct)
         {
             EnsureLoaded();
-            KiemTraHopLeChiTiet(ct, isThemMoi: true);
-
+            if (ct == null) throw new ArgumentNullException(nameof(ct));
             ChiTietPhieuPhatDTO normalized = TinhChiTietPhat(ct.MaPhieuPhat.Trim(), ct.MaQD.Trim(), ct.MaSach, ct.GhiChu);
             KiemTraHopLeChiTiet(normalized, isThemMoi: true);
 
-            bool success = daoChiTiet.Them(normalized);
-            if (success)
+            try
             {
+                int maCTPP = daoChiTiet.Them(normalized);
+                if (maCTPP <= 0) return false;
+                normalized.MaCTPP = maCTPP;
                 dsChiTiet_arr.Add(normalized);
                 CapNhatTongTienPhieu(normalized.MaPhieuPhat);
+                return true;
             }
-            return success;
+            catch (SqlException ex) when (ex.Number is 2601 or 2627)
+            {
+                throw new BusinessRuleException(ThongBaoViPhamTrung(normalized), ex);
+            }
         }
 
-        public bool SuaChiTiet(string maPhieuPhat, string maQDTruoc, ChiTietPhieuPhatDTO ct)
+        public bool SuaChiTiet(int maCTPP, ChiTietPhieuPhatDTO ct)
         {
             EnsureLoaded();
             if (ct == null) throw new ArgumentNullException(nameof(ct), "Dữ liệu chi tiết phiếu phạt không được null.");
-            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maQDTruoc))
-                throw new ArgumentException("Vui lòng chọn vi phạm cần sửa.");
+            if (maCTPP <= 0)
+                throw new BusinessRuleException("Vui lòng chọn vi phạm cần sửa.");
 
-            string maPhieuTrim = maPhieuPhat.Trim();
-            string maQDTruocTrim = maQDTruoc.Trim();
-            ChiTietPhieuPhatDTO? existing = TimChiTietTheoKhoa(maPhieuTrim, maQDTruocTrim) ??
-                daoChiTiet.LayTheoKhoa(maPhieuTrim, maQDTruocTrim);
-            if (existing == null) throw new KeyNotFoundException("Không tìm thấy vi phạm cần sửa.");
+            ChiTietPhieuPhatDTO? existing = TimChiTietTheoMaCTPP(maCTPP) ?? daoChiTiet.LayTheoMaCTPP(maCTPP);
+            if (existing == null) throw new BusinessRuleException("Không tìm thấy vi phạm cần sửa.");
 
             ChiTietPhieuPhatDTO input = new ChiTietPhieuPhatDTO(
                 existing.MaPhieuPhat,
@@ -469,45 +464,46 @@ namespace QLThuVien.BUS
             KiemTraHopLeChiTiet(input, isThemMoi: false);
 
             ChiTietPhieuPhatDTO normalized = TinhChiTietPhat(existing.MaPhieuPhat, input.MaQD.Trim(), input.MaSach, input.GhiChu);
-            if (!KiemTraChiTietDuyNhat(normalized.MaPhieuPhat, normalized.MaQD, existing.MaQD) ||
-                daoChiTiet.KiemTraTrung(normalized.MaPhieuPhat, normalized.MaQD, existing.MaQD))
+            normalized.MaCTPP = existing.MaCTPP;
+            if (!KiemTraChiTietDuyNhat(normalized.MaPhieuPhat, normalized.MaSach, normalized.MaQD, maCTPP) ||
+                daoChiTiet.KiemTraTrung(normalized.MaPhieuPhat, normalized.MaSach, normalized.MaQD, maCTPP))
             {
-                throw new InvalidOperationException($"Quy định '{normalized.MaQD}' đã có trên phiếu '{normalized.MaPhieuPhat}'. Theo khóa của QLThuVien_2, mỗi quy định chỉ được ghi một lần trên một phiếu phạt.");
+                throw new BusinessRuleException(ThongBaoViPhamTrung(normalized));
             }
 
-            bool success = daoChiTiet.Sua(existing.MaQD, normalized);
-            if (success)
+            try
             {
+                bool success = daoChiTiet.Sua(normalized);
+                if (!success) return false;
                 for (int i = 0; i < dsChiTiet_arr.Count; i++)
                 {
-                    if (dsChiTiet_arr[i] is ChiTietPhieuPhatDTO current &&
-                        Same(current.MaPhieuPhat, existing.MaPhieuPhat) && Same(current.MaQD, existing.MaQD))
+                    if (dsChiTiet_arr[i] is ChiTietPhieuPhatDTO current && current.MaCTPP == maCTPP)
                     {
                         dsChiTiet_arr[i] = normalized;
                         break;
                     }
                 }
                 CapNhatTongTienPhieu(normalized.MaPhieuPhat);
+                return true;
             }
-            return success;
+            catch (SqlException ex) when (ex.Number is 2601 or 2627)
+            {
+                throw new BusinessRuleException(ThongBaoViPhamTrung(normalized), ex);
+            }
         }
 
-        public bool XoaChiTiet(string maPhieuPhat, string maQD)
+        public bool XoaChiTiet(int maCTPP)
         {
             EnsureLoaded();
-            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maQD))
-                throw new ArgumentException("Vui lòng chọn vi phạm cần xóa.");
-            string maPhieuTrim = maPhieuPhat.Trim();
-            string maQDTrim = maQD.Trim();
-            ChiTietPhieuPhatDTO? existing = TimChiTietTheoKhoa(maPhieuTrim, maQDTrim) ??
-                daoChiTiet.LayTheoKhoa(maPhieuTrim, maQDTrim);
-            if (existing == null) throw new KeyNotFoundException("Không tìm thấy vi phạm cần xóa.");
+            if (maCTPP <= 0)
+                throw new BusinessRuleException("Vui lòng chọn vi phạm cần xóa.");
+            ChiTietPhieuPhatDTO? existing = TimChiTietTheoMaCTPP(maCTPP) ?? daoChiTiet.LayTheoMaCTPP(maCTPP);
+            if (existing == null) throw new BusinessRuleException("Không tìm thấy vi phạm cần xóa.");
 
-            bool success = daoChiTiet.Xoa(maPhieuTrim, maQDTrim);
+            bool success = daoChiTiet.Xoa(maCTPP);
             if (success)
             {
-                RemoveWhere(dsChiTiet_arr, item => item is ChiTietPhieuPhatDTO current &&
-                    Same(current.MaPhieuPhat, maPhieuTrim) && Same(current.MaQD, maQDTrim));
+                RemoveWhere(dsChiTiet_arr, item => item is ChiTietPhieuPhatDTO current && current.MaCTPP == maCTPP);
                 CapNhatTongTienPhieu(existing.MaPhieuPhat);
             }
             return success;
@@ -516,7 +512,7 @@ namespace QLThuVien.BUS
         public decimal CapNhatTongTienPhieu(string maPhieuPhat)
         {
             EnsureLoaded();
-            if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new ArgumentException("Mã phiếu phạt không được để trống.");
+            if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new BusinessRuleException("Mã phiếu phạt không được để trống.");
 
             string phieuTrim = maPhieuPhat.Trim();
             List<ChiTietPhieuPhatDTO> chiTiet = daoChiTiet.LayDanhSachTheoPhieu(phieuTrim);
@@ -524,7 +520,7 @@ namespace QLThuVien.BUS
             decimal tongTien = TongTien(chiTiet);
             if (!daoPhieu.CapNhatTongTien(phieuTrim, tongTien))
             {
-                throw new KeyNotFoundException($"Không tìm thấy phiếu phạt '{phieuTrim}' để cập nhật tổng tiền.");
+                throw new BusinessRuleException($"Không tìm thấy phiếu phạt '{phieuTrim}'.");
             }
 
             foreach (object item in dsPhieuPhat_arr)
@@ -563,14 +559,15 @@ namespace QLThuVien.BUS
         {
             foreach (ChiTietPhieuPhatDTO ct in chiTiet)
             {
-                QuyDinhPhatDTO? qd = TimQuyDinh(ct.MaQD);
-                if (qd == null) throw new InvalidOperationException($"Quy định phạt '{ct.MaQD}' không còn tồn tại.");
-
                 if (string.IsNullOrWhiteSpace(pp.MaPhieuMuon) || string.IsNullOrWhiteSpace(ct.MaSach) ||
                     !daoChiTiet.LaySachTheoPhieuMuon(pp.MaPhieuMuon).Any(s => Same(s.MaSach, ct.MaSach)))
                 {
-                    throw new InvalidOperationException($"Không thể lưu vì sách '{ct.MaSach}' trong chi tiết không thuộc phiếu mượn '{pp.MaPhieuMuon}'.");
+                    throw new BusinessRuleException($"Cuốn '{ct.MaSach}' không thuộc phiếu mượn này.");
                 }
+
+                ChiTietPhieuPhatDTO tinhLai = TinhChiTietPhat(pp, ct.MaQD, ct.MaSach, ct.GhiChu);
+                if (tinhLai.SoNgayTre != ct.SoNgayTre || tinhLai.DonGia != ct.DonGia || tinhLai.TienPhat != ct.TienPhat)
+                    throw new BusinessRuleException("Ngày lập làm thay đổi tiền phạt, hãy sửa vi phạm trước.");
             }
         }
 
@@ -608,14 +605,16 @@ namespace QLThuVien.BUS
             return decimal.Round(chiTiet.Sum(ct => ct.TienPhat), 2, MidpointRounding.AwayFromZero);
         }
 
-        private ChiTietPhieuPhatDTO? TimChiTietTheoKhoa(string maPhieuPhat, string maQD)
+        private ChiTietPhieuPhatDTO? TimChiTietTheoMaCTPP(int maCTPP)
         {
-            foreach (object item in dsChiTiet_arr)
-            {
-                if (item is ChiTietPhieuPhatDTO ct &&
-                    Same(ct.MaPhieuPhat, maPhieuPhat) && Same(ct.MaQD, maQD)) return ct;
-            }
-            return null;
+            return dsChiTiet_arr.Cast<object>().OfType<ChiTietPhieuPhatDTO>()
+                .FirstOrDefault(ct => ct.MaCTPP == maCTPP);
+        }
+
+        private string ThongBaoViPhamTrung(ChiTietPhieuPhatDTO ct)
+        {
+            string tenQuyDinh = TimQuyDinh(ct.MaQD)?.TenQD ?? ct.MaQD;
+            return $"Cuốn '{ct.MaSach}' đã bị ghi vi phạm '{tenQuyDinh}' trong phiếu này.";
         }
 
         private void ThayChiTietTrongCache(string maPhieuPhat, List<ChiTietPhieuPhatDTO> chiTiet)

@@ -20,7 +20,7 @@ namespace QLThuVien.GUI
             pnlHeader = new Panel();
             lblTitle = new Label();
             grpThongTin = new GroupBox();
-            txtChucVu = new TextBox();
+            cboChucVu = new ComboBox();
             lblChucVu = new Label();
             txtTenNV = new TextBox();
             lblTenNV = new Label();
@@ -69,12 +69,12 @@ namespace QLThuVien.GUI
             lblTitle.Name = "lblTitle";
             lblTitle.Size = new Size(884, 50);
             lblTitle.TabIndex = 0;
-            lblTitle.Text = "QUẢN LÝ DANH MỤC NHÂN VIÊN";
+            lblTitle.Text = "QUẢN LÝ NHÂN VIÊN";
             lblTitle.TextAlign = ContentAlignment.MiddleCenter;
             //
             // grpThongTin
             //
-            grpThongTin.Controls.Add(txtChucVu);
+            grpThongTin.Controls.Add(cboChucVu);
             grpThongTin.Controls.Add(lblChucVu);
             grpThongTin.Controls.Add(txtTenNV);
             grpThongTin.Controls.Add(lblTenNV);
@@ -90,14 +90,14 @@ namespace QLThuVien.GUI
             grpThongTin.TabStop = false;
             grpThongTin.Text = "Thông tin nhân viên";
             //
-            // txtChucVu
+            // cboChucVu
             //
-            txtChucVu.Font = new Font("Segoe UI", 9.5F);
-            txtChucVu.Location = new Point(356, 78);
-            txtChucVu.MaxLength = 50;
-            txtChucVu.Name = "txtChucVu";
-            txtChucVu.Size = new Size(165, 24);
-            txtChucVu.TabIndex = 7;
+            cboChucVu.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboChucVu.Font = new Font("Segoe UI", 9.5F);
+            cboChucVu.Location = new Point(356, 78);
+            cboChucVu.Name = "cboChucVu";
+            cboChucVu.Size = new Size(165, 25);
+            cboChucVu.TabIndex = 7;
             //
             // lblChucVu
             //
@@ -112,10 +112,10 @@ namespace QLThuVien.GUI
             // txtTenNV
             //
             txtTenNV.Font = new Font("Segoe UI", 9.5F);
-            txtTenNV.Location = new Point(356, 35);
+            txtTenNV.Location = new Point(365, 35);
             txtTenNV.MaxLength = 50;
             txtTenNV.Name = "txtTenNV";
-            txtTenNV.Size = new Size(165, 24);
+            txtTenNV.Size = new Size(156, 24);
             txtTenNV.TabIndex = 5;
             //
             // lblTenNV
@@ -126,7 +126,7 @@ namespace QLThuVien.GUI
             lblTenNV.Name = "lblTenNV";
             lblTenNV.Size = new Size(52, 17);
             lblTenNV.TabIndex = 4;
-            lblTenNV.Text = "Tên NV:";
+            lblTenNV.Text = "Tên nhân viên:";
             //
             // txtHoLot
             //
@@ -150,10 +150,11 @@ namespace QLThuVien.GUI
             // txtMaNV
             //
             txtMaNV.Font = new Font("Segoe UI", 9.5F);
-            txtMaNV.Location = new Point(94, 35);
+            txtMaNV.Location = new Point(104, 35);
             txtMaNV.MaxLength = 20;
             txtMaNV.Name = "txtMaNV";
-            txtMaNV.Size = new Size(165, 24);
+            txtMaNV.ReadOnly = true;
+            txtMaNV.Size = new Size(155, 24);
             txtMaNV.TabIndex = 1;
             //
             // lblMaNV
@@ -164,7 +165,7 @@ namespace QLThuVien.GUI
             lblMaNV.Name = "lblMaNV";
             lblMaNV.Size = new Size(51, 17);
             lblMaNV.TabIndex = 0;
-            lblMaNV.Text = "Mã NV:";
+            lblMaNV.Text = "Mã nhân viên:";
             //
             // grpChucNang
             //
@@ -178,7 +179,7 @@ namespace QLThuVien.GUI
             grpChucNang.Size = new Size(310, 130);
             grpChucNang.TabIndex = 2;
             grpChucNang.TabStop = false;
-            grpChucNang.Text = "Thao tác";
+            grpChucNang.Text = string.Empty;
             //
             // btnLamMoi
             //
@@ -242,7 +243,7 @@ namespace QLThuVien.GUI
             grpTimKiem.Size = new Size(860, 60);
             grpTimKiem.TabIndex = 3;
             grpTimKiem.TabStop = false;
-            grpTimKiem.Text = "Tìm kiếm";
+            grpTimKiem.Text = string.Empty;
             //
             // btnTatCa
             //
@@ -265,7 +266,7 @@ namespace QLThuVien.GUI
             btnTimKiem.Name = "btnTimKiem";
             btnTimKiem.Size = new Size(105, 28);
             btnTimKiem.TabIndex = 1;
-            btnTimKiem.Text = "Tìm kiếm";
+            btnTimKiem.Text = "Tìm";
             btnTimKiem.UseVisualStyleBackColor = false;
             btnTimKiem.Click += btnTimKiem_Click;
             //
@@ -274,7 +275,7 @@ namespace QLThuVien.GUI
             txtTimKiem.Font = new Font("Segoe UI", 9.5F);
             txtTimKiem.Location = new Point(15, 22);
             txtTimKiem.Name = "txtTimKiem";
-            txtTimKiem.PlaceholderText = "Nhập mã, tên hoặc chức vụ để tìm...";
+            txtTimKiem.PlaceholderText = "Tìm theo mã, tên hoặc chức vụ";
             txtTimKiem.Size = new Size(595, 24);
             txtTimKiem.TabIndex = 0;
             txtTimKiem.KeyDown += txtTimKiem_KeyDown;
@@ -300,8 +301,8 @@ namespace QLThuVien.GUI
             // colMaNV
             //
             colMaNV.DataPropertyName = "MaNV";
-            colMaNV.FillWeight = 80F;
-            colMaNV.HeaderText = "Mã NV";
+            colMaNV.FillWeight = 95F;
+            colMaNV.HeaderText = "Mã nhân viên";
             colMaNV.Name = "colMaNV";
             colMaNV.ReadOnly = true;
             //
@@ -316,8 +317,8 @@ namespace QLThuVien.GUI
             // colTenNV
             //
             colTenNV.DataPropertyName = "TenNV";
-            colTenNV.FillWeight = 90F;
-            colTenNV.HeaderText = "Tên NV";
+            colTenNV.FillWeight = 105F;
+            colTenNV.HeaderText = "Tên nhân viên";
             colTenNV.Name = "colTenNV";
             colTenNV.ReadOnly = true;
             //
@@ -353,7 +354,7 @@ namespace QLThuVien.GUI
             MaximizeBox = false;
             Name = "frmNhanVien";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Quản lý Danh mục Nhân viên";
+            Text = "Quản lý nhân viên";
             Load += frmNhanVien_Load;
             pnlHeader.ResumeLayout(false);
             grpThongTin.ResumeLayout(false);
@@ -370,7 +371,7 @@ namespace QLThuVien.GUI
         private Panel pnlHeader;
         private Label lblTitle;
         private GroupBox grpThongTin;
-        private TextBox txtChucVu;
+        private ComboBox cboChucVu;
         private Label lblChucVu;
         private TextBox txtTenNV;
         private Label lblTenNV;
