@@ -2,7 +2,6 @@ namespace QLThuVien.DTO
 {
     public class ChiTietPhieuPhatDTO
     {
-        public int MaCTPP { get; set; }
         public string MaPhieuPhat { get; set; } = string.Empty;
         public string MaQD { get; set; } = string.Empty;
         public string? MaSach { get; set; }
@@ -15,9 +14,8 @@ namespace QLThuVien.DTO
         {
         }
 
-        public ChiTietPhieuPhatDTO(string maPhieuPhat, string maQD, string? maSach, decimal donGia, int? soNgayTre, string? ghiChu, decimal tienPhat, int maCTPP = 0)
+        public ChiTietPhieuPhatDTO(string maPhieuPhat, string maQD, string? maSach, decimal donGia, int? soNgayTre, string? ghiChu, decimal tienPhat)
         {
-            MaCTPP = maCTPP;
             MaPhieuPhat = maPhieuPhat;
             MaQD = maQD;
             MaSach = maSach;

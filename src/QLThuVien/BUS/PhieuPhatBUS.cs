@@ -116,23 +116,15 @@ namespace QLThuVien.BUS
             return true;
         }
 
-        public bool KiemTraChiTietDuyNhat(string maPhieuPhat, string maSach, string maQD, int? boQuaMaCTPP = null)
+        public bool KiemTraChiTietDuyNhat(string maPhieuPhat, string maQD, string? boQuaMaQD = null)
         {
             EnsureLoaded();
-            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maSach) || string.IsNullOrWhiteSpace(maQD)) return false;
+            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maQD)) return false;
 
-            foreach (object item in dsChiTiet_arr)
-            {
-                if (item is ChiTietPhieuPhatDTO ct &&
-                    ct.MaCTPP != boQuaMaCTPP &&
-                    Same(ct.MaPhieuPhat, maPhieuPhat) &&
-                    Same(ct.MaSach, maSach) &&
-                    Same(ct.MaQD, maQD))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return !dsChiTiet_arr.Cast<object>().OfType<ChiTietPhieuPhatDTO>().Any(ct =>
+                Same(ct.MaPhieuPhat, maPhieuPhat) &&
+                Same(ct.MaQD, maQD) &&
+                !Same(ct.MaQD, boQuaMaQD));
         }
 
         public void KiemTraHopLePhieuPhat(PhieuPhatDTO pp, bool isThemMoi)
@@ -234,13 +226,13 @@ namespace QLThuVien.BUS
 
             if (isThemMoi)
             {
-                if (!KiemTraChiTietDuyNhat(ct.MaPhieuPhat, ct.MaSach, ct.MaQD))
+                if (!KiemTraChiTietDuyNhat(ct.MaPhieuPhat, ct.MaQD))
                 {
-                    throw new InvalidOperationException($"Quy định '{ct.MaQD}' đã được áp dụng cho sách '{ct.MaSach}' trên phiếu '{ct.MaPhieuPhat}'.");
+                    throw new InvalidOperationException($"Quy định '{ct.MaQD}' đã có trên phiếu '{ct.MaPhieuPhat}'. Theo khóa của QLThuVien_2, mỗi quy định chỉ được ghi một lần trên một phiếu phạt.");
                 }
-                if (daoChiTiet.KiemTraTrung(ct.MaPhieuPhat.Trim(), ct.MaSach.Trim(), ct.MaQD.Trim()))
+                if (daoChiTiet.KiemTraTrung(ct.MaPhieuPhat.Trim(), ct.MaQD.Trim()))
                 {
-                    throw new InvalidOperationException($"Quy định '{ct.MaQD}' đã được áp dụng cho sách '{ct.MaSach}' trên phiếu '{ct.MaPhieuPhat}'.");
+                    throw new InvalidOperationException($"Quy định '{ct.MaQD}' đã có trên phiếu '{ct.MaPhieuPhat}'. Theo khóa của QLThuVien_2, mỗi quy định chỉ được ghi một lần trên một phiếu phạt.");
                 }
             }
         }
@@ -452,13 +444,17 @@ namespace QLThuVien.BUS
             return success;
         }
 
-        public bool SuaChiTiet(int maCTPP, ChiTietPhieuPhatDTO ct)
+        public bool SuaChiTiet(string maPhieuPhat, string maQDTruoc, ChiTietPhieuPhatDTO ct)
         {
             EnsureLoaded();
             if (ct == null) throw new ArgumentNullException(nameof(ct), "Dữ liệu chi tiết phiếu phạt không được null.");
-            if (maCTPP <= 0) throw new ArgumentException("Vui lòng chọn vi phạm cần sửa.");
+            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maQDTruoc))
+                throw new ArgumentException("Vui lòng chọn vi phạm cần sửa.");
 
-            ChiTietPhieuPhatDTO? existing = TimChiTietTheoId(maCTPP) ?? daoChiTiet.LayTheoId(maCTPP);
+            string maPhieuTrim = maPhieuPhat.Trim();
+            string maQDTruocTrim = maQDTruoc.Trim();
+            ChiTietPhieuPhatDTO? existing = TimChiTietTheoKhoa(maPhieuTrim, maQDTruocTrim) ??
+                daoChiTiet.LayTheoKhoa(maPhieuTrim, maQDTruocTrim);
             if (existing == null) throw new KeyNotFoundException("Không tìm thấy vi phạm cần sửa.");
 
             ChiTietPhieuPhatDTO input = new ChiTietPhieuPhatDTO(
@@ -468,25 +464,24 @@ namespace QLThuVien.BUS
                 ct.DonGia,
                 ct.SoNgayTre,
                 ct.GhiChu,
-                ct.TienPhat,
-                maCTPP
+                ct.TienPhat
             );
             KiemTraHopLeChiTiet(input, isThemMoi: false);
 
             ChiTietPhieuPhatDTO normalized = TinhChiTietPhat(existing.MaPhieuPhat, input.MaQD.Trim(), input.MaSach, input.GhiChu);
-            normalized.MaCTPP = maCTPP;
-            if (!KiemTraChiTietDuyNhat(normalized.MaPhieuPhat, normalized.MaSach!, normalized.MaQD, maCTPP) ||
-                daoChiTiet.KiemTraTrung(normalized.MaPhieuPhat, normalized.MaSach!, normalized.MaQD, maCTPP))
+            if (!KiemTraChiTietDuyNhat(normalized.MaPhieuPhat, normalized.MaQD, existing.MaQD) ||
+                daoChiTiet.KiemTraTrung(normalized.MaPhieuPhat, normalized.MaQD, existing.MaQD))
             {
-                throw new InvalidOperationException($"Quy định '{normalized.MaQD}' đã được áp dụng cho sách '{normalized.MaSach}' trên phiếu '{normalized.MaPhieuPhat}'.");
+                throw new InvalidOperationException($"Quy định '{normalized.MaQD}' đã có trên phiếu '{normalized.MaPhieuPhat}'. Theo khóa của QLThuVien_2, mỗi quy định chỉ được ghi một lần trên một phiếu phạt.");
             }
 
-            bool success = daoChiTiet.Sua(normalized);
+            bool success = daoChiTiet.Sua(existing.MaQD, normalized);
             if (success)
             {
                 for (int i = 0; i < dsChiTiet_arr.Count; i++)
                 {
-                    if (dsChiTiet_arr[i] is ChiTietPhieuPhatDTO current && current.MaCTPP == maCTPP)
+                    if (dsChiTiet_arr[i] is ChiTietPhieuPhatDTO current &&
+                        Same(current.MaPhieuPhat, existing.MaPhieuPhat) && Same(current.MaQD, existing.MaQD))
                     {
                         dsChiTiet_arr[i] = normalized;
                         break;
@@ -497,18 +492,22 @@ namespace QLThuVien.BUS
             return success;
         }
 
-        public bool XoaChiTiet(int maCTPP)
+        public bool XoaChiTiet(string maPhieuPhat, string maQD)
         {
             EnsureLoaded();
-            if (maCTPP <= 0) throw new ArgumentException("Mã vi phạm không hợp lệ.");
-            ChiTietPhieuPhatDTO? existing = TimChiTietTheoId(maCTPP) ?? daoChiTiet.LayTheoId(maCTPP);
+            if (string.IsNullOrWhiteSpace(maPhieuPhat) || string.IsNullOrWhiteSpace(maQD))
+                throw new ArgumentException("Vui lòng chọn vi phạm cần xóa.");
+            string maPhieuTrim = maPhieuPhat.Trim();
+            string maQDTrim = maQD.Trim();
+            ChiTietPhieuPhatDTO? existing = TimChiTietTheoKhoa(maPhieuTrim, maQDTrim) ??
+                daoChiTiet.LayTheoKhoa(maPhieuTrim, maQDTrim);
             if (existing == null) throw new KeyNotFoundException("Không tìm thấy vi phạm cần xóa.");
 
-            bool success = daoChiTiet.Xoa(maCTPP);
+            bool success = daoChiTiet.Xoa(maPhieuTrim, maQDTrim);
             if (success)
             {
                 RemoveWhere(dsChiTiet_arr, item => item is ChiTietPhieuPhatDTO current &&
-                    current.MaCTPP == maCTPP);
+                    Same(current.MaPhieuPhat, maPhieuTrim) && Same(current.MaQD, maQDTrim));
                 CapNhatTongTienPhieu(existing.MaPhieuPhat);
             }
             return success;
@@ -609,11 +608,12 @@ namespace QLThuVien.BUS
             return decimal.Round(chiTiet.Sum(ct => ct.TienPhat), 2, MidpointRounding.AwayFromZero);
         }
 
-        private ChiTietPhieuPhatDTO? TimChiTietTheoId(int maCTPP)
+        private ChiTietPhieuPhatDTO? TimChiTietTheoKhoa(string maPhieuPhat, string maQD)
         {
             foreach (object item in dsChiTiet_arr)
             {
-                if (item is ChiTietPhieuPhatDTO ct && ct.MaCTPP == maCTPP) return ct;
+                if (item is ChiTietPhieuPhatDTO ct &&
+                    Same(ct.MaPhieuPhat, maPhieuPhat) && Same(ct.MaQD, maQD)) return ct;
             }
             return null;
         }
