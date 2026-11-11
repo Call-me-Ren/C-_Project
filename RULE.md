@@ -18,6 +18,12 @@
 - Thêm/sửa/xóa bắt buộc chạy câu lệnh SQL thật xuống CSDL.
 - Truy vấn dùng tham số (`SqlParameter`), không nối chuỗi.
 - CSDL không được "lủng" (GV: lủng là 0 điểm): giữ PK/FK/CHECK, không xóa dữ liệu đã phát sinh giao dịch.
+- **Cấu trúc Form ở tầng GUI:** Bắt buộc phải có **2 file** tách biệt theo chuẩn WinForms:
+  1. Bản form thường (`frmXxx.cs`): Chứa logic sự kiện, tương tác BUS và điều khiển giao diện.
+  2. Bản thiết kế (`frmXxx.Designer.cs`): Chứa định nghĩa thành phần, layout và khởi tạo control (`InitializeComponent`). Tuyệt đối không gộp chung vào 1 file.
+- **Quy định bắt lỗi `try - catch`:**
+  - Ở **GUI**: Mọi hàm xử lý sự kiện (`Form_Load`, Click Thêm, Sửa, Xóa, Tìm kiếm, CellClick...) **bắt buộc phải bọc trong khối `try ... catch`** để bắt các lỗi nghiệp vụ và CSDL, hiển thị thông báo qua `FormErrors.Show(ex)` hoặc `MessageBox.Show`, tránh để ứng dụng bị crash.
+  - Ở **DAO**: Thao tác mở kết nối và thực thi SQL phải đảm bảo giải phóng tài nguyên (`using` hoặc `finally`) và có `try ... catch` xử lý lỗi kết nối/câu lệnh.
 - Ưu tiên làm theo yêu cầu của giáo viên; khi mâu thuẫn với nguồn khác (bạn bè, đồ án tham khảo) thì theo giáo viên.
 
 ## 4. Quy tắc làm việc (code control)

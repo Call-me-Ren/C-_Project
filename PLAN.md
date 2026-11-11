@@ -131,7 +131,7 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
   - Tạo `TacGiaDTO`, `TacGiaDAO`, `TacGiaBUS` (`ArrayList`), `frmTacGia` (`MaTG`, `HoLot`, `TenTG`, `NgaySinh`, `SDT`).
 - [ ] **Bước 2.3 — Module Nhà cung cấp (`NhaCungCap`):**
   - Tạo `NhaCungCapDTO`, `NhaCungCapDAO`, `NhaCungCapBUS` (`ArrayList`), `frmNhaCungCap`.
-- [ ] **Bước 2.4 — Module Loại độc giả (`LoaiDocGia`):**
+- [x] **Bước 2.4 — Module Loại độc giả (`LoaiDocGia`):**
   - Tạo `LoaiDocGiaDTO`, `LoaiDocGiaDAO`, `LoaiDocGiaBUS` (`ArrayList`), `frmLoaiDocGia`.
 - [ ] **Bước 2.5 — Module Nhân viên (`NhanVien`):**
   - Tạo `NhanVienDTO`, `NhanVienDAO`, `NhanVienBUS` (`ArrayList`), `frmNhanVien` (`MaNV`, `HoLot`, `TenNV`, `ChucVu`).
@@ -147,7 +147,7 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
 - [ ] **Bước 3.1 — Xây dựng Form Popup Tìm kiếm dùng chung `frmTimKiemPopup.cs` (Yêu cầu 4 của GV):**
   - Khai báo biến `public static string SelectedID = "";` và `public static string SelectedName = "";`.
   - Khi người dùng bấm nút `...` cạnh ô Mã (trên các form Đầu sách, Phiếu nhập, Phiếu mượn...), `frmTimKiemPopup` bật lên cho phép gõ tên lọc nhanh, click 1 dòng $\rightarrow$ gán mã vào `SelectedID` $\rightarrow$ tự đóng form và điền mã + tên về form chính.
-- [ ] **Bước 3.2 — Module Quản lý Độc giả (`DocGia`):**
+- [x] **Bước 3.2 — Module Quản lý Độc giả (`DocGia`):**
   - Tạo `DocGiaDTO`, `DocGiaDAO`, `DocGiaBUS`, `frmDocGia`.
   - Có nút `...` (hoặc ComboBox) chọn `MaLDG`.
   - Có bảng phụ bên dưới hiển thị **Lịch sử mượn - trả sách** của độc giả đang được chọn.
