@@ -1,7 +1,5 @@
 namespace QLThuVien;
 
-using QLThuVien.GUI;
-
 static class Program
 {
     /// <summary>
@@ -13,6 +11,6 @@ static class Program
         // To customize application configuration such as set high DPI settings or default font,
         // see https://aka.ms/applicationconfiguration.
         ApplicationConfiguration.Initialize();
-        Application.Run(new frmNhaCungCap());
+        Application.Run(new Form1());
     }    
 }

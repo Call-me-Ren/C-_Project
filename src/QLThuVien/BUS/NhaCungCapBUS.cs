@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using QLThuVien.DAO;
@@ -8,36 +9,56 @@ namespace QLThuVien.BUS
 {
     /// <summary>
     /// Business Logic Layer cho bảng NhaCungCap
-    /// Tuân thủ quy tắc giáo viên: Lưu dữ liệu vào List/ArrayList, tìm kiếm trên List, xử lý hợp lệ/trùng mã tại đây
+    /// Tuân thủ quy tắc giáo viên: Lưu dữ liệu vào ArrayList, tìm kiếm trên ArrayList, xử lý hợp lệ/trùng mã tại đây
     /// </summary>
     public class NhaCungCapBUS
     {
-        // Danh sách cache trong bộ nhớ theo yêu cầu của Giáo viên (Quy tắc 4)
-        private static List<NhaCungCapDTO> _listNCC = new List<NhaCungCapDTO>();
+        // 1. Khai báo ArrayList lưu trữ dữ liệu theo yêu cầu bài giảng của GV (Quy tắc 4)
+        public static ArrayList dsNCC_arr = new ArrayList();
 
         /// <summary>
-        /// Lấy toàn bộ danh sách Nhà cung cấp (nếu đã có trong bộ nhớ thì lấy ra, hoặc nạp mới từ DAO)
+        /// Nạp toàn bộ danh sách Nhà cung cấp từ DAO vào ArrayList
         /// </summary>
         public static List<NhaCungCapDTO> GetAll(bool forceReload = false)
         {
-            if (_listNCC == null || _listNCC.Count == 0 || forceReload)
+            if (dsNCC_arr.Count == 0 || forceReload)
             {
-                _listNCC = NhaCungCapDAO.GetAll();
+                dsNCC_arr.Clear();
+                List<NhaCungCapDTO> list = NhaCungCapDAO.GetAll();
+                if (list != null)
+                {
+                    foreach (var item in list)
+                    {
+                        dsNCC_arr.Add(item);
+                    }
+                }
             }
-            return new List<NhaCungCapDTO>(_listNCC);
+
+            // Trả về List để gán DataSource cho DataGridView hiển thị
+            List<NhaCungCapDTO> result = new List<NhaCungCapDTO>();
+            foreach (NhaCungCapDTO item in dsNCC_arr)
+            {
+                result.Add(item);
+            }
+            return result;
         }
 
         /// <summary>
-        /// Kiểm tra tính duy nhất của mã (Yêu cầu số 5 của Giáo viên)
+        /// Kiểm tra tính duy nhất của mã trên ArrayList (Yêu cầu số 5 của Giáo viên)
         /// </summary>
         public static bool KiemTraTrungMa(string maNCC)
         {
-            GetAll(); // Đảm bảo danh sách đã được nạp
-            return _listNCC.Any(x => x.MaNCC.Equals(maNCC.Trim(), StringComparison.OrdinalIgnoreCase));
+            GetAll(); // Đảm bảo dsNCC_arr đã được nạp
+            foreach (NhaCungCapDTO item in dsNCC_arr)
+            {
+                if (item.MaNCC.Equals(maNCC.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
         }
 
         /// <summary>
-        /// Thêm mới Nhà cung cấp với đầy đủ kiểm tra nghiệp vụ
+        /// Thêm mới Nhà cung cấp với đầy đủ kiểm tra nghiệp vụ và độ dài trường
         /// </summary>
         public static (bool Success, string Message) Them(NhaCungCapDTO ncc)
         {
@@ -50,6 +71,10 @@ namespace QLThuVien.BUS
             if (string.IsNullOrWhiteSpace(ncc.TenNCC))
                 return (false, "Tên nhà cung cấp không được để trống!");
 
+            // Kiểm tra độ dài TenNCC <= 100 theo đúng CSDL NVARCHAR(100)
+            if (ncc.TenNCC.Trim().Length > 100)
+                return (false, "Tên nhà cung cấp không được vượt quá 100 ký tự!");
+
             ncc.MaNCC = ncc.MaNCC.Trim().ToUpper();
             ncc.TenNCC = ncc.TenNCC.Trim();
 
@@ -60,7 +85,7 @@ namespace QLThuVien.BUS
             // Gọi DAO thực thi lệnh INSERT thật xuống CSDL
             if (NhaCungCapDAO.Insert(ncc))
             {
-                _listNCC.Add(ncc);
+                dsNCC_arr.Add(ncc); // Đồng bộ vào ArrayList
                 return (true, "Thêm nhà cung cấp thành công!");
             }
 
@@ -75,14 +100,22 @@ namespace QLThuVien.BUS
             if (string.IsNullOrWhiteSpace(ncc.TenNCC))
                 return (false, "Tên nhà cung cấp không được để trống!");
 
+            // Kiểm tra độ dài TenNCC <= 100 theo đúng CSDL NVARCHAR(100)
+            if (ncc.TenNCC.Trim().Length > 100)
+                return (false, "Tên nhà cung cấp không được vượt quá 100 ký tự!");
+
             ncc.TenNCC = ncc.TenNCC.Trim();
 
             if (NhaCungCapDAO.Update(ncc))
             {
-                var item = _listNCC.FirstOrDefault(x => x.MaNCC.Equals(ncc.MaNCC, StringComparison.OrdinalIgnoreCase));
-                if (item != null)
+                // Đồng bộ cập nhật trên ArrayList
+                foreach (NhaCungCapDTO item in dsNCC_arr)
                 {
-                    item.TenNCC = ncc.TenNCC;
+                    if (item.MaNCC.Equals(ncc.MaNCC, StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.TenNCC = ncc.TenNCC;
+                        break;
+                    }
                 }
                 return (true, "Cập nhật nhà cung cấp thành công!");
             }
@@ -105,7 +138,15 @@ namespace QLThuVien.BUS
 
             if (NhaCungCapDAO.Delete(maNCC))
             {
-                _listNCC.RemoveAll(x => x.MaNCC.Equals(maNCC, StringComparison.OrdinalIgnoreCase));
+                // Đồng bộ xóa trên ArrayList
+                for (int i = dsNCC_arr.Count - 1; i >= 0; i--)
+                {
+                    if (dsNCC_arr[i] is NhaCungCapDTO item && item.MaNCC.Equals(maNCC, StringComparison.OrdinalIgnoreCase))
+                    {
+                        dsNCC_arr.RemoveAt(i);
+                        break;
+                    }
+                }
                 return (true, "Xóa nhà cung cấp thành công!");
             }
 
@@ -113,20 +154,33 @@ namespace QLThuVien.BUS
         }
 
         /// <summary>
-        /// Tìm kiếm lọc trên bộ nhớ List/ArrayList ở tầng BUS (Yêu cầu số 2 của Giáo viên)
+        /// Tìm kiếm lọc trên bộ nhớ ArrayList ở tầng BUS (Yêu cầu số 2 của Giáo viên)
         /// Không gọi câu lệnh SELECT liên tục xuống CSDL
         /// </summary>
         public static List<NhaCungCapDTO> TimKiem(string keyword)
         {
             GetAll();
+            List<NhaCungCapDTO> ketQua = new List<NhaCungCapDTO>();
+
             if (string.IsNullOrWhiteSpace(keyword))
-                return new List<NhaCungCapDTO>(_listNCC);
+            {
+                foreach (NhaCungCapDTO item in dsNCC_arr)
+                {
+                    ketQua.Add(item);
+                }
+                return ketQua;
+            }
 
             keyword = keyword.Trim().ToLower();
-            return _listNCC.Where(x => 
-                x.MaNCC.ToLower().Contains(keyword) || 
-                x.TenNCC.ToLower().Contains(keyword)
-            ).ToList();
+            foreach (NhaCungCapDTO item in dsNCC_arr)
+            {
+                if (item.MaNCC.ToLower().Contains(keyword) || item.TenNCC.ToLower().Contains(keyword))
+                {
+                    ketQua.Add(item);
+                }
+            }
+
+            return ketQua;
         }
     }
 }
