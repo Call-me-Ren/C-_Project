@@ -1,5 +1,5 @@
 #nullable disable
-namespace DTO
+namespace QLThuVien.DTO
 {
     public class DauSachDTO
     {

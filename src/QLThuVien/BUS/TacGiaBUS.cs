@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using QLThuVien.DAO;
-using DTO;
+using QLThuVien.DTO;
 using System;
 
 namespace QLThuVien.BUS
@@ -16,7 +16,7 @@ namespace QLThuVien.BUS
         {
         }
 
-        // 1. Đọc danh sách Tác giả (Luôn đọc mới từ CSDL để không bị trùng dòng UI)
+        // 1. Đọc danh sách Tác giả
         public List<TacGiaDTO> DocDSSach()
         {
             TacGiaDAO tacGiaDAO = new TacGiaDAO();

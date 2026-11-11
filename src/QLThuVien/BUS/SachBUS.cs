@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using QLThuVien.DAO;
-using DTO;
+using QLThuVien.DTO;
 
 namespace QLThuVien.BUS
 {
@@ -59,36 +59,35 @@ namespace QLThuVien.BUS
             return ketQua;
         }
 
-        // 3. Xóa Sách (Chặn nếu ĐÃ CHO MƯỢN hoặc tồn tại trong Lịch sử mượn trả)
+        // 3. Xóa Sách (CSDL sẽ chặn nếu còn dữ liệu phiếu mượn tham chiếu)
         public bool Xoa(string maSach, string maDauSach)
         {
             SachDAO sachDAO = new SachDAO();
 
-            // Tìm theo maSach chính xác để kiểm tra trạng thái mượn
-            List<SachDTO> listTim = timKiem(maSach, null);
-            if (listTim.Count > 0)
+            SachDTO sachCanXoa = LayDanhSachTrongBoNho().Cast<SachDTO>()
+                .FirstOrDefault(s => string.Equals((s.MaSach ?? string.Empty).Trim(), (maSach ?? string.Empty).Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (sachCanXoa != null && LaSachDangDuocMuon(sachCanXoa.TrangThai))
             {
-                SachDTO s = listTim[0];
-                if (s.TrangThai == "1" || s.TrangThai == "True" || s.TrangThai == "Đã cho mượn")
-                {
-                    throw new Exception($"Sách '{maSach}' đang trong trạng thái ĐÃ CHO MƯỢN, không được phép xóa!");
-                }
+                throw new InvalidOperationException(
+                    $"Không thể xóa sách '{maSach}' vì cuốn sách này đang được cho mượn. Hãy ghi nhận trả sách trước.");
             }
 
-            try
+            bool ketQua = sachDAO.Xoa(maSach);
+            if (ketQua)
             {
-                bool ketQua = sachDAO.Xoa(maSach);
-                if (ketQua)
-                {
-                    dauSachBUS.CapNhatSoLuong(maDauSach);
-                    DocDSSach();
-                }
-                return ketQua;
+                dauSachBUS.CapNhatSoLuong(maDauSach);
+                DocDSSach();
             }
-            catch (Exception)
-            {
-                throw new Exception($"Không thể xóa sách '{maSach}' vì cuốn sách này có dữ liệu tham chiếu trong Lịch sử mượn trả (Chi tiết phiếu mượn).");
-            }
+            return ketQua;
+        }
+
+        private static bool LaSachDangDuocMuon(string trangThai)
+        {
+            string trangThaiChuanHoa = (trangThai ?? string.Empty).Trim();
+            return trangThaiChuanHoa == "1"
+                || string.Equals(trangThaiChuanHoa, "True", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(trangThaiChuanHoa, "Đã cho mượn", StringComparison.OrdinalIgnoreCase);
         }
 
         // 4. Sửa Sách (Chặn nếu ĐÃ CHO MƯỢN)

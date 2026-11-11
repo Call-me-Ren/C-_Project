@@ -1,5 +1,5 @@
 #nullable disable
-using DTO;
+using QLThuVien.DTO;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -110,9 +110,11 @@ namespace QLThuVien.DAO
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
-            catch
+            catch (SqlException ex) when (ex.Number == 547)
             {
-                throw;
+                throw new InvalidOperationException(
+                    $"Không thể xóa sách '{maSach}' vì sách này đang được tham chiếu trong phiếu mượn hoặc lịch sử mượn trả. Hãy xử lý dữ liệu phiếu mượn liên quan trước.",
+                    ex);
             }
         }
 

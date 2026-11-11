@@ -1,10 +1,9 @@
 #nullable disable
-using DTO;
+using QLThuVien.DTO;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Windows.Forms;
 
 namespace QLThuVien.DAO
 {
@@ -37,17 +36,14 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "INSERT INTO NhaXuatBan (MaNXB, TenNXB, DiaChi) VALUES ('"
-                    + ds.MaNXB + "', N'"
-                    + ds.TenNXB + "', N'"
-                    + ds.DiaChi + "')";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "INSERT INTO NhaXuatBan (MaNXB, TenNXB, DiaChi) VALUES (@MaNXB, @TenNXB, @DiaChi)";
+                SqlParameter[] parameters =
                 {
-                    conn.Open(); // <-- ĐÃ THÊM OPEN KẾT NỐI
-                    SqlCommand command = new SqlCommand(query, conn);
-                    int r = command.ExecuteNonQuery();
-                }
+                    new SqlParameter("@MaNXB", SqlDbType.VarChar) { Value = ds.MaNXB },
+                    new SqlParameter("@TenNXB", SqlDbType.NVarChar) { Value = ds.TenNXB },
+                    new SqlParameter("@DiaChi", SqlDbType.NVarChar) { Value = ds.DiaChi }
+                };
+                MyConnection.ExecuteNonQuery(query, parameters);
             }
             catch { throw; }
         }
@@ -57,17 +53,15 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "UPDATE NhaXuatBan SET TenNXB=N'" + ds.TenNXB
-                    + "', DiaChi=N'" + ds.DiaChi
-                    + "' WHERE MaNXB='" + ds.MaNXB + "'";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "UPDATE NhaXuatBan SET TenNXB=@TenNXB, DiaChi=@DiaChi WHERE MaNXB=@MaNXB";
+                SqlParameter[] parameters =
                 {
-                    conn.Open(); // <-- ĐÃ THÊM OPEN KẾT NỐI
-                    SqlCommand command = new SqlCommand(query, conn);
-                    int r = command.ExecuteNonQuery();
-                    if (r == 0) throw new InvalidOperationException("Không tìm thấy nhà xuất bản cần cập nhật.");
-                }
+                    new SqlParameter("@TenNXB", SqlDbType.NVarChar) { Value = ds.TenNXB },
+                    new SqlParameter("@DiaChi", SqlDbType.NVarChar) { Value = ds.DiaChi },
+                    new SqlParameter("@MaNXB", SqlDbType.VarChar) { Value = ds.MaNXB }
+                };
+                if (MyConnection.ExecuteNonQuery(query, parameters) == 0)
+                    throw new InvalidOperationException("Không tìm thấy nhà xuất bản cần cập nhật.");
             }
             catch { throw; }
         }
@@ -78,14 +72,9 @@ namespace QLThuVien.DAO
             try
             {
                 const string query = "DELETE FROM NhaXuatBan WHERE MaNXB = @MaNXB";
-                using (SqlConnection conn = MyConnection.GetConnection())
-                using (SqlCommand command = new SqlCommand(query, conn))
-                {
-                    command.Parameters.Add("@MaNXB", SqlDbType.VarChar).Value = maNXB;
-                    conn.Open();
-                    if (command.ExecuteNonQuery() == 0)
-                        throw new InvalidOperationException("Không tìm thấy nhà xuất bản cần xóa.");
-                }
+                SqlParameter[] parameters = { new SqlParameter("@MaNXB", SqlDbType.VarChar) { Value = maNXB } };
+                if (MyConnection.ExecuteNonQuery(query, parameters) == 0)
+                    throw new InvalidOperationException("Không tìm thấy nhà xuất bản cần xóa.");
             }
             catch (SqlException ex) when (ex.Number == 547)
             {

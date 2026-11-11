@@ -1,7 +1,8 @@
 #nullable disable
 using System.Collections.Generic;
+using System.Collections;
 using QLThuVien.DAO;
-using DTO;
+using QLThuVien.DTO;
 using System;
 using System.Linq;
 
@@ -9,6 +10,9 @@ namespace QLThuVien.BUS
 {
     public class DauSachBUS
     {
+        private readonly ArrayList danhSachDauSach = new ArrayList();
+        private bool daNapDanhSach;
+
         public DauSachBUS()
         {
         }
@@ -17,7 +21,17 @@ namespace QLThuVien.BUS
         public List<DauSachDTO> DocDSSach()
         {
             DauSachDAO dauSachDAO = new DauSachDAO();
-            return dauSachDAO.DocDSSach();
+            List<DauSachDTO> danhSach = dauSachDAO.DocDSSach();
+            danhSachDauSach.Clear();
+            danhSachDauSach.AddRange(danhSach);
+            daNapDanhSach = true;
+            return danhSach;
+        }
+
+        private ArrayList LayDanhSachTrongBoNho()
+        {
+            if (!daNapDanhSach) DocDSSach();
+            return danhSachDauSach;
         }
 
         // Kiểm tra trùng Mã Đầu Sách
@@ -83,7 +97,8 @@ namespace QLThuVien.BUS
         // 6. Tìm kiếm cơ bản (Lọc trên RAM)
         public List<DauSachDTO> TimKiem(string maDauSach, string tenSach)
         {
-            List<DauSachDTO> ds = DocDSSach();
+            List<DauSachDTO> ds = new List<DauSachDTO>();
+            foreach (DauSachDTO item in LayDanhSachTrongBoNho()) ds.Add(item);
             List<DauSachDTO> dsKetQua = new List<DauSachDTO>();
             foreach (DauSachDTO s in ds)
             {
@@ -99,7 +114,8 @@ namespace QLThuVien.BUS
         // 7. Tìm kiếm nâng cao
         public List<DauSachDTO> TimKiemNangCao(string maDauSach, string tenSach, int? soLuong, int? namXB, string maTG, string maTL = null)
         {
-            List<DauSachDTO> ds = DocDSSach();
+            List<DauSachDTO> ds = new List<DauSachDTO>();
+            foreach (DauSachDTO item in LayDanhSachTrongBoNho()) ds.Add(item);
             var ketQua = ds.AsEnumerable();
 
             if (!string.IsNullOrWhiteSpace(maDauSach))

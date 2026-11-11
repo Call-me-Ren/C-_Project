@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 using QLThuVien.DAO;
-using DTO;
+using QLThuVien.DTO;
 
 namespace QLThuVien.BUS
 {

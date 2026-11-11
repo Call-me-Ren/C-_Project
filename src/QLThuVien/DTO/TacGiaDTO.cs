@@ -1,7 +1,7 @@
 #nullable disable
 using System;
 
-namespace DTO
+namespace QLThuVien.DTO
 {
     public class TacGiaDTO
     {

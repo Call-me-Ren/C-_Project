@@ -1,10 +1,9 @@
 #nullable disable
-using DTO;
+using QLThuVien.DTO;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Windows.Forms;
 
 namespace QLThuVien.DAO
 {
@@ -31,10 +30,7 @@ namespace QLThuVien.DAO
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi đọc danh sách Thể loại: " + ex.Message);
-            }
+            catch { throw; }
 
             return dsTL;
         }
@@ -44,16 +40,13 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "INSERT INTO TheLoai (MaTL, TenTL) VALUES ('"
-                    + ds.MaTL + "', N'"
-                    + ds.TenTL + "')";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "INSERT INTO TheLoai (MaTL, TenTL) VALUES (@MaTL, @TenTL)";
+                SqlParameter[] parameters =
                 {
-                    conn.Open(); // <-- ĐÃ THÊM OPEN KẾT NỐI
-                    SqlCommand command = new SqlCommand(query, conn);
-                    int r = command.ExecuteNonQuery();
-                }
+                    new SqlParameter("@MaTL", SqlDbType.VarChar) { Value = ds.MaTL },
+                    new SqlParameter("@TenTL", SqlDbType.NVarChar) { Value = ds.TenTL }
+                };
+                MyConnection.ExecuteNonQuery(query, parameters);
             }
             catch { throw; }
         }
@@ -63,16 +56,14 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "UPDATE TheLoai SET TenTL=N'" + ds.TenTL
-                    + "' WHERE MaTL='" + ds.MaTL + "'";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "UPDATE TheLoai SET TenTL=@TenTL WHERE MaTL=@MaTL";
+                SqlParameter[] parameters =
                 {
-                    conn.Open(); // <-- ĐÃ THÊM OPEN KẾT NỐI
-                    SqlCommand command = new SqlCommand(query, conn);
-                    int r = command.ExecuteNonQuery();
-                    if (r == 0) throw new InvalidOperationException("Không tìm thấy thể loại cần cập nhật.");
-                }
+                    new SqlParameter("@TenTL", SqlDbType.NVarChar) { Value = ds.TenTL },
+                    new SqlParameter("@MaTL", SqlDbType.VarChar) { Value = ds.MaTL }
+                };
+                if (MyConnection.ExecuteNonQuery(query, parameters) == 0)
+                    throw new InvalidOperationException("Không tìm thấy thể loại cần cập nhật.");
             }
             catch { throw; }
         }
@@ -83,14 +74,9 @@ namespace QLThuVien.DAO
             try
             {
                 const string query = "DELETE FROM TheLoai WHERE MaTL = @MaTL";
-                using (SqlConnection conn = MyConnection.GetConnection())
-                using (SqlCommand command = new SqlCommand(query, conn))
-                {
-                    command.Parameters.Add("@MaTL", SqlDbType.VarChar).Value = maTL;
-                    conn.Open();
-                    if (command.ExecuteNonQuery() == 0)
-                        throw new InvalidOperationException("Không tìm thấy thể loại cần xóa.");
-                }
+                SqlParameter[] parameters = { new SqlParameter("@MaTL", SqlDbType.VarChar) { Value = maTL } };
+                if (MyConnection.ExecuteNonQuery(query, parameters) == 0)
+                    throw new InvalidOperationException("Không tìm thấy thể loại cần xóa.");
             }
             catch (SqlException ex) when (ex.Number == 547)
             {
