@@ -33,9 +33,6 @@ namespace QLThuVien.GUI
             lblAppName.TextAlign = ContentAlignment.MiddleCenter;
             lblAppName.ForeColor = Color.White;
             lblAppName.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Quy định phạt", "QuyDinhPhat"));
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Phiếu phạt", "PhieuPhat"));
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Nhân viên", "NhanVien"));
             pnlMenuLeft.Controls.Add(TaoNutMenu("Sách", "Sach"));
             pnlMenuLeft.Controls.Add(TaoNutMenu("Đầu sách", "DauSach"));
             pnlMenuLeft.Controls.Add(TaoNutMenu("Nhà xuất bản", "NhaXuatBan"));

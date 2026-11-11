@@ -25,9 +25,6 @@ namespace QLThuVien.GUI
                 "NhaXuatBan" => new frmNhaXuatBan(),
                 "DauSach" => new frmDauSach(),
                 "Sach" => new frmSach(),
-                "NhanVien" => new frmNhanVien(),
-                "PhieuPhat" => new frmPhieuPhat(),
-                "QuyDinhPhat" => new frmQuyDinhPhat(),
                 _ => throw new InvalidOperationException("Không tìm thấy màn hình được chọn.")
             };
 
