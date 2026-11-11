@@ -172,7 +172,7 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
       - Chọn `MaDauSach` bằng nút `...` $\rightarrow$ tự hiện `TenSach` và `DonGia` (chỉ xem).
       - Nhập `SoLuong` $\rightarrow$ hàm ở `BUS` tự tính `ThanhTien = DonGia * SoLuong` và cộng dồn vào `PhieuNhap.TongTien`.
       - Khi lưu chi tiết phiếu nhập: `BUS` gọi `DauSachBUS` **tăng `SoLuong` và `SLConLai` thêm đúng bằng `SoLuong` nhập**, đồng thời tự động sinh các mã cuốn sách vật lý tương ứng vào bảng `Sach`!
-- [ ] **Bước 4.2 — Module Quản lý Mượn sách (`PhieuMuon` & `ChiTietPhieuMuon` — Form Main-Sub 1-N):**
+- [x] **Bước 4.2 — Module Quản lý Mượn sách (`PhieuMuon` & `ChiTietPhieuMuon` — Form Main-Sub 1-N):**
   - Tạo `PhieuMuonDTO/DAO/BUS` và `ChiTietPhieuMuonDTO/DAO/BUS`.
   - Thiết kế `frmMuonTraSach`:
     - **Bảng Master (`lvPhieuMuon`):** `MaPM`, `MaDocGia` (chọn qua nút `...`), `MaNV`, `NgayMuon`, `HanTra` (tự động cộng số ngày mượn tối đa lấy từ bảng `ThamSo`).
@@ -181,7 +181,7 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
       - Kiểm tra số sách độc giả đang mượn có vượt quá `SO_SACH_MUON_TOI_DA` (trong bảng `ThamSo`) không.
       - Kiểm tra cuốn sách `MaSach` có đang ở trạng thái sẵn sàng cho mượn và `DauSach.SLConLai > 0` không.
       - Khi thêm chi tiết mượn: **Giảm `DauSach.SLConLai` đi 1, tăng `DauSach.SLChoMuon` lên 1**, cập nhật `Sach.TinhTrang = N'Đang mượn'`.
-- [ ] **Bước 4.3 — Nghiệp vụ Trả sách (Tích hợp trên `frmMuonTraSach`):**
+- [x] **Bước 4.3 — Nghiệp vụ Trả sách (Tích hợp trên `frmMuonTraSach`):**
   - Chọn dòng sách đang mượn trong bảng chi tiết $\rightarrow$ bấm nút **"Trả sách"**:
     - Ghi nhận `NgayThucTra = DateTime.Now` và tình trạng sách khi trả (*Tốt / Hư hỏng / Mất*).
     - **Nghiệp vụ tại `BUS`:** Nếu sách trả bình thường $\rightarrow$ **Tăng `DauSach.SLConLai` lên 1, giảm `DauSach.SLChoMuon` đi 1**, đổi `Sach.TinhTrang = N'Tốt'`.
