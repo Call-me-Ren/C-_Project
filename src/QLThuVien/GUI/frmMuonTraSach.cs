@@ -397,5 +397,62 @@ namespace QLThuVien.GUI
                 FormErrors.Show(ex);
             }
         }
+
+        // 17. XUẤT PHIẾU MƯỢN RA FILE PDF
+        private void btnXuatPdf_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(maPMDangChon))
+                {
+                    MessageBox.Show("Vui lòng chọn 1 phiếu mượn từ danh sách để xuất PDF!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                PhieuMuonDTO? pm = pmBUS.TimTheoMa(maPMDangChon);
+                if (pm == null)
+                {
+                    MessageBox.Show("Không tìm thấy thông tin phiếu mượn cần xuất!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                List<ChiTietPhieuMuonDTO> chiTiets = pmBUS.LayChiTietTheoPhieu(maPMDangChon);
+                if (chiTiets.Count == 0)
+                {
+                    MessageBox.Show("Phiếu mượn này chưa có cuốn sách nào, không thể xuất PDF!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using (SaveFileDialog sfd = new SaveFileDialog())
+                {
+                    sfd.Filter = "Tài liệu PDF (*.pdf)|*.pdf";
+                    sfd.FileName = $"PhieuMuon_{pm.MaPM}_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+
+                    if (sfd.ShowDialog() == DialogResult.OK)
+                    {
+                        PdfService.XuatPhieuMuonPdf(pm, chiTiets, sfd.FileName);
+
+                        DialogResult open = MessageBox.Show(
+                            "Xuất file PDF phiếu mượn thành công!\nBạn có muốn mở xem ngay bây giờ không?",
+                            "Xuất PDF thành công",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Information
+                        );
+
+                        if (open == DialogResult.Yes)
+                        {
+                            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sfd.FileName)
+                            {
+                                UseShellExecute = true
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
     }
 }

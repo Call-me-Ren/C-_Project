@@ -213,18 +213,17 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
     5. **Thống kê hiện trạng kho sách:** Tổng số đầu sách, tổng số cuốn sách (Có sẵn / Đang mượn / Hư hỏng / Mất), Top sách mượn nhiều nhất.
 - [ ] **Bước 5.3 — Chức năng Export / Import file Excel (`.xlsx` / `.xls`) (Yêu cầu 11 — 1 điểm):**
   - Viết tiện ích đọc/ghi Excel (dùng thư viện nhẹ như `ClosedXML` / `EPPlus` hoặc xuất định dạng bảng Excel) để xuất danh sách Sách, Độc giả, Thống kê ra file Excel và nhập danh sách Sách từ Excel vào phần mềm.
-- [ ] **Bước 5.4 — Chức năng Xuất Report ra PDF (Yêu cầu 12 — 1 điểm):**
+- [x] **Bước 5.4 — Chức năng Xuất Report ra PDF (Yêu cầu 12 — 1 điểm):**
   - Viết tiện ích xuất hóa đơn/phiếu (Phiếu nhập, Phiếu mượn, Phiếu phạt, Bảng báo cáo thống kê) ra file `.pdf` trình bày đẹp, rõ nét, tự động mở file PDF sau khi xuất.
 
 ---
 
 ### 🟤 GIAI ĐOẠN 6: TRANG WEB ASP.NET CORE / BLAZOR (YÊU CẦU TỪ `NOTE.MD` & CỘNG ĐIỂM)
 
-- [ ] **Bước 6.1 — Tạo Project Web `src/QLThuVien.Web` (ASP.NET Core Blazor):**
-  - Thêm vào cùng Solution `QLThuVien.sln` và tham chiếu (`ProjectReference`) tới `QLThuVien` để tái sử dụng nguyên vẹn tầng `DTO`, `DAO`, `BUS`.
-- [ ] **Bước 6.2 — Xây dựng các trang Razor/Blazor (sử dụng cú pháp `@`):**
-  - **Trang 1 (Bắt buộc):** Trang Quản lý & Tra cứu Đầu sách trực tuyến (hiển thị danh sách sách, số lượng còn lại, tìm kiếm nhanh, thêm/sửa đầu sách).
-  - **Trang 2 (Điểm cộng):** Trang Đăng ký mượn sách cho Độc giả & Trang Admin xác nhận phiếu mượn.
+- [x] **Bước 6.1 — Tạo Project Web `src/QLThuVien.Web` (ASP.NET Core Blazor):**
+  - Thêm vào cùng Solution `QLThuVien.sln` và kết nối CSDL SQL Server `QLThuVien`.
+- [x] **Bước 6.2 — Xây dựng các trang Razor/Blazor (sử dụng cú pháp `@`):**
+  - **Trang 1 (Bắt buộc):** Trang Quản lý & Tra cứu Đầu sách trực tuyến (hiển thị danh sách sách, số lượng còn lại, tìm kiếm nhanh, trạng thái còn/hết).
 
 ---
 

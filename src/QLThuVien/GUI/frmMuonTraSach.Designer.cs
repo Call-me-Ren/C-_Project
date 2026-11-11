@@ -34,6 +34,7 @@ namespace QLThuVien.GUI
             btnLamMoiPM = new Button();
             btnXoaPM = new Button();
             btnThemPM = new Button();
+            btnXuatPdf = new Button();
             grpTimKiem = new GroupBox();
             btnTatCa = new Button();
             btnTimKiem = new Button();
@@ -211,23 +212,37 @@ namespace QLThuVien.GUI
             // 
             // grpChucNangPM
             // 
+            grpChucNangPM.Controls.Add(btnXuatPdf);
             grpChucNangPM.Controls.Add(btnLamMoiPM);
             grpChucNangPM.Controls.Add(btnXoaPM);
             grpChucNangPM.Controls.Add(btnThemPM);
             grpChucNangPM.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            grpChucNangPM.Location = new Point(700, 56);
+            grpChucNangPM.Location = new Point(695, 56);
             grpChucNangPM.Name = "grpChucNangPM";
-            grpChucNangPM.Size = new Size(388, 105);
+            grpChucNangPM.Size = new Size(393, 105);
             grpChucNangPM.TabIndex = 2;
             grpChucNangPM.TabStop = false;
             grpChucNangPM.Text = "Thao tác Phiếu mượn";
             // 
+            // btnXuatPdf
+            // 
+            btnXuatPdf.BackColor = Color.FromArgb(231, 76, 60);
+            btnXuatPdf.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnXuatPdf.ForeColor = Color.White;
+            btnXuatPdf.Location = new Point(290, 35);
+            btnXuatPdf.Name = "btnXuatPdf";
+            btnXuatPdf.Size = new Size(95, 38);
+            btnXuatPdf.TabIndex = 3;
+            btnXuatPdf.Text = "📄 Xuất PDF";
+            btnXuatPdf.UseVisualStyleBackColor = false;
+            btnXuatPdf.Click += btnXuatPdf_Click;
+            // 
             // btnLamMoiPM
             // 
             btnLamMoiPM.Font = new Font("Segoe UI", 9.5F);
-            btnLamMoiPM.Location = new Point(255, 35);
+            btnLamMoiPM.Location = new Point(200, 35);
             btnLamMoiPM.Name = "btnLamMoiPM";
-            btnLamMoiPM.Size = new Size(115, 38);
+            btnLamMoiPM.Size = new Size(85, 38);
             btnLamMoiPM.TabIndex = 2;
             btnLamMoiPM.Text = "Làm mới";
             btnLamMoiPM.UseVisualStyleBackColor = true;
@@ -236,9 +251,9 @@ namespace QLThuVien.GUI
             // btnXoaPM
             // 
             btnXoaPM.Font = new Font("Segoe UI", 9.5F);
-            btnXoaPM.Location = new Point(135, 35);
+            btnXoaPM.Location = new Point(110, 35);
             btnXoaPM.Name = "btnXoaPM";
-            btnXoaPM.Size = new Size(115, 38);
+            btnXoaPM.Size = new Size(85, 38);
             btnXoaPM.TabIndex = 1;
             btnXoaPM.Text = "Xóa phiếu";
             btnXoaPM.UseVisualStyleBackColor = true;
@@ -247,11 +262,11 @@ namespace QLThuVien.GUI
             // btnThemPM
             // 
             btnThemPM.Font = new Font("Segoe UI", 9.5F);
-            btnThemPM.Location = new Point(15, 35);
+            btnThemPM.Location = new Point(10, 35);
             btnThemPM.Name = "btnThemPM";
-            btnThemPM.Size = new Size(115, 38);
+            btnThemPM.Size = new Size(95, 38);
             btnThemPM.TabIndex = 0;
-            btnThemPM.Text = "Tạo phiếu mới";
+            btnThemPM.Text = "+ Tạo phiếu";
             btnThemPM.UseVisualStyleBackColor = true;
             btnThemPM.Click += btnThemPM_Click;
             // 
@@ -570,6 +585,7 @@ namespace QLThuVien.GUI
         private Button btnThemPM;
         private Button btnXoaPM;
         private Button btnLamMoiPM;
+        private Button btnXuatPdf;
         private GroupBox grpTimKiem;
         private TextBox txtTimKiem;
         private Button btnTimKiem;
