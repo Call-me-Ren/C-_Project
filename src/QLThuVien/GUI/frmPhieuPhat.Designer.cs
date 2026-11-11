@@ -26,6 +26,7 @@ namespace QLThuVien.GUI
         private Button btnSuaPhieu = null!;
         private Button btnXoaPhieu = null!;
         private Button btnChiTiet = null!;
+        private Button btnXuatPdf = null!;
         private Button btnLamMoi = null!;
         private TextBox txtTimKiem = null!;
         private Button btnTimKiem = null!;
@@ -54,6 +55,7 @@ namespace QLThuVien.GUI
             btnSuaPhieu = new Button();
             btnXoaPhieu = new Button();
             btnChiTiet = new Button();
+            btnXuatPdf = new Button();
             btnLamMoi = new Button();
             txtTimKiem = new TextBox();
             btnTimKiem = new Button();
@@ -149,13 +151,16 @@ namespace QLThuVien.GUI
             btnLamMoi.Location = new Point(515, 151);
             btnLamMoi.Size = new Size(110, 30);
             btnLamMoi.Text = "Làm mới";
+            btnXuatPdf.Location = new Point(635, 151);
+            btnXuatPdf.Size = new Size(110, 30);
+            btnXuatPdf.Text = "Xuất PDF";
 
             grpPhieu.Controls.AddRange(new Control[]
             {
                 lblMaPhieu, txtMaPhieuPhat, lblNgayLap, dtpNgayLap, lblTrangThai, cboTrangThai,
                 lblDocGia, cboDocGia, lblPhieuMuon, cboPhieuMuon, lblNhanVien, cboNhanVien,
                 lblTongTienPhat, txtTongTienPhat, btnThemPhieu, btnSuaPhieu, btnXoaPhieu,
-                btnChiTiet, btnLamMoi
+                btnChiTiet, btnLamMoi, btnXuatPdf
             });
 
             txtTimKiem.Location = new Point(20, 276);
