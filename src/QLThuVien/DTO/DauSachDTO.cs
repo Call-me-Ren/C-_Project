@@ -1,16 +1,14 @@
+#nullable disable
 namespace QLThuVien.DTO
 {
-    /// <summary>
-    /// DTO đại diện cho bảng DauSach trong CSDL
-    /// </summary>
     public class DauSachDTO
     {
-        public string MaDauSach { get; set; } = string.Empty;
-        public string TenSach { get; set; } = string.Empty;
-        public string MaNXB { get; set; } = string.Empty;
-        public string MaTG { get; set; } = string.Empty;
-        public string MaTL { get; set; } = string.Empty;
-        public int NamXB { get; set; }
+        public string MaDauSach { get; set; }
+        public string MaNXB { get; set; }
+        public string MaTG { get; set; }
+        public string MaTL { get; set; }
+        public string TenSach { get; set; }
+        public int? NamXB { get; set; }
         public int SoLuong { get; set; }
         public int SLChoMuon { get; set; }
         public int SLConLai { get; set; }
@@ -18,13 +16,16 @@ namespace QLThuVien.DTO
 
         public DauSachDTO() { }
 
-        public DauSachDTO(string maDauSach, string tenSach, decimal donGia, int soLuong, int slConLai)
+        public DauSachDTO(string maDauSach, string maNXB, string maTG, string maTL, string tenSach, int? namXB, int soLuong, decimal donGia)
         {
             MaDauSach = maDauSach;
+            MaNXB = maNXB;
+            MaTG = maTG;
+            MaTL = maTL;
             TenSach = tenSach;
-            DonGia = donGia;
+            NamXB = namXB;
             SoLuong = soLuong;
-            SLConLai = slConLai;
+            DonGia = donGia;
         }
     }
 }

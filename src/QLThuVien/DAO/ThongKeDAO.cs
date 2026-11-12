@@ -1,56 +1,151 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using QLThuVien.DTO;
-using System.Data;
-using System.Collections.Generic;
 
 namespace QLThuVien.DAO
 {
-    // DAO thực hiện truy vấn thống kê nhập sách theo Quý
-    public static class ThongKeDAO
+    public class ThongKeDAO
     {
-        // Thống kê tổng tiền nhập theo từng Đầu sách, chia theo Quý, lọc theo năm
-        public static List<ThongKeQuyDTO> ThongKeNhapTheoQuy(int nam)
+        public List<ThongKeGiaoDichDTO> LayGiaoDichThuChi(DateTime tuNgay, DateTime denNgay)
         {
-            var dsKetQua = new List<ThongKeQuyDTO>();
-
-            string sql = @"
-                SELECT
-                    ct.MaDauSach,
-                    ds.TenSach,
-                    SUM(CASE WHEN DATEPART(QUARTER, pn.NgayNhap) = 1 THEN ct.ThanhTien ELSE 0 END) AS Q1,
-                    SUM(CASE WHEN DATEPART(QUARTER, pn.NgayNhap) = 2 THEN ct.ThanhTien ELSE 0 END) AS Q2,
-                    SUM(CASE WHEN DATEPART(QUARTER, pn.NgayNhap) = 3 THEN ct.ThanhTien ELSE 0 END) AS Q3,
-                    SUM(CASE WHEN DATEPART(QUARTER, pn.NgayNhap) = 4 THEN ct.ThanhTien ELSE 0 END) AS Q4
-                FROM ChiTietPhieuNhap ct
-                JOIN PhieuNhap pn ON ct.MaPN = pn.MaPN
-                JOIN DauSach ds   ON ct.MaDauSach = ds.MaDauSach
-                WHERE YEAR(pn.NgayNhap) = @Nam
-                GROUP BY ct.MaDauSach, ds.TenSach
-                ORDER BY ct.MaDauSach";
-
-            using (var conn = MyConnection.GetConnection())
-            using (var cmd = new SqlCommand(sql, conn))
+            string query = @"SELECT N'Thu' AS Loai, N'Thu tiền phạt' AS DienGiai, pp.MaPhieuPhat AS MaGiaoDich, pp.NgayLap AS Ngay,
+                                    pp.MaNV, CONCAT(pp.MaDocGia, N' - ', COALESCE(dg.HoLot + N' ', N''), dg.TenDG) AS DoiTuong,
+                                    pp.TongTienPhat AS SoTien
+                             FROM PhieuPhat pp
+                             INNER JOIN DocGia dg ON dg.MaDG = pp.MaDocGia
+                             WHERE pp.TrangThai = N'Đã thanh toán' AND pp.NgayLap >= @TuNgay AND pp.NgayLap < @DenNgay
+                             UNION ALL
+                              SELECT N'Chi', N'Nhập sách', pn.MaPN, pn.NgayNhap, pn.MaNV,
+                                    CONCAT(pn.MaNCC, N' - ', ncc.TenNCC), pn.TongTien
+                             FROM PhieuNhap pn
+                             INNER JOIN NhaCungCap ncc ON ncc.MaNCC = pn.MaNCC
+                             WHERE pn.NgayNhap >= @TuNgay AND pn.NgayNhap < @DenNgay
+                             ORDER BY Ngay DESC, MaGiaoDich";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKeGiaoDichDTO> result = new List<ThongKeGiaoDichDTO>();
+            foreach (DataRow row in table.Rows)
             {
-                cmd.Parameters.Add(new SqlParameter("@Nam", SqlDbType.Int) { Value = nam });
-                conn.Open();
-                using (var reader = cmd.ExecuteReader())
+                result.Add(new ThongKeGiaoDichDTO
                 {
-                    while (reader.Read())
-                    {
-                        dsKetQua.Add(new ThongKeQuyDTO
-                        {
-                            MaDauSach = reader["MaDauSach"].ToString()!,
-                            TenSach   = reader["TenSach"].ToString()!,
-                            Q1 = reader["Q1"] == DBNull.Value ? 0 : (decimal)reader["Q1"],
-                            Q2 = reader["Q2"] == DBNull.Value ? 0 : (decimal)reader["Q2"],
-                            Q3 = reader["Q3"] == DBNull.Value ? 0 : (decimal)reader["Q3"],
-                            Q4 = reader["Q4"] == DBNull.Value ? 0 : (decimal)reader["Q4"],
-                        });
-                    }
-                }
+                    Loai = row["Loai"].ToString() ?? string.Empty,
+                    DienGiai = row["DienGiai"].ToString() ?? string.Empty,
+                    MaGiaoDich = row["MaGiaoDich"].ToString() ?? string.Empty,
+                    Ngay = Convert.ToDateTime(row["Ngay"]),
+                    MaNV = row["MaNV"].ToString(),
+                    DoiTuong = row["DoiTuong"].ToString() ?? string.Empty,
+                    SoTien = Convert.ToDecimal(row["SoTien"])
+                });
             }
+            return result;
+        }
 
-            return dsKetQua;
+        public List<ThongKePhieuPhatDTO> LayPhieuPhat(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT MaPhieuPhat, MaDocGia, MaNV, NgayLap, TrangThai, TongTienPhat
+                             FROM PhieuPhat
+                             WHERE NgayLap >= @TuNgay AND NgayLap < @DenNgay";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKePhieuPhatDTO> result = new List<ThongKePhieuPhatDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKePhieuPhatDTO
+                {
+                    MaPhieuPhat = row["MaPhieuPhat"].ToString() ?? string.Empty,
+                    MaDocGia = row["MaDocGia"].ToString() ?? string.Empty,
+                    MaNV = row["MaNV"].ToString() ?? string.Empty,
+                    NgayLap = Convert.ToDateTime(row["NgayLap"]),
+                    TrangThai = row["TrangThai"] == DBNull.Value ? string.Empty : row["TrangThai"].ToString() ?? string.Empty,
+                    TongTienPhat = Convert.ToDecimal(row["TongTienPhat"])
+                });
+            }
+            return result;
+        }
+
+        public List<ThongKePhieuNhapDTO> LayPhieuNhap(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT MaPN, MaNV, NgayNhap, TongTien
+                             FROM PhieuNhap
+                             WHERE NgayNhap >= @TuNgay AND NgayNhap < @DenNgay";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKePhieuNhapDTO> result = new List<ThongKePhieuNhapDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKePhieuNhapDTO
+                {
+                    MaPN = row["MaPN"].ToString() ?? string.Empty,
+                    MaNV = row["MaNV"].ToString() ?? string.Empty,
+                    NgayNhap = Convert.ToDateTime(row["NgayNhap"]),
+                    TongTien = Convert.ToDecimal(row["TongTien"])
+                });
+            }
+            return result;
+        }
+
+        public List<ThongKeDauSachQuyDTO> LayDanhSachDauSach()
+        {
+            string query = "SELECT MaDauSach, TenSach AS TenDauSach FROM DauSach ORDER BY MaDauSach";
+            DataTable table = MyConnection.ExecuteQuery(query);
+            List<ThongKeDauSachQuyDTO> result = new List<ThongKeDauSachQuyDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKeDauSachQuyDTO
+                {
+                    MaDauSach = row["MaDauSach"].ToString() ?? string.Empty,
+                    TenDauSach = row["TenDauSach"].ToString() ?? string.Empty
+                });
+            }
+            return result;
+        }
+
+        public List<ThongKeNhapDauSachDTO> LayTienNhapTheoDauSach(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT ct.MaDauSach, pn.NgayNhap, ct.ThanhTien
+                             FROM ChiTietPhieuNhap ct
+                             INNER JOIN PhieuNhap pn ON pn.MaPN = ct.MaPN
+                             WHERE pn.NgayNhap >= @TuNgay AND pn.NgayNhap < @DenNgay";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKeNhapDauSachDTO> result = new List<ThongKeNhapDauSachDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKeNhapDauSachDTO
+                {
+                    MaDauSach = row["MaDauSach"].ToString() ?? string.Empty,
+                    NgayNhap = Convert.ToDateTime(row["NgayNhap"]),
+                    ThanhTien = Convert.ToDecimal(row["ThanhTien"])
+                });
+            }
+            return result;
+        }
+
+        public List<ThongKeLuotMuonDauSachDTO> LayLuotMuonTheoDauSach(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT s.MaDauSach, pm.NgayMuon
+                             FROM ChiTietPhieuMuon ct
+                             INNER JOIN PhieuMuon pm ON pm.MaPM = ct.MaPhieuMuon
+                             INNER JOIN Sach s ON s.MaSach = ct.MaSach
+                             WHERE pm.NgayMuon >= @TuNgay AND pm.NgayMuon < @DenNgay";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKeLuotMuonDauSachDTO> result = new List<ThongKeLuotMuonDauSachDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKeLuotMuonDauSachDTO
+                {
+                    MaDauSach = row["MaDauSach"].ToString() ?? string.Empty,
+                    NgayMuon = Convert.ToDateTime(row["NgayMuon"])
+                });
+            }
+            return result;
+        }
+
+        private static SqlParameter[] TaoThamSoNgay(DateTime tuNgay, DateTime denNgay)
+        {
+            return new[]
+            {
+                new SqlParameter("@TuNgay", SqlDbType.DateTime) { Value = tuNgay.Date },
+                new SqlParameter("@DenNgay", SqlDbType.DateTime) { Value = denNgay.Date.AddDays(1) }
+            };
         }
     }
 }

@@ -1,45 +1,145 @@
-using System;
-using System.Data;
+#nullable disable
+using QLThuVien.DTO;
 using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace QLThuVien.DAO
 {
     public class SachDAO
     {
-        /// <summary>
-        /// Tự động sinh mã và thêm các cuốn sách vật lý mới vào bảng Sach khi nhập
-        /// Ví dụ: Mã cuốn sách là DS01_001, DS01_002...
-        /// </summary>
-        public static bool SinhCacCuonSachMoi(string maDauSach, int soLuong)
+        // 1. Đọc danh sách Sách từ CSDL
+        public List<SachDTO> DocDSSach()
         {
-            // Lấy số lượng cuốn sách hiện có của đầu sách này để sinh mã tiếp theo
-            string queryCount = "SELECT COUNT(*) FROM Sach WHERE MaDauSach = @MaDauSach";
-            SqlParameter[] countParam = new SqlParameter[]
+            List<SachDTO> dsSach = new List<SachDTO>();
+            string query = @"SELECT MaSach, MaDauSach, TrangThai, TinhTrang, ViTri FROM Sach";
+
+            using (SqlDataReader reader = MyConnection.ExecuteReader(query))
             {
-                new SqlParameter("@MaDauSach", SqlDbType.VarChar) { Value = maDauSach }
-            };
-
-            object? countObj = MyConnection.ExecuteScalar(queryCount, countParam);
-            int currentCount = countObj != null ? Convert.ToInt32(countObj) : 0;
-
-            for (int i = 1; i <= soLuong; i++)
-            {
-                int nextIndex = currentCount + i;
-                string maSachMoi = $"{maDauSach}_{nextIndex:D3}"; // Định dạng: DS01_001, DS01_002...
-
-                string insertQuery = @"INSERT INTO Sach (MaSach, MaDauSach, TinhTrang, ViTri) 
-                                       VALUES (@MaSach, @MaDauSach, N'Mới', N'Kho chính')";
-
-                SqlParameter[] insertParams = new SqlParameter[]
+                while (reader.Read())
                 {
-                    new SqlParameter("@MaSach", SqlDbType.VarChar) { Value = maSachMoi },
-                    new SqlParameter("@MaDauSach", SqlDbType.VarChar) { Value = maDauSach }
-                };
-
-                MyConnection.ExecuteNonQuery(insertQuery, insertParams);
+                    SachDTO ds = new SachDTO
+                    {
+                        MaSach = reader["MaSach"].ToString(),
+                        MaDauSach = reader["MaDauSach"].ToString(),
+                        TrangThai = reader["TrangThai"].ToString(),
+                        TinhTrang = reader["TinhTrang"].ToString(),
+                        ViTri = reader["ViTri"].ToString()
+                    };
+                    dsSach.Add(ds);
+                }
             }
-
-            return true;
+            return dsSach;
         }
+
+        // 2. Thêm Sách mới
+        public bool Them(SachDTO ds)
+        {
+            try
+            {
+                string trangThaiVal = (ds.TrangThai == "Đã cho mượn" || ds.TrangThai == "1" || ds.TrangThai == "True") ? "1" : "0";
+                string query = @"INSERT INTO Sach (MaSach, MaDauSach, TrangThai, TinhTrang, ViTri) 
+                                 VALUES (@MaSach, @MaDauSach, @TrangThai, @TinhTrang, @ViTri)";
+
+                using (SqlConnection conn = MyConnection.GetConnection())
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@MaSach", ds.MaSach);
+                    cmd.Parameters.AddWithValue("@MaDauSach", ds.MaDauSach);
+                    cmd.Parameters.AddWithValue("@TrangThai", trangThaiVal);
+                    cmd.Parameters.AddWithValue("@TinhTrang", (object)ds.TinhTrang ?? "");
+                    cmd.Parameters.AddWithValue("@ViTri", (object)ds.ViTri ?? "");
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
+            {
+                throw new InvalidOperationException($"Mã sách '{ds.MaSach}' đã tồn tại. Vui lòng nhập mã sách khác.", ex);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        // 3. Sửa thông tin Sách
+        public bool Sua(SachDTO ds)
+        {
+            try
+            {
+                string trangThaiVal = (ds.TrangThai == "Đã cho mượn" || ds.TrangThai == "1" || ds.TrangThai == "True") ? "1" : "0";
+                string query = @"UPDATE Sach 
+                                 SET MaDauSach = @MaDauSach, TrangThai = @TrangThai, TinhTrang = @TinhTrang, ViTri = @ViTri 
+                                 WHERE MaSach = @MaSach";
+
+                using (SqlConnection conn = MyConnection.GetConnection())
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@MaSach", ds.MaSach);
+                    cmd.Parameters.AddWithValue("@MaDauSach", ds.MaDauSach);
+                    cmd.Parameters.AddWithValue("@TrangThai", trangThaiVal);
+                    cmd.Parameters.AddWithValue("@TinhTrang", (object)ds.TinhTrang ?? "");
+                    cmd.Parameters.AddWithValue("@ViTri", (object)ds.ViTri ?? "");
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        // 4. Xóa Sách
+        public bool Xoa(string maSach)
+        {
+            try
+            {
+                string query = "DELETE FROM Sach WHERE MaSach = @MaSach";
+
+                using (SqlConnection conn = MyConnection.GetConnection())
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@MaSach", maSach);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (SqlException ex) when (ex.Number == 547)
+            {
+                throw new InvalidOperationException(
+                    $"Không thể xóa sách '{maSach}' vì sách này đang được tham chiếu trong phiếu mượn hoặc lịch sử mượn trả. Hãy xử lý dữ liệu phiếu mượn liên quan trước.",
+                    ex);
+            }
+        }
+
+        // 5. Cập nhật trạng thái mượn/trả
+        public bool CapNhatTrangThai(string maSach, bool trangThai)
+        {
+            try
+            {
+                string query = "UPDATE Sach SET TrangThai = @TrangThai WHERE MaSach = @MaSach";
+
+                using (SqlConnection conn = MyConnection.GetConnection())
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@TrangThai", trangThai ? "1" : "0");
+                    cmd.Parameters.AddWithValue("@MaSach", maSach);
+
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
     }
 }
