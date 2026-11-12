@@ -23,7 +23,7 @@ namespace QLThuVien.BUS
         {
             string safe = string.Concat((maPhieuPhat ?? string.Empty)
                 .Where(character => !Path.GetInvalidFileNameChars().Contains(character)));
-            return string.IsNullOrWhiteSpace(safe) ? "PhieuPhat.pdf" : $"{safe}.pdf";
+            return string.IsNullOrWhiteSpace(safe) ? "PhieuPhat.pdf" : $"PhieuPhat_{safe}.pdf";
         }
     }
 }

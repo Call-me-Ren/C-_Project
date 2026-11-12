@@ -49,6 +49,7 @@ namespace QLThuVien.DTO
         public int NamThongKe { get; set; }
         public List<ThongKeNhanVienQuyDTO> ThongKeNhanVienTheoQuy { get; set; } = new List<ThongKeNhanVienQuyDTO>();
         public List<ThongKeDocGiaQuyDTO> ThongKeDocGiaTheoQuy { get; set; } = new List<ThongKeDocGiaQuyDTO>();
+        public List<ThongKeDauSachQuyDTO> ThongKeDauSachTheoQuy { get; set; } = new List<ThongKeDauSachQuyDTO>();
     }
 
     public class ThongKeNhanVienQuyDTO
@@ -95,6 +96,47 @@ namespace QLThuVien.DTO
         public decimal TienPhatQ4 { get; set; }
         [DisplayName("Tổng cộng")]
         public decimal TongCong { get; set; }
+    }
+
+    public class ThongKeDauSachQuyDTO
+    {
+        [DisplayName("Mã đầu sách")]
+        public string MaDauSach { get; set; } = string.Empty;
+        [DisplayName("Đầu sách")]
+        public string TenDauSach { get; set; } = string.Empty;
+        [DisplayName("Q1 - Tiền nhập")]
+        public decimal TienNhapQ1 { get; set; }
+        [DisplayName("Q1 - Lượt mượn")]
+        public int LuotMuonQ1 { get; set; }
+        [DisplayName("Q2 - Tiền nhập")]
+        public decimal TienNhapQ2 { get; set; }
+        [DisplayName("Q2 - Lượt mượn")]
+        public int LuotMuonQ2 { get; set; }
+        [DisplayName("Q3 - Tiền nhập")]
+        public decimal TienNhapQ3 { get; set; }
+        [DisplayName("Q3 - Lượt mượn")]
+        public int LuotMuonQ3 { get; set; }
+        [DisplayName("Q4 - Tiền nhập")]
+        public decimal TienNhapQ4 { get; set; }
+        [DisplayName("Q4 - Lượt mượn")]
+        public int LuotMuonQ4 { get; set; }
+        [DisplayName("Tổng tiền nhập")]
+        public decimal TongTienNhap { get; set; }
+        [DisplayName("Tổng lượt mượn")]
+        public int TongLuotMuon { get; set; }
+    }
+
+    public class ThongKeNhapDauSachDTO
+    {
+        public string MaDauSach { get; set; } = string.Empty;
+        public DateTime NgayNhap { get; set; }
+        public decimal ThanhTien { get; set; }
+    }
+
+    public class ThongKeLuotMuonDauSachDTO
+    {
+        public string MaDauSach { get; set; } = string.Empty;
+        public DateTime NgayMuon { get; set; }
     }
 
     public class PhieuPhatBaoCaoDTO

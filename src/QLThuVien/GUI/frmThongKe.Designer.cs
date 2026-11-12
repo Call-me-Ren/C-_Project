@@ -20,6 +20,7 @@ namespace QLThuVien.GUI
         private readonly NumericUpDown numNamThongKe = new NumericUpDown();
         private readonly DataGridView dgvNhanVienTheoQuy = TaoLuoi();
         private readonly DataGridView dgvDocGiaTheoQuy = TaoLuoi();
+        private readonly DataGridView dgvDauSachTheoQuy = TaoLuoi();
         private readonly FlowLayoutPanel pnlTongHop = new FlowLayoutPanel();
 
         private void InitializeComponent()
@@ -83,6 +84,7 @@ namespace QLThuVien.GUI
             numNamThongKe.Width = 110;
             dgvNhanVienTheoQuy.Name = "dgvNhanVienTheoQuy";
             dgvDocGiaTheoQuy.Name = "dgvDocGiaTheoQuy";
+            dgvDauSachTheoQuy.Name = "dgvDauSachTheoQuy";
 
             pnlTongHop.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             pnlTongHop.Location = new Point(18, 166);
@@ -110,6 +112,7 @@ namespace QLThuVien.GUI
             TabControl quarterTabs = new TabControl { Dock = DockStyle.Fill, Name = "tabsThongKeQuy" };
             quarterTabs.TabPages.Add(TaoTrang("Nhân viên", dgvNhanVienTheoQuy));
             quarterTabs.TabPages.Add(TaoTrang("Độc giả", dgvDocGiaTheoQuy));
+            quarterTabs.TabPages.Add(TaoTrang("Đầu sách", dgvDauSachTheoQuy));
             filter.Controls.AddRange(new Control[] { yearLabel, numNamThongKe });
             page.Controls.Add(quarterTabs);
             page.Controls.Add(filter);

@@ -91,6 +91,55 @@ namespace QLThuVien.BUS
                 .ToList();
         }
 
+        public List<ThongKeDauSachQuyDTO> LayThongKeDauSachTheoQuy(int nam)
+        {
+            KiemTraNamThongKe(nam);
+            DateTime tuNgay = new DateTime(nam, 1, 1);
+            DateTime denNgay = new DateTime(nam, 12, 31);
+            return TongHopDauSachTheoQuy(
+                dao.LayDanhSachDauSach(),
+                dao.LayTienNhapTheoDauSach(tuNgay, denNgay),
+                dao.LayLuotMuonTheoDauSach(tuNgay, denNgay),
+                nam);
+        }
+
+        public static List<ThongKeDauSachQuyDTO> TongHopDauSachTheoQuy(
+            IEnumerable<ThongKeDauSachQuyDTO> danhSachDauSach,
+            IEnumerable<ThongKeNhapDauSachDTO> tienNhap,
+            IEnumerable<ThongKeLuotMuonDauSachDTO> luotMuon,
+            int nam)
+        {
+            ArgumentNullException.ThrowIfNull(danhSachDauSach);
+            ArgumentNullException.ThrowIfNull(tienNhap);
+            ArgumentNullException.ThrowIfNull(luotMuon);
+            KiemTraNamThongKe(nam);
+            List<ThongKeNhapDauSachDTO> nhapTrongNam = tienNhap.Where(x => x.NgayNhap.Year == nam).ToList();
+            List<ThongKeLuotMuonDauSachDTO> muonTrongNam = luotMuon.Where(x => x.NgayMuon.Year == nam).ToList();
+
+            return danhSachDauSach.Select(book =>
+            {
+                List<ThongKeNhapDauSachDTO> nhapTheoDauSach = nhapTrongNam
+                    .Where(x => Same(x.MaDauSach, book.MaDauSach)).ToList();
+                List<ThongKeLuotMuonDauSachDTO> muonTheoDauSach = muonTrongNam
+                    .Where(x => Same(x.MaDauSach, book.MaDauSach)).ToList();
+                return new ThongKeDauSachQuyDTO
+                {
+                    MaDauSach = book.MaDauSach,
+                    TenDauSach = book.TenDauSach,
+                    TienNhapQ1 = TinhTienNhapDauSachTheoQuy(nhapTheoDauSach, 1),
+                    LuotMuonQ1 = DemLuotMuonTheoQuy(muonTheoDauSach, 1),
+                    TienNhapQ2 = TinhTienNhapDauSachTheoQuy(nhapTheoDauSach, 2),
+                    LuotMuonQ2 = DemLuotMuonTheoQuy(muonTheoDauSach, 2),
+                    TienNhapQ3 = TinhTienNhapDauSachTheoQuy(nhapTheoDauSach, 3),
+                    LuotMuonQ3 = DemLuotMuonTheoQuy(muonTheoDauSach, 3),
+                    TienNhapQ4 = TinhTienNhapDauSachTheoQuy(nhapTheoDauSach, 4),
+                    LuotMuonQ4 = DemLuotMuonTheoQuy(muonTheoDauSach, 4),
+                    TongTienNhap = nhapTheoDauSach.Sum(x => x.ThanhTien),
+                    TongLuotMuon = muonTheoDauSach.Count
+                };
+            }).OrderBy(x => x.MaDauSach, StringComparer.OrdinalIgnoreCase).ToList();
+        }
+
         public static void KiemTraNamThongKe(int nam)
         {
             if (nam < 2020 || nam > DateTime.Today.Year + 1)
@@ -104,6 +153,7 @@ namespace QLThuVien.BUS
             report.NamThongKe = namThongKe;
             report.ThongKeNhanVienTheoQuy = LayThongKeNhanVienTheoQuy(namThongKe);
             report.ThongKeDocGiaTheoQuy = LayThongKeDocGiaTheoQuy(namThongKe);
+            report.ThongKeDauSachTheoQuy = LayThongKeDauSachTheoQuy(namThongKe);
             return report;
         }
 
@@ -115,5 +165,11 @@ namespace QLThuVien.BUS
 
         private static decimal TinhTienNhapTheoQuy(IEnumerable<ThongKePhieuNhapDTO> rows, int quy) =>
             rows.Where(x => (x.NgayNhap.Month - 1) / 3 + 1 == quy).Sum(x => x.TongTien);
+
+        private static decimal TinhTienNhapDauSachTheoQuy(IEnumerable<ThongKeNhapDauSachDTO> rows, int quy) =>
+            rows.Where(x => (x.NgayNhap.Month - 1) / 3 + 1 == quy).Sum(x => x.ThanhTien);
+
+        private static int DemLuotMuonTheoQuy(IEnumerable<ThongKeLuotMuonDauSachDTO> rows, int quy) =>
+            rows.Count(x => (x.NgayMuon.Month - 1) / 3 + 1 == quy);
     }
 }

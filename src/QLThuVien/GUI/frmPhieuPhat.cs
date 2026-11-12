@@ -236,8 +236,7 @@ namespace QLThuVien.GUI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
-                MessageBox.Show("Không thể xuất PDF, vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(PdfExportErrors.ToVietnamese(ex), "Không thể xuất PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

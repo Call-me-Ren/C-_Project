@@ -82,7 +82,7 @@ namespace QLThuVien.GUI
                 {
                     AddExtension = true,
                     DefaultExt = "pdf",
-                    FileName = $"BaoCaoThuChi_{tuNgay:ddMMyyyy}-{denNgay:ddMMyyyy}_Quy{namThongKe}.pdf",
+                    FileName = $"ThongKe_{tuNgay:yyyy-MM-dd}_{denNgay:yyyy-MM-dd}.pdf",
                     Filter = "Tệp PDF (*.pdf)|*.pdf",
                     OverwritePrompt = true
                 };
@@ -93,8 +93,7 @@ namespace QLThuVien.GUI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
-                MessageBox.Show("Không thể xuất báo cáo PDF, vui lòng thử lại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(PdfExportErrors.ToVietnamese(ex), "Không thể xuất báo cáo PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -136,6 +135,8 @@ namespace QLThuVien.GUI
             DinhDangLuoi(dgvNhanVienTheoQuy);
             dgvDocGiaTheoQuy.DataSource = bus.LayThongKeDocGiaTheoQuy(nam);
             DinhDangLuoi(dgvDocGiaTheoQuy);
+            dgvDauSachTheoQuy.DataSource = bus.LayThongKeDauSachTheoQuy(nam);
+            DinhDangLuoi(dgvDauSachTheoQuy);
         }
 
 
@@ -231,6 +232,24 @@ namespace QLThuVien.GUI
                 };
             }
 
+            if (gridName == "dgvDauSachTheoQuy")
+            {
+                return propertyName switch
+                {
+                    "TienNhapQ1" => "Q1\nTiền nhập",
+                    "LuotMuonQ1" => "Q1\nLượt mượn",
+                    "TienNhapQ2" => "Q2\nTiền nhập",
+                    "LuotMuonQ2" => "Q2\nLượt mượn",
+                    "TienNhapQ3" => "Q3\nTiền nhập",
+                    "LuotMuonQ3" => "Q3\nLượt mượn",
+                    "TienNhapQ4" => "Q4\nTiền nhập",
+                    "LuotMuonQ4" => "Q4\nLượt mượn",
+                    "TongTienNhap" => "Tổng tiền\nnhập",
+                    "TongLuotMuon" => "Tổng lượt\nmượn",
+                    _ => null
+                };
+            }
+
             return null;
         }
 
@@ -282,6 +301,36 @@ namespace QLThuVien.GUI
                 {
                     column.MinimumWidth = 116;
                     column.FillWeight = 100;
+                }
+                return;
+            }
+
+            if (gridName == "dgvDauSachTheoQuy")
+            {
+                if (propertyName == "MaDauSach")
+                {
+                    column.MinimumWidth = 105;
+                    column.FillWeight = 80;
+                }
+                else if (propertyName == "TenDauSach")
+                {
+                    column.MinimumWidth = 190;
+                    column.FillWeight = 160;
+                }
+                else if (propertyName.StartsWith("Tong", StringComparison.Ordinal))
+                {
+                    column.MinimumWidth = 125;
+                    column.FillWeight = 110;
+                }
+                else if (propertyName.StartsWith("Tien", StringComparison.Ordinal))
+                {
+                    column.MinimumWidth = 116;
+                    column.FillWeight = 100;
+                }
+                else
+                {
+                    column.MinimumWidth = 100;
+                    column.FillWeight = 85;
                 }
                 return;
             }

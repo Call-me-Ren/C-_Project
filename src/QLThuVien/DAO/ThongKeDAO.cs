@@ -83,6 +83,62 @@ namespace QLThuVien.DAO
             return result;
         }
 
+        public List<ThongKeDauSachQuyDTO> LayDanhSachDauSach()
+        {
+            string query = "SELECT MaDauSach, TenSach AS TenDauSach FROM DauSach ORDER BY MaDauSach";
+            DataTable table = MyConnection.ExecuteQuery(query);
+            List<ThongKeDauSachQuyDTO> result = new List<ThongKeDauSachQuyDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKeDauSachQuyDTO
+                {
+                    MaDauSach = row["MaDauSach"].ToString() ?? string.Empty,
+                    TenDauSach = row["TenDauSach"].ToString() ?? string.Empty
+                });
+            }
+            return result;
+        }
+
+        public List<ThongKeNhapDauSachDTO> LayTienNhapTheoDauSach(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT ct.MaDauSach, pn.NgayNhap, ct.ThanhTien
+                             FROM ChiTietPhieuNhap ct
+                             INNER JOIN PhieuNhap pn ON pn.MaPN = ct.MaPN
+                             WHERE pn.NgayNhap >= @TuNgay AND pn.NgayNhap < @DenNgay";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKeNhapDauSachDTO> result = new List<ThongKeNhapDauSachDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKeNhapDauSachDTO
+                {
+                    MaDauSach = row["MaDauSach"].ToString() ?? string.Empty,
+                    NgayNhap = Convert.ToDateTime(row["NgayNhap"]),
+                    ThanhTien = Convert.ToDecimal(row["ThanhTien"])
+                });
+            }
+            return result;
+        }
+
+        public List<ThongKeLuotMuonDauSachDTO> LayLuotMuonTheoDauSach(DateTime tuNgay, DateTime denNgay)
+        {
+            string query = @"SELECT s.MaDauSach, pm.NgayMuon
+                             FROM ChiTietPhieuMuon ct
+                             INNER JOIN PhieuMuon pm ON pm.MaPM = ct.MaPhieuMuon
+                             INNER JOIN Sach s ON s.MaSach = ct.MaSach
+                             WHERE pm.NgayMuon >= @TuNgay AND pm.NgayMuon < @DenNgay";
+            DataTable table = MyConnection.ExecuteQuery(query, TaoThamSoNgay(tuNgay, denNgay));
+            List<ThongKeLuotMuonDauSachDTO> result = new List<ThongKeLuotMuonDauSachDTO>();
+            foreach (DataRow row in table.Rows)
+            {
+                result.Add(new ThongKeLuotMuonDauSachDTO
+                {
+                    MaDauSach = row["MaDauSach"].ToString() ?? string.Empty,
+                    NgayMuon = Convert.ToDateTime(row["NgayMuon"])
+                });
+            }
+            return result;
+        }
+
         private static SqlParameter[] TaoThamSoNgay(DateTime tuNgay, DateTime denNgay)
         {
             return new[]
