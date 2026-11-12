@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QLThuVien", "QLThuVien\QLThuVien.csproj", "{5B901CB7-6AD6-488C-82D0-22BCC75F7F16}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QLThuVien.Web", "QLThuVien.Web\QLThuVien.Web.csproj", "{30C9CA00-13CB-4351-B48E-B3366FB3A708}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,18 @@ Global
 		{5B901CB7-6AD6-488C-82D0-22BCC75F7F16}.Release|x64.Build.0 = Release|Any CPU
 		{5B901CB7-6AD6-488C-82D0-22BCC75F7F16}.Release|x86.ActiveCfg = Release|Any CPU
 		{5B901CB7-6AD6-488C-82D0-22BCC75F7F16}.Release|x86.Build.0 = Release|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Debug|x64.Build.0 = Debug|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Debug|x86.Build.0 = Debug|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Release|x64.ActiveCfg = Release|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Release|x64.Build.0 = Release|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Release|x86.ActiveCfg = Release|Any CPU
+		{30C9CA00-13CB-4351-B48E-B3366FB3A708}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
