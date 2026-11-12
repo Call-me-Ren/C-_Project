@@ -15,7 +15,7 @@ namespace QLThuVien.DAO
         // - Database: QLThuVien
         // - Integrated Security=True (Windows Authentication)
         // - TrustServerCertificate=True: Tránh lỗi chứng chỉ bảo mật trên môi trường local
-        private static string connectionString = @"Server=.;Database=QLThuVien_3;Integrated Security=True;TrustServerCertificate=True;";
+        private static string connectionString = @"Server=.;Database=QLThuVien;Integrated Security=True;TrustServerCertificate=True;";
 
         /// <summary>
         /// Cho phép thay đổi chuỗi kết nối nếu tên Server của bạn khác (ví dụ: .\SQLEXPRESS)
