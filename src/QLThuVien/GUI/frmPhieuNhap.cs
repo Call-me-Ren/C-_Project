@@ -251,6 +251,38 @@ namespace QLThuVien.GUI
             txtMaPN.Focus();
         }
 
+        /// <summary>
+        /// Xuất PDF cho Phiếu Nhập đang được chọn trên bảng Master.
+        /// </summary>
+        private void BtnXuatPDF_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (dgvPhieuNhap.CurrentRow?.DataBoundItem is not PhieuNhapDTO pn)
+                {
+                    MessageBox.Show("Vui lòng chọn một Phiếu Nhập trên danh sách để xuất PDF!",
+                        "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Lấy chi tiết phiếu từ CSDL qua BUS
+                var chiTiet = PhieuNhapBUS.LayChiTietTheoMaPN(pn.MaPN);
+
+                // Tra tên nhà cung cấp theo phiếu đang chọn, không phụ thuộc ComboBox lập phiếu mới.
+                string tenNCC = NhaCungCapBUS.LayTenTheoMa(pn.MaNCC);
+
+                ReportHelper.XuatPDFPhieuNhap(pn, chiTiet, tenNCC);
+
+                MessageBox.Show($"Đã xuất PDF Phiếu Nhập {pn.MaPN} ra Desktop!", "Thành công",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xuất PDF: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void TxtTimKiemPN_TextChanged(object? sender, EventArgs e)
         {
             try
@@ -261,6 +293,12 @@ namespace QLThuVien.GUI
             {
                 MessageBox.Show("Lỗi khi tìm kiếm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BtnThongKeNhap_Click(object? sender, EventArgs e)
+        {
+            using frmThongKeNhap form = new frmThongKeNhap();
+            form.ShowDialog(this);
         }
     }
 }

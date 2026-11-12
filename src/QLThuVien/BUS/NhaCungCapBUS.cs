@@ -44,6 +44,21 @@ namespace QLThuVien.BUS
         }
 
         /// <summary>
+        /// Lấy tên nhà cung cấp từ danh sách đã nạp ở BUS theo mã.
+        /// </summary>
+        public static string LayTenTheoMa(string maNCC)
+        {
+            GetAll();
+            foreach (NhaCungCapDTO item in dsNCC_arr)
+            {
+                if (item.MaNCC.Equals(maNCC, StringComparison.OrdinalIgnoreCase))
+                    return item.TenNCC;
+            }
+
+            return maNCC;
+        }
+
+        /// <summary>
         /// Kiểm tra tính duy nhất của mã trên ArrayList (Yêu cầu số 5 của Giáo viên)
         /// </summary>
         public static bool KiemTraTrungMa(string maNCC)

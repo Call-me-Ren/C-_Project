@@ -22,6 +22,7 @@ namespace QLThuVien.GUI
             this.pnlSearchPN = new System.Windows.Forms.Panel();
             this.lblTimPN = new System.Windows.Forms.Label();
             this.txtTimKiemPN = new System.Windows.Forms.TextBox();
+            this.btnThongKeNhap = new System.Windows.Forms.Button();
             this.gbLapPhieu = new System.Windows.Forms.GroupBox();
             this.pnlTopInputs = new System.Windows.Forms.Panel();
             this.lblMaPN = new System.Windows.Forms.Label();
@@ -46,6 +47,7 @@ namespace QLThuVien.GUI
             this.lblTongTien = new System.Windows.Forms.Label();
             this.btnLuuPhieu = new System.Windows.Forms.Button();
             this.btnHuy = new System.Windows.Forms.Button();
+            this.btnXuatPDF = new System.Windows.Forms.Button();
 
             ((System.ComponentModel.ISupportInitialize)(this.scMain)).BeginInit();
             this.scMain.Panel1.SuspendLayout();
@@ -87,6 +89,7 @@ namespace QLThuVien.GUI
             // pnlSearchPN
             this.pnlSearchPN.Controls.Add(this.lblTimPN);
             this.pnlSearchPN.Controls.Add(this.txtTimKiemPN);
+            this.pnlSearchPN.Controls.Add(this.btnThongKeNhap);
             this.pnlSearchPN.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSearchPN.Height = 40;
 
@@ -96,6 +99,12 @@ namespace QLThuVien.GUI
             this.txtTimKiemPN.Location = new System.Drawing.Point(140, 7);
             this.txtTimKiemPN.Width = 300;
             this.txtTimKiemPN.TextChanged += new System.EventHandler(this.TxtTimKiemPN_TextChanged);
+
+            this.btnThongKeNhap.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            this.btnThongKeNhap.Location = new System.Drawing.Point(790, 5);
+            this.btnThongKeNhap.Size = new System.Drawing.Size(150, 30);
+            this.btnThongKeNhap.Text = "Thống kê nhập theo quý";
+            this.btnThongKeNhap.Click += new System.EventHandler(this.BtnThongKeNhap_Click);
 
             // dgvPhieuNhap
             this.dgvPhieuNhap.AllowUserToAddRows = false;
@@ -215,6 +224,7 @@ namespace QLThuVien.GUI
             // pnlBottom
             this.pnlBottom.Controls.Add(this.lblTongTienText);
             this.pnlBottom.Controls.Add(this.lblTongTien);
+            this.pnlBottom.Controls.Add(this.btnXuatPDF);
             this.pnlBottom.Controls.Add(this.btnLuuPhieu);
             this.pnlBottom.Controls.Add(this.btnHuy);
             this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -235,10 +245,19 @@ namespace QLThuVien.GUI
             this.btnLuuPhieu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLuuPhieu.ForeColor = System.Drawing.Color.White;
             this.btnLuuPhieu.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLuuPhieu.Location = new System.Drawing.Point(620, 10);
+            this.btnLuuPhieu.Location = new System.Drawing.Point(480, 10);
             this.btnLuuPhieu.Size = new System.Drawing.Size(140, 32);
             this.btnLuuPhieu.Text = "💾 LƯU PHIẾU";
             this.btnLuuPhieu.Click += new System.EventHandler(this.BtnLuuPhieu_Click);
+
+            this.btnXuatPDF.BackColor = System.Drawing.Color.FromArgb(39, 174, 96);
+            this.btnXuatPDF.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnXuatPDF.ForeColor = System.Drawing.Color.White;
+            this.btnXuatPDF.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnXuatPDF.Location = new System.Drawing.Point(630, 10);
+            this.btnXuatPDF.Size = new System.Drawing.Size(130, 32);
+            this.btnXuatPDF.Text = "🖨️ Xuất PDF";
+            this.btnXuatPDF.Click += new System.EventHandler(this.BtnXuatPDF_Click);
 
             this.btnHuy.BackColor = System.Drawing.Color.FromArgb(149, 165, 166);
             this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -283,6 +302,7 @@ namespace QLThuVien.GUI
         private System.Windows.Forms.Panel pnlSearchPN;
         private System.Windows.Forms.Label lblTimPN;
         private System.Windows.Forms.TextBox txtTimKiemPN;
+        private System.Windows.Forms.Button btnThongKeNhap;
         private System.Windows.Forms.GroupBox gbLapPhieu;
         private System.Windows.Forms.Panel pnlTopInputs;
         private System.Windows.Forms.Label lblMaPN;
@@ -307,5 +327,6 @@ namespace QLThuVien.GUI
         private System.Windows.Forms.Label lblTongTien;
         private System.Windows.Forms.Button btnLuuPhieu;
         private System.Windows.Forms.Button btnHuy;
+        private System.Windows.Forms.Button btnXuatPDF;
     }
 }
