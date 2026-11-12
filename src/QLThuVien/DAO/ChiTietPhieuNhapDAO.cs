@@ -8,10 +8,7 @@ namespace QLThuVien.DAO
 {
     public class ChiTietPhieuNhapDAO
     {
-        /// <summary>
-        /// Lấy toàn bộ danh sách chi tiết của một Phiếu nhập cụ thể (JOIN với DauSach để lấy TenSach)
-        /// </summary>
-        public static List<ChiTietPhieuNhapDTO> GetByMaPN(string maPN)
+        public List<ChiTietPhieuNhapDTO> GetByMaPN(string maPN)
         {
             List<ChiTietPhieuNhapDTO> list = new List<ChiTietPhieuNhapDTO>();
             string query = @"SELECT ct.MaPN, ct.MaDauSach, ds.TenSach, ct.DonGia, ct.SoLuong, ct.ThanhTien 
@@ -40,7 +37,7 @@ namespace QLThuVien.DAO
             return list;
         }
 
-        public static bool Insert(ChiTietPhieuNhapDTO ct)
+        public bool Insert(ChiTietPhieuNhapDTO ct)
         {
             string query = @"INSERT INTO ChiTietPhieuNhap (MaPN, MaDauSach, DonGia, SoLuong, ThanhTien)
                              VALUES (@MaPN, @MaDauSach, @DonGia, @SoLuong, @ThanhTien)";
@@ -57,7 +54,7 @@ namespace QLThuVien.DAO
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
-        public static bool DeleteByMaPN(string maPN)
+        public bool DeleteByMaPN(string maPN)
         {
             string query = "DELETE FROM ChiTietPhieuNhap WHERE MaPN = @MaPN";
             SqlParameter[] parameters = new SqlParameter[]

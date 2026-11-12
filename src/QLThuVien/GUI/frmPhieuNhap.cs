@@ -14,6 +14,10 @@ namespace QLThuVien.GUI
     /// </summary>
     public partial class frmPhieuNhap : Form
     {
+        private readonly PhieuNhapBUS _phieuNhapBUS;
+        private readonly NhaCungCapBUS _nccBUS;
+        private readonly DauSachBUS _dauSachBUS;
+
         // Danh sách các dòng sách đang chuẩn bị lập phiếu nhập mới (giỏ hàng chi tiết)
         private List<ChiTietPhieuNhapDTO> _dsDangNhap = new List<ChiTietPhieuNhapDTO>();
         private List<DauSachDTO> _dsDauSach = new List<DauSachDTO>();
@@ -21,6 +25,9 @@ namespace QLThuVien.GUI
         public frmPhieuNhap()
         {
             InitializeComponent();
+            _phieuNhapBUS = new PhieuNhapBUS();
+            _nccBUS = new NhaCungCapBUS();
+            _dauSachBUS = new DauSachBUS();
             LoadData();
         }
 
@@ -29,7 +36,7 @@ namespace QLThuVien.GUI
             try
             {
                 // 1. Nạp danh sách Phiếu Nhập lên Master GridView
-                dgvPhieuNhap.DataSource = PhieuNhapBUS.GetAll();
+                dgvPhieuNhap.DataSource = _phieuNhapBUS.GetAll();
                 if (dgvPhieuNhap.Columns["MaPN"] is DataGridViewColumn c1) c1.HeaderText = "Mã Phiếu Nhập";
                 if (dgvPhieuNhap.Columns["MaNCC"] is DataGridViewColumn c2) c2.HeaderText = "Mã Nhà Cung Cấp";
                 if (dgvPhieuNhap.Columns["MaNV"] is DataGridViewColumn c3) c3.HeaderText = "Mã Nhân Viên";
@@ -41,12 +48,12 @@ namespace QLThuVien.GUI
                 }
 
                 // 2. Nạp ComboBox Nhà cung cấp
-                cboNCC.DataSource = NhaCungCapBUS.GetAll();
+                cboNCC.DataSource = _nccBUS.GetAll();
                 cboNCC.DisplayMember = "TenNCC";
                 cboNCC.ValueMember = "MaNCC";
 
-                // 3. Nạp ComboBox Đầu sách
-                _dsDauSach = DauSachBUS.GetAll();
+                // 3. Nạp ComboBox Đầu sách (dùng DocDSSach của DauSachBUS trên main)
+                _dsDauSach = _dauSachBUS.DocDSSach();
                 cboDauSach.DataSource = _dsDauSach;
                 cboDauSach.DisplayMember = "TenSach";
                 cboDauSach.ValueMember = "MaDauSach";
@@ -74,8 +81,7 @@ namespace QLThuVien.GUI
             {
                 if (e.RowIndex >= 0 && dgvPhieuNhap.Rows[e.RowIndex].DataBoundItem is PhieuNhapDTO pn)
                 {
-                    // Lấy chi tiết của phiếu nhập đã lưu từ CSDL thông qua BUS
-                    var chiTietList = PhieuNhapBUS.LayChiTietTheoMaPN(pn.MaPN);
+                    var chiTietList = _phieuNhapBUS.LayChiTietTheoMaPN(pn.MaPN);
                     dgvChiTiet.DataSource = null;
                     dgvChiTiet.DataSource = chiTietList;
 
@@ -126,14 +132,11 @@ namespace QLThuVien.GUI
             if (cboDauSach.SelectedItem is DauSachDTO ds)
             {
                 int sl = (int)numSoLuong.Value;
-                decimal thanhTien = PhieuNhapBUS.TinhThanhTien(ds.DonGia, sl);
+                decimal thanhTien = _phieuNhapBUS.TinhThanhTien(ds.DonGia, sl);
                 txtThanhTien.Text = thanhTien.ToString("N0");
             }
         }
 
-        /// <summary>
-        /// Thêm 1 đầu sách vào danh sách chuẩn bị nhập (Detail tạm thời)
-        /// </summary>
         private void BtnThemSach_Click(object? sender, EventArgs e)
         {
             try
@@ -151,16 +154,15 @@ namespace QLThuVien.GUI
                     return;
                 }
 
-                // Kiểm tra xem đầu sách này đã có trong danh sách chuẩn bị nhập chưa
                 var existing = _dsDangNhap.FirstOrDefault(x => x.MaDauSach == ds.MaDauSach);
                 if (existing != null)
                 {
                     existing.SoLuong += sl;
-                    existing.ThanhTien = PhieuNhapBUS.TinhThanhTien(existing.DonGia, existing.SoLuong);
+                    existing.ThanhTien = _phieuNhapBUS.TinhThanhTien(existing.DonGia, existing.SoLuong);
                 }
                 else
                 {
-                    decimal thanhTien = PhieuNhapBUS.TinhThanhTien(ds.DonGia, sl);
+                    decimal thanhTien = _phieuNhapBUS.TinhThanhTien(ds.DonGia, sl);
                     _dsDangNhap.Add(new ChiTietPhieuNhapDTO
                     {
                         MaDauSach = ds.MaDauSach,
@@ -189,9 +191,6 @@ namespace QLThuVien.GUI
             lblTongTien.Text = $"{tongTien:N0} VNĐ";
         }
 
-        /// <summary>
-        /// Lưu phiếu nhập: Gửi toàn bộ Master và Detail sang tầng BUS
-        /// </summary>
         private void BtnLuuPhieu_Click(object? sender, EventArgs e)
         {
             try
@@ -223,8 +222,7 @@ namespace QLThuVien.GUI
                     NgayNhap = DateTime.Now
                 };
 
-                // Gọi nghiệp vụ tầng BUS xử lý lưu và tăng tồn kho
-                var result = PhieuNhapBUS.TaoPhieuNhap(pn, _dsDangNhap);
+                var result = _phieuNhapBUS.TaoPhieuNhap(pn, _dsDangNhap);
 
                 MessageBox.Show(result.Message, "Kết quả", MessageBoxButtons.OK, 
                     result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
@@ -251,9 +249,6 @@ namespace QLThuVien.GUI
             txtMaPN.Focus();
         }
 
-        /// <summary>
-        /// Xuất PDF cho Phiếu Nhập đang được chọn trên bảng Master.
-        /// </summary>
         private void BtnXuatPDF_Click(object? sender, EventArgs e)
         {
             try
@@ -265,11 +260,8 @@ namespace QLThuVien.GUI
                     return;
                 }
 
-                // Lấy chi tiết phiếu từ CSDL qua BUS
-                var chiTiet = PhieuNhapBUS.LayChiTietTheoMaPN(pn.MaPN);
-
-                // Tra tên nhà cung cấp theo phiếu đang chọn, không phụ thuộc ComboBox lập phiếu mới.
-                string tenNCC = NhaCungCapBUS.LayTenTheoMa(pn.MaNCC);
+                var chiTiet = _phieuNhapBUS.LayChiTietTheoMaPN(pn.MaPN);
+                string tenNCC = _nccBUS.LayTenTheoMa(pn.MaNCC);
 
                 ReportHelper.XuatPDFPhieuNhap(pn, chiTiet, tenNCC);
 
@@ -287,18 +279,12 @@ namespace QLThuVien.GUI
         {
             try
             {
-                dgvPhieuNhap.DataSource = PhieuNhapBUS.TimKiem(txtTimKiemPN.Text);
+                dgvPhieuNhap.DataSource = _phieuNhapBUS.TimKiem(txtTimKiemPN.Text);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi tìm kiếm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void BtnThongKeNhap_Click(object? sender, EventArgs e)
-        {
-            using frmThongKeNhap form = new frmThongKeNhap();
-            form.ShowDialog(this);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace QLThuVien.DAO
 {
     public class PhieuNhapDAO
     {
-        public static List<PhieuNhapDTO> GetAll()
+        public List<PhieuNhapDTO> GetAll()
         {
             List<PhieuNhapDTO> list = new List<PhieuNhapDTO>();
             string query = "SELECT MaPN, MaNCC, MaNV, NgayNhap, TongTien FROM PhieuNhap ORDER BY NgayNhap DESC";
@@ -28,7 +28,7 @@ namespace QLThuVien.DAO
             return list;
         }
 
-        public static bool Insert(PhieuNhapDTO pn)
+        public bool Insert(PhieuNhapDTO pn)
         {
             string query = @"INSERT INTO PhieuNhap (MaPN, MaNCC, MaNV, NgayNhap, TongTien)
                              VALUES (@MaPN, @MaNCC, @MaNV, @NgayNhap, @TongTien)";
@@ -46,10 +46,9 @@ namespace QLThuVien.DAO
         }
 
         /// <summary>
-        /// Lưu toàn bộ Phiếu Nhập, Chi tiết, cập nhật tồn kho DauSach và sinh mã Sach mới trong một Transaction
-        /// Đảm bảo tính toàn vẹn CSDL (ACID), tuyệt đối không để lủng dữ liệu nếu có lỗi xảy ra.
+        /// Lưu toàn bộ Phiếu Nhập, Chi tiết, cập nhật tồn kho DauSach và sinh mã Sach mới (kèm TrangThai = 0).
         /// </summary>
-        public static (bool Success, string Message) LuuPhieuNhapTransaction(PhieuNhapDTO pn, List<ChiTietPhieuNhapDTO> chiTietList)
+        public (bool Success, string Message) LuuPhieuNhapTransaction(PhieuNhapDTO pn, List<ChiTietPhieuNhapDTO> chiTietList)
         {
             using (SqlConnection conn = MyConnection.GetConnection())
             {
@@ -109,14 +108,14 @@ namespace QLThuVien.DAO
                                 currentCount = countObj != null ? Convert.ToInt32(countObj) : 0;
                             }
 
-                            // 2.4 Sinh mã và chèn từng cuốn sách vật lý vào bảng Sach
+                            // 2.4 Sinh mã và chèn từng cuốn sách vật lý vào bảng Sach với TrangThai = 0 (Chưa mượn)
                             for (int i = 1; i <= ct.SoLuong; i++)
                             {
                                 int nextIndex = currentCount + i;
                                 string maSachMoi = $"{ct.MaDauSach}_{nextIndex:D3}";
 
-                                string sqlSach = @"INSERT INTO Sach (MaSach, MaDauSach, TinhTrang, ViTri) 
-                                                   VALUES (@MaSach, @MaDauSach, N'Mới', N'Kho chính')";
+                                string sqlSach = @"INSERT INTO Sach (MaSach, MaDauSach, TrangThai, TinhTrang, ViTri) 
+                                                   VALUES (@MaSach, @MaDauSach, 0, N'Mới', N'Kho chính')";
                                 using (SqlCommand cmdSach = new SqlCommand(sqlSach, conn, tran))
                                 {
                                     cmdSach.Parameters.Add(new SqlParameter("@MaSach", SqlDbType.VarChar) { Value = maSachMoi });
@@ -126,13 +125,11 @@ namespace QLThuVien.DAO
                             }
                         }
 
-                        // Hoàn tất mọi thao tác thành công -> Commit transaction
                         tran.Commit();
                         return (true, "Tạo phiếu nhập, cập nhật tồn kho và sinh mã sách thành công!");
                     }
                     catch (Exception ex)
                     {
-                        // Gặp bất kỳ lỗi nào -> Rollback toàn bộ
                         tran.Rollback();
                         return (false, "Lỗi khi lưu dữ liệu (Giao dịch đã được hủy an toàn): " + ex.Message);
                     }

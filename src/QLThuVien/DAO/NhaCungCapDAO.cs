@@ -8,11 +8,10 @@ namespace QLThuVien.DAO
 {
     /// <summary>
     /// Data Access Object cho bảng NhaCungCap
-    /// Tuân thủ quy tắc kiến trúc: Chỉ chứa câu lệnh SQL, gọi qua MyConnection, dùng SqlParameter
     /// </summary>
     public class NhaCungCapDAO
     {
-        public static List<NhaCungCapDTO> GetAll()
+        public List<NhaCungCapDTO> GetAll()
         {
             List<NhaCungCapDTO> list = new List<NhaCungCapDTO>();
             string query = "SELECT MaNCC, TenNCC FROM NhaCungCap ORDER BY MaNCC";
@@ -29,7 +28,7 @@ namespace QLThuVien.DAO
             return list;
         }
 
-        public static NhaCungCapDTO? GetByMa(string maNCC)
+        public NhaCungCapDTO? GetByMa(string maNCC)
         {
             string query = "SELECT MaNCC, TenNCC FROM NhaCungCap WHERE MaNCC = @MaNCC";
             SqlParameter[] parameters = new SqlParameter[]
@@ -50,7 +49,7 @@ namespace QLThuVien.DAO
             return null;
         }
 
-        public static bool Insert(NhaCungCapDTO ncc)
+        public bool Insert(NhaCungCapDTO ncc)
         {
             string query = "INSERT INTO NhaCungCap (MaNCC, TenNCC) VALUES (@MaNCC, @TenNCC)";
             SqlParameter[] parameters = new SqlParameter[]
@@ -63,7 +62,7 @@ namespace QLThuVien.DAO
             return rows > 0;
         }
 
-        public static bool Update(NhaCungCapDTO ncc)
+        public bool Update(NhaCungCapDTO ncc)
         {
             string query = "UPDATE NhaCungCap SET TenNCC = @TenNCC WHERE MaNCC = @MaNCC";
             SqlParameter[] parameters = new SqlParameter[]
@@ -76,7 +75,7 @@ namespace QLThuVien.DAO
             return rows > 0;
         }
 
-        public static bool Delete(string maNCC)
+        public bool Delete(string maNCC)
         {
             string query = "DELETE FROM NhaCungCap WHERE MaNCC = @MaNCC";
             SqlParameter[] parameters = new SqlParameter[]
@@ -91,7 +90,7 @@ namespace QLThuVien.DAO
         /// <summary>
         /// Kiểm tra xem Nhà cung cấp này đã có phát sinh Phiếu nhập chưa (tránh vi phạm khóa ngoại làm lủng CSDL)
         /// </summary>
-        public static bool HasPhieuNhap(string maNCC)
+        public bool HasPhieuNhap(string maNCC)
         {
             string query = "SELECT COUNT(*) FROM PhieuNhap WHERE MaNCC = @MaNCC";
             SqlParameter[] parameters = new SqlParameter[]

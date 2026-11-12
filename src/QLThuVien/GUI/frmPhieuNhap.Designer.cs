@@ -22,7 +22,6 @@ namespace QLThuVien.GUI
             this.pnlSearchPN = new System.Windows.Forms.Panel();
             this.lblTimPN = new System.Windows.Forms.Label();
             this.txtTimKiemPN = new System.Windows.Forms.TextBox();
-            this.btnThongKeNhap = new System.Windows.Forms.Button();
             this.gbLapPhieu = new System.Windows.Forms.GroupBox();
             this.pnlTopInputs = new System.Windows.Forms.Panel();
             this.lblMaPN = new System.Windows.Forms.Label();
@@ -89,7 +88,6 @@ namespace QLThuVien.GUI
             // pnlSearchPN
             this.pnlSearchPN.Controls.Add(this.lblTimPN);
             this.pnlSearchPN.Controls.Add(this.txtTimKiemPN);
-            this.pnlSearchPN.Controls.Add(this.btnThongKeNhap);
             this.pnlSearchPN.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSearchPN.Height = 40;
 
@@ -99,12 +97,6 @@ namespace QLThuVien.GUI
             this.txtTimKiemPN.Location = new System.Drawing.Point(140, 7);
             this.txtTimKiemPN.Width = 300;
             this.txtTimKiemPN.TextChanged += new System.EventHandler(this.TxtTimKiemPN_TextChanged);
-
-            this.btnThongKeNhap.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
-            this.btnThongKeNhap.Location = new System.Drawing.Point(790, 5);
-            this.btnThongKeNhap.Size = new System.Drawing.Size(150, 30);
-            this.btnThongKeNhap.Text = "Thống kê nhập theo quý";
-            this.btnThongKeNhap.Click += new System.EventHandler(this.BtnThongKeNhap_Click);
 
             // dgvPhieuNhap
             this.dgvPhieuNhap.AllowUserToAddRows = false;
@@ -302,7 +294,6 @@ namespace QLThuVien.GUI
         private System.Windows.Forms.Panel pnlSearchPN;
         private System.Windows.Forms.Label lblTimPN;
         private System.Windows.Forms.TextBox txtTimKiemPN;
-        private System.Windows.Forms.Button btnThongKeNhap;
         private System.Windows.Forms.GroupBox gbLapPhieu;
         private System.Windows.Forms.Panel pnlTopInputs;
         private System.Windows.Forms.Label lblMaPN;
