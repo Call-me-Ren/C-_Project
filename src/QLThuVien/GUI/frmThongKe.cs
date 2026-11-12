@@ -20,6 +20,7 @@ namespace QLThuVien.GUI
             btnThongKe.Click += btnThongKe_Click;
             btnLamMoi.Click += btnLamMoi_Click;
             btnXuatPdf.Click += btnXuatPdf_Click;
+            btnXuatExcel.Click += btnXuatExcel_Click;
             numNamThongKe.ValueChanged += numNamThongKe_ValueChanged;
             pnlTongHop.SizeChanged += (_, _) => DinhDangThe(pnlTongHop);
             DinhDangThe(pnlTongHop);
@@ -94,6 +95,34 @@ namespace QLThuVien.GUI
             catch (Exception ex)
             {
                 MessageBox.Show(PdfExportErrors.ToVietnamese(ex), "Không thể xuất báo cáo PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnXuatExcel_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                ThongKeBUS.KiemTraKhoangNgay(dtpTuNgay.Value, dtpDenNgay.Value);
+                DateTime tuNgay = dtpTuNgay.Value.Date;
+                DateTime denNgay = dtpDenNgay.Value.Date;
+                int namThongKe = decimal.ToInt32(numNamThongKe.Value);
+                ThongKeTongHopDTO report = bus.LayBaoCaoThuChi(tuNgay, denNgay, namThongKe);
+                using SaveFileDialog dialog = new SaveFileDialog
+                {
+                    AddExtension = true,
+                    DefaultExt = "xlsx",
+                    FileName = $"ThongKe_{tuNgay:yyyy-MM-dd}_{denNgay:yyyy-MM-dd}.xlsx",
+                    Filter = "Tệp Excel (*.xlsx)|*.xlsx",
+                    OverwritePrompt = true
+                };
+                if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+                new ThongKeExcelExporter().Xuat(report, tuNgay, denNgay, dialog.FileName);
+                MessageBox.Show("Đã xuất báo cáo Excel.", "Xuất Excel", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Không thể xuất tệp Excel lúc này. Hãy thử lại, nếu vẫn lỗi hãy báo cho người quản trị.", "Xuất Excel", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
