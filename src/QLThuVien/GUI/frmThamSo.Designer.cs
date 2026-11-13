@@ -55,6 +55,8 @@ namespace QLThuVien.GUI
             this.scMain.Orientation = System.Windows.Forms.Orientation.Vertical;
             this.scMain.Size = new System.Drawing.Size(860, 430);
             this.scMain.SplitterDistance = 530;
+            this.scMain.Panel1.Controls.Add(this.gbDanhSach);
+            this.scMain.Panel2.Controls.Add(this.gbChiTiet);
 
             // gbDanhSach
             this.gbDanhSach.Controls.Add(this.dgvThamSo);

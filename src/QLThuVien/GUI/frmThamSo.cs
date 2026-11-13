@@ -21,7 +21,10 @@ namespace QLThuVien.GUI
         {
             try
             {
-                dgvThamSo.DataSource = _tsBUS.DocDS(forceReload: true);
+                dgvThamSo.AutoGenerateColumns = true;
+                dgvThamSo.DataSource = null;
+                var list = _tsBUS.DocDS(forceReload: true);
+                dgvThamSo.DataSource = list;
 
                 if (dgvThamSo.Columns["MaTS"] is DataGridViewColumn c1)
                     c1.HeaderText = "Mã Tham Số";
