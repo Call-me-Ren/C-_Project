@@ -138,6 +138,12 @@ namespace QLThuVien.GUI
             sheet.Cell(1, 1).Value = tieuDe;
             sheet.Range(1, 1, 1, headers.Length).Merge();
             sheet.Cell(2, 1).Value = $"Năm thống kê: {nam}";
+            sheet.Cell(3, 1).Value = "Bảng quý tính tổng tiền phạt của tất cả phiếu phạt đã lập, kể cả phiếu chưa thanh toán. Tổng thu ở bảng Thu - Chi chỉ tính phiếu đã thanh toán.";
+            sheet.Range(3, 1, 3, headers.Length).Merge();
+            sheet.Range(3, 1, 3, headers.Length).Style.Font.FontColor = XLColor.DimGray;
+            sheet.Range(3, 1, 3, headers.Length).Style.Font.Italic = true;
+            sheet.Range(3, 1, 3, headers.Length).Style.Alignment.WrapText = true;
+            sheet.Row(3).Height = 30;
             for (int column = 0; column < headers.Length; column++)
                 sheet.Cell(4, column + 1).Value = headers[column];
 

@@ -429,11 +429,14 @@ namespace QLThuVien.BUS
 
             try
             {
-                int maCTPP = daoChiTiet.Them(normalized);
+                List<ChiTietPhieuPhatDTO> chiTiet = LayChiTietTheoPhieu(normalized.MaPhieuPhat);
+                chiTiet.Add(normalized);
+                decimal tongTien = TongTien(chiTiet);
+                int maCTPP = daoChiTiet.ThemVaCapNhatTongTien(normalized, tongTien);
                 if (maCTPP <= 0) return false;
                 normalized.MaCTPP = maCTPP;
                 dsChiTiet_arr.Add(normalized);
-                CapNhatTongTienPhieu(normalized.MaPhieuPhat);
+                CapNhatTongTienTrongCache(normalized.MaPhieuPhat, tongTien);
                 return true;
             }
             catch (SqlException ex) when (ex.Number is 2601 or 2627)
@@ -473,7 +476,12 @@ namespace QLThuVien.BUS
 
             try
             {
-                bool success = daoChiTiet.Sua(normalized);
+                List<ChiTietPhieuPhatDTO> chiTiet = LayChiTietTheoPhieu(normalized.MaPhieuPhat);
+                int chiTietIndex = chiTiet.FindIndex(current => current.MaCTPP == maCTPP);
+                if (chiTietIndex < 0) return false;
+                chiTiet[chiTietIndex] = normalized;
+                decimal tongTien = TongTien(chiTiet);
+                bool success = daoChiTiet.SuaVaCapNhatTongTien(normalized, tongTien);
                 if (!success) return false;
                 for (int i = 0; i < dsChiTiet_arr.Count; i++)
                 {
@@ -483,7 +491,7 @@ namespace QLThuVien.BUS
                         break;
                     }
                 }
-                CapNhatTongTienPhieu(normalized.MaPhieuPhat);
+                CapNhatTongTienTrongCache(normalized.MaPhieuPhat, tongTien);
                 return true;
             }
             catch (SqlException ex) when (ex.Number is 2601 or 2627)
@@ -500,13 +508,27 @@ namespace QLThuVien.BUS
             ChiTietPhieuPhatDTO? existing = TimChiTietTheoMaCTPP(maCTPP) ?? daoChiTiet.LayTheoMaCTPP(maCTPP);
             if (existing == null) throw new BusinessRuleException("Không tìm thấy vi phạm cần xóa.");
 
-            bool success = daoChiTiet.Xoa(maCTPP);
+            List<ChiTietPhieuPhatDTO> chiTiet = LayChiTietTheoPhieu(existing.MaPhieuPhat);
+            decimal tongTien = TongTien(chiTiet.Where(current => current.MaCTPP != maCTPP));
+            bool success = daoChiTiet.XoaVaCapNhatTongTien(maCTPP, existing.MaPhieuPhat, tongTien);
             if (success)
             {
                 RemoveWhere(dsChiTiet_arr, item => item is ChiTietPhieuPhatDTO current && current.MaCTPP == maCTPP);
-                CapNhatTongTienPhieu(existing.MaPhieuPhat);
+                CapNhatTongTienTrongCache(existing.MaPhieuPhat, tongTien);
             }
             return success;
+        }
+
+        private void CapNhatTongTienTrongCache(string maPhieuPhat, decimal tongTien)
+        {
+            foreach (object item in dsPhieuPhat_arr)
+            {
+                if (item is PhieuPhatDTO pp && Same(pp.MaPhieuPhat, maPhieuPhat))
+                {
+                    pp.TongTienPhat = tongTien;
+                    break;
+                }
+            }
         }
 
         public decimal CapNhatTongTienPhieu(string maPhieuPhat)

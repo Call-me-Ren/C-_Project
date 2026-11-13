@@ -23,6 +23,7 @@ namespace QLThuVien.GUI
         private readonly DataGridView dgvDocGiaTheoQuy = TaoLuoi();
         private readonly DataGridView dgvDauSachTheoQuy = TaoLuoi();
         private readonly FlowLayoutPanel pnlTongHop = new FlowLayoutPanel();
+        private const string GhiChuThongKeQuy = "Bảng quý tính tổng tiền phạt của tất cả phiếu phạt đã lập, kể cả phiếu chưa thanh toán. Tổng thu ở bảng Thu - Chi chỉ tính phiếu đã thanh toán.";
 
         private void InitializeComponent()
         {
@@ -114,9 +115,9 @@ namespace QLThuVien.GUI
             Label yearLabel = new Label { AutoSize = true, Location = new Point(10, 14), Text = "Năm:" };
             numNamThongKe.Location = new Point(54, 10);
             TabControl quarterTabs = new TabControl { Dock = DockStyle.Fill, Name = "tabsThongKeQuy" };
-            quarterTabs.TabPages.Add(TaoTrang("Nhân viên", dgvNhanVienTheoQuy));
-            quarterTabs.TabPages.Add(TaoTrang("Độc giả", dgvDocGiaTheoQuy));
-            quarterTabs.TabPages.Add(TaoTrang("Đầu sách", dgvDauSachTheoQuy));
+            quarterTabs.TabPages.Add(TaoTrangQuy("Nhân viên", dgvNhanVienTheoQuy));
+            quarterTabs.TabPages.Add(TaoTrangQuy("Độc giả", dgvDocGiaTheoQuy));
+            quarterTabs.TabPages.Add(TaoTrangQuy("Đầu sách", dgvDauSachTheoQuy));
             filter.Controls.AddRange(new Control[] { yearLabel, numNamThongKe });
             page.Controls.Add(quarterTabs);
             page.Controls.Add(filter);
@@ -128,6 +129,34 @@ namespace QLThuVien.GUI
             TabPage page = new TabPage(title);
             grid.Dock = DockStyle.Fill;
             page.Controls.Add(grid);
+            return page;
+        }
+
+        private static TabPage TaoTrangQuy(string title, DataGridView grid)
+        {
+            TabPage page = new TabPage(title);
+            TableLayoutPanel layout = new TableLayoutPanel
+            {
+                ColumnCount = 1,
+                Dock = DockStyle.Fill,
+                RowCount = 2
+            };
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            layout.RowStyles.Add(new RowStyle(SizeType.Absolute, 30));
+
+            Label note = new Label
+            {
+                AutoEllipsis = true,
+                Dock = DockStyle.Fill,
+                Font = new Font("Segoe UI", 8.25F),
+                ForeColor = Color.DimGray,
+                Text = GhiChuThongKeQuy,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            grid.Dock = DockStyle.Fill;
+            layout.Controls.Add(grid, 0, 0);
+            layout.Controls.Add(note, 0, 1);
+            page.Controls.Add(layout);
             return page;
         }
 
