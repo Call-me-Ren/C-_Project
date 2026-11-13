@@ -31,6 +31,9 @@ namespace QLThuVien.BUS
             return danhSach;
         }
 
+        // Giữ lại tên hàm cũ để tương thích với các module khác (như frmPhieuNhap)
+        public List<DauSachDTO> DocDSSach() => DocDSDauSach();
+
         private ArrayList LayDanhSachTrongBoNho()
         {
             if (!daNapDanhSach) DocDSDauSach();
@@ -157,6 +160,11 @@ namespace QLThuVien.BUS
                     soLuongBoQua++;
                     loi.Add($"Dòng {soDongExcel}: {ex.Message}");
                 }
+            }
+
+            if (soLuongThem > 0)
+            {
+                DocDSDauSach();
             }
 
             return $"Đã thêm {soLuongThem} đầu sách mới; bỏ qua {soLuongBoQua} dòng.";

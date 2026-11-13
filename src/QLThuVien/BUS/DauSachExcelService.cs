@@ -3,154 +3,159 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Xml.Linq;
+using ClosedXML.Excel;
 
 namespace QLThuVien.BUS
 {
-    // Đọc/ghi workbook .xlsx tối giản bằng các thư viện có sẵn của .NET.
+    /// <summary>
+    /// Đọc và ghi workbook .xlsx cho Đầu sách sử dụng thư viện ClosedXML chuẩn của dự án.
+    /// </summary>
     internal static class DauSachExcelService
     {
-        private static readonly XNamespace SpreadsheetNs = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
-        private static readonly XNamespace OfficeRelNs = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-        private static readonly XNamespace PackageRelNs = "http://schemas.openxmlformats.org/package/2006/relationships";
-        private static readonly XNamespace ContentTypeNs = "http://schemas.openxmlformats.org/package/2006/content-types";
-
         public static void Ghi(string duongDan, IReadOnlyList<string> tieuDe, IReadOnlyList<IReadOnlyList<string>> dong)
         {
-            using FileStream stream = File.Create(duongDan);
-            using ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Create);
+            using var workbook = new XLWorkbook();
+            var ws = workbook.Worksheets.Add("DanhSachDauSach");
 
-            GhiXml(archive, "[Content_Types].xml", new XDocument(
-                new XElement(ContentTypeNs + "Types",
-                    new XElement(ContentTypeNs + "Default", new XAttribute("Extension", "rels"), new XAttribute("ContentType", "application/vnd.openxmlformats-package.relationships+xml")),
-                    new XElement(ContentTypeNs + "Default", new XAttribute("Extension", "xml"), new XAttribute("ContentType", "application/xml")),
-                    new XElement(ContentTypeNs + "Override", new XAttribute("PartName", "/xl/workbook.xml"), new XAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml")),
-                    new XElement(ContentTypeNs + "Override", new XAttribute("PartName", "/xl/worksheets/sheet1.xml"), new XAttribute("ContentType", "application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml")))));
-            GhiXml(archive, "_rels/.rels", new XDocument(
-                new XElement(PackageRelNs + "Relationships",
-                    new XElement(PackageRelNs + "Relationship", new XAttribute("Id", "rId1"), new XAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"), new XAttribute("Target", "xl/workbook.xml")))));
-            GhiXml(archive, "xl/workbook.xml", new XDocument(
-                new XElement(SpreadsheetNs + "workbook",
-                    new XAttribute(XNamespace.Xmlns + "r", OfficeRelNs),
-                    new XElement(SpreadsheetNs + "sheets",
-                        new XElement(SpreadsheetNs + "sheet", new XAttribute("name", "DanhSachDauSach"), new XAttribute("sheetId", "1"), new XAttribute(OfficeRelNs + "id", "rId1"))))));
-            GhiXml(archive, "xl/_rels/workbook.xml.rels", new XDocument(
-                new XElement(PackageRelNs + "Relationships",
-                    new XElement(PackageRelNs + "Relationship", new XAttribute("Id", "rId1"), new XAttribute("Type", "http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet"), new XAttribute("Target", "worksheets/sheet1.xml")))));
+            int colCount = Math.Max(1, tieuDe.Count);
 
-            XElement sheetData = new XElement(SpreadsheetNs + "sheetData");
-            ThemDong(sheetData, 1, tieuDe);
-            for (int i = 0; i < dong.Count; i++) ThemDong(sheetData, i + 2, dong[i]);
-            GhiXml(archive, "xl/worksheets/sheet1.xml", new XDocument(new XElement(SpreadsheetNs + "worksheet", sheetData)));
+            // 1. Tiêu đề chính
+            ws.Cell("A1").Value = "DANH SÁCH ĐẦU SÁCH THƯ VIỆN";
+            ws.Range(1, 1, 1, colCount).Merge();
+            ws.Cell("A1").Style.Font.Bold = true;
+            ws.Cell("A1").Style.Font.FontSize = 16;
+            ws.Cell("A1").Style.Font.FontColor = XLColor.FromArgb(41, 128, 185);
+            ws.Cell("A1").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            ws.Cell("A1").Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            ws.Row(1).Height = 35;
+
+            // 2. Ngày xuất
+            ws.Cell("A2").Value = $"Ngày xuất: {DateTime.Now:dd/MM/yyyy HH:mm}";
+            ws.Range(2, 1, 2, colCount).Merge();
+            ws.Cell("A2").Style.Font.Italic = true;
+            ws.Cell("A2").Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+
+            // 3. Header bảng dữ liệu
+            for (int i = 0; i < tieuDe.Count; i++)
+            {
+                var cell = ws.Cell(4, i + 1);
+                cell.Value = tieuDe[i];
+                cell.Style.Font.Bold = true;
+                cell.Style.Font.FontColor = XLColor.White;
+                cell.Style.Fill.BackgroundColor = XLColor.FromArgb(41, 128, 185);
+                cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            }
+            ws.Row(4).Height = 26;
+
+            // 4. Dữ liệu
+            int startRow = 5;
+            for (int r = 0; r < dong.Count; r++)
+            {
+                int currentRow = startRow + r;
+                var hang = dong[r];
+                for (int c = 0; c < hang.Count; c++)
+                {
+                    string giaTri = hang[c] ?? string.Empty;
+                    var cell = ws.Cell(currentRow, c + 1);
+
+                    // Nếu là cột số (Năm XB, Đơn giá, Số lượng, Đã mượn, Còn lại - từ cột 5 trở đi)
+                    if (c >= 5 && decimal.TryParse(giaTri, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal so))
+                    {
+                        cell.Value = so;
+                        cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
+                    }
+                    else
+                    {
+                        cell.Value = giaTri;
+                        if (c == 0 || c == 2 || c == 3 || c == 4)
+                            cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                        else
+                            cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    }
+                }
+
+                // Tô màu xen kẽ dòng
+                if (currentRow % 2 == 0)
+                {
+                    ws.Range(currentRow, 1, currentRow, colCount).Style.Fill.BackgroundColor = XLColor.FromArgb(248, 250, 252);
+                }
+            }
+
+            int endRow = startRow + dong.Count - 1;
+            if (endRow >= startRow)
+            {
+                var tableRange = ws.Range(4, 1, endRow, colCount);
+                tableRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                tableRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+                tableRange.Style.Border.OutsideBorderColor = XLColor.FromArgb(203, 213, 225);
+                tableRange.Style.Border.InsideBorderColor = XLColor.FromArgb(226, 232, 240);
+            }
+
+            ws.Columns().AdjustToContents();
+            workbook.SaveAs(duongDan);
         }
 
         public static List<string[]> Doc(string duongDan)
         {
-            using ZipArchive archive = ZipFile.OpenRead(duongDan);
-            XDocument workbook = DocXml(archive, "xl/workbook.xml");
-            XElement firstSheet = workbook.Descendants(SpreadsheetNs + "sheet").FirstOrDefault()
-                ?? throw new InvalidDataException("File Excel không có trang tính.");
-            string relationId = (string)firstSheet.Attribute(OfficeRelNs + "id");
-            XDocument relationships = DocXml(archive, "xl/_rels/workbook.xml.rels");
-            XElement relation = relationships.Root.Elements(PackageRelNs + "Relationship")
-                .FirstOrDefault(x => (string)x.Attribute("Id") == relationId)
-                ?? throw new InvalidDataException("Không tìm thấy dữ liệu trang tính trong file Excel.");
-            string target = (string)relation.Attribute("Target");
-            string sheetPath = target.StartsWith("/", StringComparison.Ordinal)
-                ? target.TrimStart('/')
-                : "xl/" + target.Replace("../", string.Empty);
-            XDocument sheet = DocXml(archive, sheetPath);
-            List<string> sharedStrings = DocXml(archive, "xl/sharedStrings.xml", batBuoc: false)?
-                .Descendants(SpreadsheetNs + "si")
-                .Select(si => string.Concat(si.Descendants(SpreadsheetNs + "t").Select(t => t.Value)))
-                .ToList() ?? new List<string>();
+            if (!File.Exists(duongDan))
+                throw new FileNotFoundException("Không tìm thấy file Excel.", duongDan);
+
+            using var workbook = new XLWorkbook(duongDan);
+            var ws = workbook.Worksheets.FirstOrDefault()
+                ?? throw new InvalidDataException("File Excel không có trang tính nào.");
+
+            var usedRange = ws.RangeUsed();
+            if (usedRange == null)
+                return new List<string[]>();
+
+            int firstRow = usedRange.FirstRow().RowNumber();
+            int lastRow = usedRange.LastRow().RowNumber();
+            int firstCol = usedRange.FirstColumn().ColumnNumber();
+            int lastCol = usedRange.LastColumn().ColumnNumber();
+
+            // Tìm hàng tiêu đề chứa các cột (ví dụ 'madausach', 'ma', 'mã', 'tensach', 'tên')
+            int headerRow = firstRow;
+            for (int r = firstRow; r <= Math.Min(lastRow, firstRow + 5); r++)
+            {
+                bool coTieuDe = false;
+                for (int c = firstCol; c <= lastCol; c++)
+                {
+                    string txt = ws.Cell(r, c).Value.ToString().Trim().ToLowerInvariant();
+                    if (txt.Contains("madausach") || txt.Contains("mã") || txt.Contains("tensach") || txt.Contains("tên"))
+                    {
+                        coTieuDe = true;
+                        break;
+                    }
+                }
+                if (coTieuDe)
+                {
+                    headerRow = r;
+                    break;
+                }
+            }
 
             List<string[]> rows = new List<string[]>();
-            foreach (XElement row in sheet.Descendants(SpreadsheetNs + "row"))
+            for (int r = headerRow; r <= lastRow; r++)
             {
-                Dictionary<int, string> cells = new Dictionary<int, string>();
-                foreach (XElement cell in row.Elements(SpreadsheetNs + "c"))
+                string[] rowValues = new string[lastCol - firstCol + 1];
+                bool hasValue = false;
+                for (int c = firstCol; c <= lastCol; c++)
                 {
-                    string address = (string)cell.Attribute("r") ?? string.Empty;
-                    int column = LayChiSoCot(address);
-                    string type = (string)cell.Attribute("t");
-                    XElement valueNode = cell.Element(SpreadsheetNs + "v");
-                    string value = type == "inlineStr"
-                        ? string.Concat(cell.Descendants(SpreadsheetNs + "t").Select(t => t.Value))
-                        : valueNode?.Value ?? string.Empty;
-                    if (type == "s" && int.TryParse(value, out int index) && index >= 0 && index < sharedStrings.Count)
-                        value = sharedStrings[index];
-                    cells[column] = value;
+                    var cell = ws.Cell(r, c);
+                    string val = cell.Value.ToString()?.Trim() ?? string.Empty;
+                    rowValues[c - firstCol] = val;
+                    if (!string.IsNullOrEmpty(val)) hasValue = true;
                 }
 
-                if (cells.Count == 0) continue;
-                string[] values = new string[cells.Keys.Max() + 1];
-                foreach (var cell in cells) values[cell.Key] = cell.Value;
-                rows.Add(values);
+                if (hasValue)
+                {
+                    rows.Add(rowValues);
+                }
             }
+
             return rows;
-        }
-
-        private static void ThemDong(XElement sheetData, int soDong, IReadOnlyList<string> values)
-        {
-            XElement row = new XElement(SpreadsheetNs + "row", new XAttribute("r", soDong));
-            for (int i = 0; i < values.Count; i++)
-            {
-                string value = values[i] ?? string.Empty;
-                string address = LayTenCot(i + 1) + soDong.ToString(CultureInfo.InvariantCulture);
-                if (soDong > 1 && i >= 5 && decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal number))
-                    row.Add(new XElement(SpreadsheetNs + "c", new XAttribute("r", address),
-                        new XElement(SpreadsheetNs + "v", number.ToString(CultureInfo.InvariantCulture))));
-                else
-                    row.Add(new XElement(SpreadsheetNs + "c", new XAttribute("r", address), new XAttribute("t", "inlineStr"),
-                        new XElement(SpreadsheetNs + "is", new XElement(SpreadsheetNs + "t", new XAttribute(XNamespace.Xml + "space", "preserve"), value))));
-            }
-            sheetData.Add(row);
-        }
-
-        private static int LayChiSoCot(string diaChi)
-        {
-            int cot = 0;
-            foreach (char kyTu in diaChi)
-            {
-                if (!char.IsLetter(kyTu)) break;
-                cot = cot * 26 + (char.ToUpperInvariant(kyTu) - 'A' + 1);
-            }
-            return Math.Max(0, cot - 1);
-        }
-
-        private static string LayTenCot(int cot)
-        {
-            StringBuilder tenCot = new StringBuilder();
-            while (cot > 0)
-            {
-                cot--;
-                tenCot.Insert(0, (char)('A' + cot % 26));
-                cot /= 26;
-            }
-            return tenCot.ToString();
-        }
-
-        private static XDocument DocXml(ZipArchive archive, string ten, bool batBuoc = true)
-        {
-            ZipArchiveEntry entry = archive.GetEntry(ten);
-            if (entry == null)
-            {
-                if (!batBuoc) return null;
-                throw new InvalidDataException($"File Excel thiếu thành phần '{ten}'.");
-            }
-            using Stream stream = entry.Open();
-            return XDocument.Load(stream);
-        }
-
-        private static void GhiXml(ZipArchive archive, string ten, XDocument document)
-        {
-            ZipArchiveEntry entry = archive.CreateEntry(ten, CompressionLevel.Optimal);
-            using Stream stream = entry.Open();
-            document.Save(stream);
         }
     }
 }
