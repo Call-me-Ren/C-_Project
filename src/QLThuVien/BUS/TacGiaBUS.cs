@@ -65,6 +65,11 @@ namespace QLThuVien.BUS
         // 5. Sửa Tác giả
         public void Sua(TacGiaDTO TacGia)
         {
+            if (TacGia == null || string.IsNullOrWhiteSpace(TacGia.MaTG) || string.IsNullOrWhiteSpace(TacGia.TenTG))
+                throw new ArgumentException("Mã và tên tác giả không được để trống.");
+            TacGia.MaTG = TacGia.MaTG.Trim();
+            TacGia.HoLot = (TacGia.HoLot ?? string.Empty).Trim();
+            TacGia.TenTG = TacGia.TenTG.Trim();
             TacGiaDAO TacGiaDAO = new TacGiaDAO();
             TacGiaDAO.Sua(TacGia);
             DocDSTacGia();

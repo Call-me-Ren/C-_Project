@@ -50,39 +50,54 @@ namespace QLThuVien.GUI
             try
             {
                 if (string.IsNullOrWhiteSpace(txtMaNXB.Text) || string.IsNullOrWhiteSpace(txtTenNXB.Text))
-                { MessageBox.Show("Nhập đầy đủ mã và tên NXB.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-
-                // KIỂM TRA TRÙNG MÃ
-                if (nxbBUS.KiemTraTrungMa(txtMaNXB.Text.Trim()))
                 {
-                    MessageBox.Show("Mã NXB '" + txtMaNXB.Text.Trim() + "' đã tồn tại! Vui lòng nhập mã khác.", "Cảnh báo trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Vui lòng nhập đầy đủ mã và tên NXB.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 nxbBUS.Them(new NXBDTO(txtMaNXB.Text.Trim(), txtTenNXB.Text.Trim(), txtDiaChi.Text.Trim()));
                 TaiDuLieu(nxbBUS.DocDSNXB());
+                LamMoi();
                 MessageBox.Show("Thêm NXB thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi thêm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnSua_Click(object sender, EventArgs e)
         {
             try
             {
-                if (dgvNXB.CurrentRow == null) { MessageBox.Show("Chọn NXB cần sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-                if (string.IsNullOrWhiteSpace(txtTenNXB.Text)) { MessageBox.Show("Vui lòng nhập tên nhà xuất bản.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                if (dgvNXB.CurrentRow == null)
+                {
+                    MessageBox.Show("Chọn NXB cần sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(txtTenNXB.Text))
+                {
+                    MessageBox.Show("Vui lòng nhập tên nhà xuất bản.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 string maGoc = (dgvNXB.CurrentRow.DataBoundItem as NXBDTO).MaNXB;
                 nxbBUS.Sua(new NXBDTO(maGoc, txtTenNXB.Text.Trim(), txtDiaChi.Text.Trim()));
                 TaiDuLieu(nxbBUS.DocDSNXB());
                 MessageBox.Show("Cập nhật thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex) { MessageBox.Show("Lỗi sửa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnXoa_Click(object sender, EventArgs e)
         {
-            if (dgvNXB.CurrentRow == null) { MessageBox.Show("Chọn NXB cần xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+            if (dgvNXB.CurrentRow == null)
+            {
+                MessageBox.Show("Chọn NXB cần xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             string ma = txtMaNXB.Text.Trim();
             if (MessageBox.Show("Xóa NXB '" + ma + "'?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
             {
@@ -93,7 +108,10 @@ namespace QLThuVien.GUI
                     LamMoi();
                     MessageBox.Show("Xóa thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
-                catch (Exception ex) { MessageBox.Show("Lỗi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+                catch (Exception ex)
+                {
+                    FormErrors.Show(ex);
+                }
             }
         }
 

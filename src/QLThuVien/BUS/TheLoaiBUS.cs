@@ -69,6 +69,10 @@ namespace QLThuVien.BUS
         // 5. Sửa Thể loại
         public void Sua(TheLoaiDTO TheLoai)
         {
+            if (TheLoai == null || string.IsNullOrWhiteSpace(TheLoai.MaTL) || string.IsNullOrWhiteSpace(TheLoai.TenTL))
+                throw new ArgumentException("Mã và tên thể loại không được để trống.");
+            TheLoai.MaTL = TheLoai.MaTL.Trim();
+            TheLoai.TenTL = TheLoai.TenTL.Trim();
             TheLoaiDAO TheLoaiDAO = new TheLoaiDAO();
             TheLoaiDAO.Sua(TheLoai);
             DocDSTL();

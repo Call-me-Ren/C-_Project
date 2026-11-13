@@ -47,22 +47,40 @@ namespace QLThuVien.BUS
         // 3. Thêm NXB
         public void Them(NXBDTO NXB)
         {
+            if (NXB == null || string.IsNullOrWhiteSpace(NXB.MaNXB) || string.IsNullOrWhiteSpace(NXB.TenNXB))
+                throw new ArgumentException("Mã và tên nhà xuất bản không được để trống.");
+            string ma = NXB.MaNXB.Trim();
+            if (KiemTraTrungMa(ma))
+                throw new InvalidOperationException($"Mã NXB '{ma}' đã tồn tại trong hệ thống.");
+            NXB.MaNXB = ma;
+            NXB.TenNXB = NXB.TenNXB.Trim();
+            NXB.DiaChi = (NXB.DiaChi ?? string.Empty).Trim();
             NXBDAO NXBDAO = new NXBDAO();
             NXBDAO.Them(NXB);
+            DocDSNXB();
         }
 
         // 4. Xóa NXB
         public void Xoa(string maNXB)
         {
+            if (string.IsNullOrWhiteSpace(maNXB))
+                throw new ArgumentException("Mã nhà xuất bản không được để trống.");
             NXBDAO NXBDAO = new NXBDAO();
-            NXBDAO.Xoa(maNXB);
+            NXBDAO.Xoa(maNXB.Trim());
+            DocDSNXB();
         }
 
         // 5. Sửa NXB
         public void Sua(NXBDTO NXB)
         {
+            if (NXB == null || string.IsNullOrWhiteSpace(NXB.MaNXB) || string.IsNullOrWhiteSpace(NXB.TenNXB))
+                throw new ArgumentException("Mã và tên nhà xuất bản không được để trống.");
+            NXB.MaNXB = NXB.MaNXB.Trim();
+            NXB.TenNXB = NXB.TenNXB.Trim();
+            NXB.DiaChi = (NXB.DiaChi ?? string.Empty).Trim();
             NXBDAO NXBDAO = new NXBDAO();
             NXBDAO.Sua(NXB);
+            DocDSNXB();
         }
 
         // 6. Tìm kiếm NXB

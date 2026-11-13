@@ -67,11 +67,9 @@ namespace QLThuVien.GUI
                     return;
                 }
 
-                if (string.IsNullOrWhiteSpace(txtTenTG.Text)) { MessageBox.Show("Vui lòng nhập tên tác giả.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-                string maGoc = (dgvTacGia.CurrentRow.DataBoundItem as TacGiaDTO).MaTG;
                 TacGiaDTO tg = new TacGiaDTO
                 {
-                    MaTG = maGoc,
+                    MaTG = txtMaTG.Text.Trim(),
                     HoLot = txtHoLot.Text.Trim(),
                     TenTG = txtTenTG.Text.Trim(),
                     NgaySinh = chkNgaySinh.Checked ? dtpNgaySinh.Value : null,
@@ -80,11 +78,12 @@ namespace QLThuVien.GUI
 
                 tacGiaBUS.Them(tg);
                 TaiDuLieu(tacGiaBUS.DocDSTacGia());
+                LamMoi();
                 MessageBox.Show("Thêm tác giả thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi thêm tác giả: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FormErrors.Show(ex);
             }
         }
 
@@ -98,9 +97,16 @@ namespace QLThuVien.GUI
                     return;
                 }
 
+                if (string.IsNullOrWhiteSpace(txtTenTG.Text))
+                {
+                    MessageBox.Show("Vui lòng nhập tên tác giả.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                string maGoc = (dgvTacGia.CurrentRow.DataBoundItem as TacGiaDTO)?.MaTG ?? txtMaTG.Text.Trim();
                 TacGiaDTO tg = new TacGiaDTO
                 {
-                    MaTG = txtMaTG.Text.Trim(),
+                    MaTG = maGoc,
                     HoLot = txtHoLot.Text.Trim(),
                     TenTG = txtTenTG.Text.Trim(),
                     NgaySinh = chkNgaySinh.Checked ? dtpNgaySinh.Value : null,
@@ -113,7 +119,7 @@ namespace QLThuVien.GUI
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi sửa tác giả: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FormErrors.Show(ex);
             }
         }
 
