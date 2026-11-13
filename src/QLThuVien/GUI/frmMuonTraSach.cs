@@ -454,5 +454,22 @@ namespace QLThuVien.GUI
                 FormErrors.Show(ex);
             }
         }
+
+        // 18. CHỌN ĐỘC GIẢ QUA POPUP TÌM KIẾM NHANH (Nút ...)
+        private void btnChonDocGia_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                using var popup = new frmTimKiemDocGiaPopup();
+                if (popup.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(frmTimKiemDocGiaPopup.SelectedMaDocGia))
+                {
+                    cboDocGia.SelectedValue = frmTimKiemDocGiaPopup.SelectedMaDocGia;
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
     }
 }

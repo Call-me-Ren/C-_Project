@@ -290,5 +290,103 @@ namespace QLThuVien.GUI
 
             return new DocGiaDTO(maDG, hoLot, tenDG, ngaySinh, sdt, maLDG, tenLDG);
         }
+
+        // 12. XUẤT EXCEL DANH SÁCH ĐỘC GIẢ
+        private void btnXuatExcel_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var ds = dgvDocGia.DataSource as List<DocGiaDTO>;
+                if (ds == null || ds.Count == 0)
+                {
+                    MessageBox.Show("Danh sách độc giả đang trống, không thể xuất Excel!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                using var sfd = new SaveFileDialog();
+                sfd.Filter = "Tài liệu Excel (*.xlsx)|*.xlsx";
+                sfd.FileName = $"DanhSachDocGia_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    ExcelExportService.XuatDanhSachDocGia(ds, sfd.FileName);
+
+                    DialogResult open = MessageBox.Show(
+                        "Xuất danh sách độc giả ra Excel thành công!\nBạn có muốn mở file ngay bây giờ không?",
+                        "Xuất Excel thành công",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information
+                    );
+
+                    if (open == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sfd.FileName)
+                        {
+                            UseShellExecute = true
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
+
+        // 13. XUẤT EXCEL LỊCH SỬ MƯỢN TRẢ CỦA ĐỘC GIẢ
+        private void btnXuatLichSu_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string maDG = txtMaDG.Text.Trim();
+                if (string.IsNullOrWhiteSpace(maDG))
+                {
+                    MessageBox.Show("Vui lòng chọn 1 độc giả từ bảng để xuất lịch sử mượn trả!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                DocGiaDTO? dg = docGiaBUS.TimTheoMa(maDG);
+                if (dg == null)
+                {
+                    MessageBox.Show("Không tìm thấy thông tin độc giả được chọn!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                System.Data.DataTable dtLichSu = docGiaBUS.LayLichSuMuonTra(maDG);
+                if (dtLichSu.Rows.Count == 0)
+                {
+                    MessageBox.Show($"Độc giả '{dg.HoTen}' ({dg.MaDG}) chưa có lịch sử mượn trả sách nào!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                using var sfd = new SaveFileDialog();
+                sfd.Filter = "Tài liệu Excel (*.xlsx)|*.xlsx";
+                sfd.FileName = $"LichSuMuon_{dg.MaDG}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    ExcelExportService.XuatLichSuMuonTra(dg, dtLichSu, sfd.FileName);
+
+                    DialogResult open = MessageBox.Show(
+                        "Xuất lịch sử mượn trả ra Excel thành công!\nBạn có muốn mở file ngay bây giờ không?",
+                        "Xuất Excel thành công",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Information
+                    );
+
+                    if (open == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(sfd.FileName)
+                        {
+                            UseShellExecute = true
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
     }
 }

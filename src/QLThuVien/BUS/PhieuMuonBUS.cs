@@ -72,14 +72,14 @@ namespace QLThuVien.BUS
         // 3. ĐỌC THAM SỐ CẤU HÌNH HỆ THỐNG
         public int LaySoSachMuonToiDa()
         {
-            string val = pmDAO.LayGiaTriThamSo("SO_SACH_MUON_TOI_DA", "5");
-            return int.TryParse(val, out int result) ? result : 5;
+            string val = ThamSoBUS.LayGiaTriTheoMa("SO_SACH_MUON_TOI_DA", "5");
+            return int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) ? result : 5;
         }
 
         public int LaySoNgayMuonToiDa()
         {
-            string val = pmDAO.LayGiaTriThamSo("SO_NGAY_MUON_TOI_DA", "7");
-            return int.TryParse(val, out int result) ? result : 7;
+            string val = ThamSoBUS.LayGiaTriTheoMa("SO_NGAY_MUON_TOI_DA", "7");
+            return int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) ? result : 7;
         }
 
         // 4. LẤY CHI TIẾT SÁCH MƯỢN CỦA 1 PHIẾU

@@ -120,5 +120,37 @@ namespace QLThuVien.DAO
             int countPP = Convert.ToInt32(MyConnection.ExecuteScalar(queryPP, paramPP));
             return countPP > 0;
         }
+
+        // 6. LẤY LỊCH SỬ MƯỢN TRẢ CỦA ĐỘC GIẢ
+        public DataTable LayLichSuMuonTra(string maDG)
+        {
+            string query = @"
+                SELECT 
+                    pm.MaPM,
+                    pm.NgayMuon,
+                    pm.HanTra,
+                    s.MaSach,
+                    ds.TenSach,
+                    ct.NgayThucTra,
+                    ct.TinhTrangTra,
+                    CASE 
+                        WHEN ct.NgayThucTra IS NOT NULL THEN N'Đã trả'
+                        WHEN GETDATE() > pm.HanTra THEN N'Quá hạn'
+                        ELSE N'Đang mượn'
+                    END AS TrangThai
+                FROM PhieuMuon pm
+                INNER JOIN ChiTietPhieuMuon ct ON pm.MaPM = ct.MaPhieuMuon
+                INNER JOIN Sach s ON ct.MaSach = s.MaSach
+                INNER JOIN DauSach ds ON s.MaDauSach = ds.MaDauSach
+                WHERE pm.MaDocGia = @MaDG
+                ORDER BY pm.NgayMuon DESC, pm.MaPM DESC";
+
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@MaDG", SqlDbType.VarChar, 20) { Value = maDG }
+            };
+
+            return MyConnection.ExecuteQuery(query, parameters);
+        }
     }
 }
