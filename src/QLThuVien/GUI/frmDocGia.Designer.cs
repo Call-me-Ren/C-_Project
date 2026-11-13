@@ -37,6 +37,8 @@ namespace QLThuVien.GUI
             btnXoa = new Button();
             btnSua = new Button();
             btnThem = new Button();
+            btnXuatExcel = new Button();
+            btnXuatLichSu = new Button();
             grpTimKiem = new GroupBox();
             btnTatCa = new Button();
             btnTimKiem = new Button();
@@ -215,6 +217,8 @@ namespace QLThuVien.GUI
             // 
             // grpChucNang
             // 
+            grpChucNang.Controls.Add(btnXuatLichSu);
+            grpChucNang.Controls.Add(btnXuatExcel);
             grpChucNang.Controls.Add(btnLamMoi);
             grpChucNang.Controls.Add(btnXoa);
             grpChucNang.Controls.Add(btnSua);
@@ -229,10 +233,10 @@ namespace QLThuVien.GUI
             // 
             // btnLamMoi
             // 
-            btnLamMoi.Font = new Font("Segoe UI", 9.5F);
-            btnLamMoi.Location = new Point(148, 85);
+            btnLamMoi.Font = new Font("Segoe UI", 9F);
+            btnLamMoi.Location = new Point(146, 58);
             btnLamMoi.Name = "btnLamMoi";
-            btnLamMoi.Size = new Size(118, 36);
+            btnLamMoi.Size = new Size(122, 34);
             btnLamMoi.TabIndex = 3;
             btnLamMoi.Text = "Làm mới";
             btnLamMoi.UseVisualStyleBackColor = true;
@@ -240,10 +244,10 @@ namespace QLThuVien.GUI
             // 
             // btnXoa
             // 
-            btnXoa.Font = new Font("Segoe UI", 9.5F);
-            btnXoa.Location = new Point(148, 32);
+            btnXoa.Font = new Font("Segoe UI", 9F);
+            btnXoa.Location = new Point(146, 21);
             btnXoa.Name = "btnXoa";
-            btnXoa.Size = new Size(118, 36);
+            btnXoa.Size = new Size(122, 34);
             btnXoa.TabIndex = 2;
             btnXoa.Text = "Xóa";
             btnXoa.UseVisualStyleBackColor = true;
@@ -251,10 +255,10 @@ namespace QLThuVien.GUI
             // 
             // btnSua
             // 
-            btnSua.Font = new Font("Segoe UI", 9.5F);
-            btnSua.Location = new Point(16, 85);
+            btnSua.Font = new Font("Segoe UI", 9F);
+            btnSua.Location = new Point(14, 58);
             btnSua.Name = "btnSua";
-            btnSua.Size = new Size(118, 36);
+            btnSua.Size = new Size(122, 34);
             btnSua.TabIndex = 1;
             btnSua.Text = "Sửa";
             btnSua.UseVisualStyleBackColor = true;
@@ -262,14 +266,36 @@ namespace QLThuVien.GUI
             // 
             // btnThem
             // 
-            btnThem.Font = new Font("Segoe UI", 9.5F);
-            btnThem.Location = new Point(16, 32);
+            btnThem.Font = new Font("Segoe UI", 9F);
+            btnThem.Location = new Point(14, 21);
             btnThem.Name = "btnThem";
-            btnThem.Size = new Size(118, 36);
+            btnThem.Size = new Size(122, 34);
             btnThem.TabIndex = 0;
             btnThem.Text = "Thêm";
             btnThem.UseVisualStyleBackColor = true;
             btnThem.Click += btnThem_Click;
+            // 
+            // btnXuatExcel
+            // 
+            btnXuatExcel.Font = new Font("Segoe UI", 9F);
+            btnXuatExcel.Location = new Point(14, 98);
+            btnXuatExcel.Name = "btnXuatExcel";
+            btnXuatExcel.Size = new Size(122, 36);
+            btnXuatExcel.TabIndex = 4;
+            btnXuatExcel.Text = "📊 Xuất Excel";
+            btnXuatExcel.UseVisualStyleBackColor = true;
+            btnXuatExcel.Click += btnXuatExcel_Click;
+            // 
+            // btnXuatLichSu
+            // 
+            btnXuatLichSu.Font = new Font("Segoe UI", 9F);
+            btnXuatLichSu.Location = new Point(146, 98);
+            btnXuatLichSu.Name = "btnXuatLichSu";
+            btnXuatLichSu.Size = new Size(122, 36);
+            btnXuatLichSu.TabIndex = 5;
+            btnXuatLichSu.Text = "📑 Lịch sử mượn";
+            btnXuatLichSu.UseVisualStyleBackColor = true;
+            btnXuatLichSu.Click += btnXuatLichSu_Click;
             // 
             // grpTimKiem
             // 
@@ -431,6 +457,8 @@ namespace QLThuVien.GUI
         private Button btnXoa;
         private Button btnSua;
         private Button btnThem;
+        private Button btnXuatExcel;
+        private Button btnXuatLichSu;
         private GroupBox grpTimKiem;
         private Button btnTatCa;
         private Button btnTimKiem;

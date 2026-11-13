@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Text.RegularExpressions;
 using QLThuVien.DAO;
 using QLThuVien.DTO;
@@ -253,6 +254,12 @@ namespace QLThuVien.BUS
             }
 
             return ketQua;
+        }
+
+        // 9. LẤY LỊCH SỬ MƯỢN TRẢ
+        public DataTable LayLichSuMuonTra(string maDG)
+        {
+            return dgDAO.LayLichSuMuonTra(maDG);
         }
     }
 }

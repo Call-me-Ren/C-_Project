@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace QLThuVien.Web.Data
 {
@@ -23,7 +24,15 @@ namespace QLThuVien.Web.Data
 
     public class TraCuuSachService
     {
-        private readonly string connectionString = @"Server=.;Database=QLThuVien;Integrated Security=True;TrustServerCertificate=True;";
+        private const string DefaultFallbackConnectionString = @"Server=.;Database=QLThuVien;Integrated Security=True;TrustServerCertificate=True;";
+        private readonly string connectionString;
+
+        public TraCuuSachService(IConfiguration configuration)
+        {
+            connectionString = configuration.GetConnectionString("DefaultConnection")
+                ?? configuration["ConnectionStrings:DefaultConnection"]
+                ?? DefaultFallbackConnectionString;
+        }
 
         public List<DauSachTraCuu> LayDanhSachDauSach(string? tuKhoa = null)
         {

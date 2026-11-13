@@ -113,27 +113,7 @@ namespace QLThuVien.DAO
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        // 5. ĐỌC THAM SỐ HỆ THỐNG (Bảng 17: ThamSo)
-        public string LayGiaTriThamSo(string maTS, string macDinh)
-        {
-            try
-            {
-                string query = "SELECT GiaTri FROM ThamSo WHERE MaTS = @MaTS";
-                SqlParameter[] parameters = new SqlParameter[]
-                {
-                    new SqlParameter("@MaTS", SqlDbType.VarChar, 50) { Value = maTS }
-                };
-
-                object? result = MyConnection.ExecuteScalar(query, parameters);
-                return result != null ? result.ToString() ?? macDinh : macDinh;
-            }
-            catch
-            {
-                return macDinh;
-            }
-        }
-
-        // 6. KIỂM TRA PHIẾU MƯỢN ĐÃ CÓ PHÁT SINH PHIẾU PHẠT (Chống lủng CSDL)
+        // 5. KIỂM TRA PHIẾU MƯỢN ĐÃ CÓ PHÁT SINH PHIẾU PHẠT (Chống lủng CSDL)
         public bool KiemTraDangSuDung(string maPM)
         {
             string query = "SELECT COUNT(1) FROM PhieuPhat WHERE MaPhieuMuon = @MaPM";
