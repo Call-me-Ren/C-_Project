@@ -8,6 +8,7 @@ namespace QLThuVien.GUI
         private Panel pnlMenuLeft;
         private Panel pnlHeader;
         private Panel pnlContent;
+        private Panel pnlMenuContainer;
         private Label lblAppName;
         private Label lblTitle;
         private Button btnThoat;
@@ -15,68 +16,124 @@ namespace QLThuVien.GUI
         private void InitializeComponent()
         {
             pnlMenuLeft = new Panel();
-            pnlHeader = new Panel();
-            pnlContent = new Panel();
+            pnlMenuContainer = new Panel();
             lblAppName = new Label();
-            lblTitle = new Label();
             btnThoat = new Button();
+            pnlHeader = new Panel();
+            lblTitle = new Label();
+            pnlContent = new Panel();
             SuspendLayout();
 
+            // 
+            // pnlMenuLeft
+            // 
             pnlMenuLeft.BackColor = Color.FromArgb(30, 41, 59);
             pnlMenuLeft.Dock = DockStyle.Left;
-            pnlMenuLeft.Width = 225;
-            pnlMenuLeft.Padding = new Padding(0);
-
-            lblAppName.Text = "QUẢN LÝ THƯ VIỆN";
-            lblAppName.Dock = DockStyle.Top;
-            lblAppName.Height = 72;
-            lblAppName.TextAlign = ContentAlignment.MiddleCenter;
-            lblAppName.ForeColor = Color.White;
-            lblAppName.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Sách", "Sach"));
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Đầu sách", "DauSach"));
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Nhà xuất bản", "NhaXuatBan"));
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Tác giả", "TacGia"));
-            pnlMenuLeft.Controls.Add(TaoNutMenu("Thể loại", "TheLoai"));
+            pnlMenuLeft.Width = 240;
+            pnlMenuLeft.Controls.Add(pnlMenuContainer);
+            pnlMenuLeft.Controls.Add(btnThoat);
             pnlMenuLeft.Controls.Add(lblAppName);
 
-            btnThoat.Text = "Thoát hệ thống";
+            // 
+            // lblAppName
+            // 
+            lblAppName.Text = "📚 QL THƯ VIỆN";
+            lblAppName.Dock = DockStyle.Top;
+            lblAppName.Height = 60;
+            lblAppName.TextAlign = ContentAlignment.MiddleCenter;
+            lblAppName.ForeColor = Color.White;
+            lblAppName.BackColor = Color.FromArgb(15, 23, 42);
+            lblAppName.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+
+            // 
+            // btnThoat
+            // 
+            btnThoat.Text = "🚪  Thoát hệ thống";
             btnThoat.Dock = DockStyle.Bottom;
-            btnThoat.Height = 48;
+            btnThoat.Height = 44;
             btnThoat.FlatStyle = FlatStyle.Flat;
             btnThoat.FlatAppearance.BorderSize = 0;
-            btnThoat.ForeColor = Color.FromArgb(255, 112, 112);
+            btnThoat.ForeColor = Color.FromArgb(248, 113, 113);
             btnThoat.BackColor = Color.FromArgb(15, 23, 42);
             btnThoat.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnThoat.Cursor = Cursors.Hand;
             btnThoat.Click += btnThoat_Click;
-            pnlMenuLeft.Controls.Add(btnThoat);
 
+            // 
+            // pnlMenuContainer
+            // 
+            pnlMenuContainer.Dock = DockStyle.Fill;
+            pnlMenuContainer.AutoScroll = true;
+            pnlMenuContainer.BackColor = Color.FromArgb(30, 41, 59);
+
+            // Thêm các mục menu và tiêu đề nhóm theo thứ tự hiển thị từ trên xuống
+            ThemVaoMenu(TaoTieuDeNhom("MƯỢN - TRẢ & ĐỘC GIẢ"));
+            ThemVaoMenu(TaoNutMenu("📖  Mượn - Trả sách", "MuonTraSach"));
+            ThemVaoMenu(TaoNutMenu("👥  Quản lý độc giả", "DocGia"));
+            ThemVaoMenu(TaoNutMenu("🏷️  Loại độc giả", "LoaiDocGia"));
+
+            ThemVaoMenu(TaoTieuDeNhom("SÁCH & DANH MỤC"));
+            ThemVaoMenu(TaoNutMenu("📚  Quản lý đầu sách", "DauSach"));
+            ThemVaoMenu(TaoNutMenu("📑  Quản lý cuốn sách", "Sach"));
+            ThemVaoMenu(TaoNutMenu("🗂️  Thể loại sách", "TheLoai"));
+            ThemVaoMenu(TaoNutMenu("✍️  Tác giả", "TacGia"));
+            ThemVaoMenu(TaoNutMenu("🏢  Nhà xuất bản", "NhaXuatBan"));
+
+            ThemVaoMenu(TaoTieuDeNhom("NHẬP KHO & ĐỐI TÁC"));
+            ThemVaoMenu(TaoNutMenu("📦  Phiếu nhập sách", "PhieuNhap"));
+            ThemVaoMenu(TaoNutMenu("🚚  Nhà cung cấp", "NhaCungCap"));
+            ThemVaoMenu(TaoNutMenu("⚙️  Tham số hệ thống", "ThamSo"));
+
+            ThemVaoMenu(TaoTieuDeNhom("XỬ PHẠT & BÁO CÁO"));
+            ThemVaoMenu(TaoNutMenu("⚖️  Xử lý phiếu phạt", "PhieuPhat"));
+            ThemVaoMenu(TaoNutMenu("📜  Quy định xử phạt", "QuyDinhPhat"));
+            ThemVaoMenu(TaoNutMenu("📊  Báo cáo thống kê", "ThongKe"));
+            ThemVaoMenu(TaoNutMenu("🧑‍💼  Quản lý nhân viên", "NhanVien"));
+
+            // 
+            // pnlHeader
+            // 
             pnlHeader.BackColor = Color.White;
             pnlHeader.Dock = DockStyle.Top;
-            pnlHeader.Height = 64;
-            pnlHeader.Padding = new Padding(24, 0, 0, 0);
+            pnlHeader.Height = 56;
+            pnlHeader.Padding = new Padding(20, 0, 0, 0);
             pnlHeader.BorderStyle = BorderStyle.FixedSingle;
-
-            lblTitle.Dock = DockStyle.Fill;
-            lblTitle.Text = "Quản lý thư viện";
-            lblTitle.TextAlign = ContentAlignment.MiddleLeft;
-            lblTitle.Font = new Font("Segoe UI", 15F, FontStyle.Bold);
-            lblTitle.ForeColor = Color.FromArgb(30, 41, 59);
             pnlHeader.Controls.Add(lblTitle);
 
+            // 
+            // lblTitle
+            // 
+            lblTitle.Dock = DockStyle.Fill;
+            lblTitle.Text = "Quản lý mượn - trả sách (Main - Sub)";
+            lblTitle.TextAlign = ContentAlignment.MiddleLeft;
+            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(30, 41, 59);
+
+            // 
+            // pnlContent
+            // 
             pnlContent.BackColor = Color.FromArgb(241, 245, 249);
             pnlContent.Dock = DockStyle.Fill;
-            pnlContent.Padding = new Padding(12);
+            pnlContent.Padding = new Padding(10);
 
-            Text = "Quản lý thư viện";
+            // 
+            // frmMain
+            // 
+            Text = "Hệ Thống Quản Lý Thư Viện Đại Học Sài Gòn (SGU)";
             StartPosition = FormStartPosition.CenterScreen;
-            MinimumSize = new Size(1100, 700);
-            ClientSize = new Size(1280, 800);
+            MinimumSize = new Size(1200, 750);
+            ClientSize = new Size(1366, 820);
             Controls.Add(pnlContent);
             Controls.Add(pnlHeader);
             Controls.Add(pnlMenuLeft);
             Name = "frmMain";
             ResumeLayout(false);
+        }
+
+        private void ThemVaoMenu(Control control)
+        {
+            pnlMenuContainer.Controls.Add(control);
+            control.SendToBack();
         }
     }
 }
