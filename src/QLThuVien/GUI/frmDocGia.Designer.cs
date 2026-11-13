@@ -37,6 +37,9 @@ namespace QLThuVien.GUI
             btnXoa = new Button();
             btnSua = new Button();
             btnThem = new Button();
+            btnXuatExcel = new Button();
+            btnNhapExcel = new Button();
+            btnXuatLichSu = new Button();
             grpTimKiem = new GroupBox();
             btnTatCa = new Button();
             btnTimKiem = new Button();
@@ -213,8 +216,12 @@ namespace QLThuVien.GUI
             lblMaDG.TabIndex = 0;
             lblMaDG.Text = "Mã ĐG:";
             // 
+            // 
             // grpChucNang
             // 
+            grpChucNang.Controls.Add(btnXuatLichSu);
+            grpChucNang.Controls.Add(btnNhapExcel);
+            grpChucNang.Controls.Add(btnXuatExcel);
             grpChucNang.Controls.Add(btnLamMoi);
             grpChucNang.Controls.Add(btnXoa);
             grpChucNang.Controls.Add(btnSua);
@@ -227,49 +234,82 @@ namespace QLThuVien.GUI
             grpChucNang.TabStop = false;
             grpChucNang.Text = "Chức năng";
             // 
-            // btnLamMoi
+            // btnThem
             // 
-            btnLamMoi.Font = new Font("Segoe UI", 9.5F);
-            btnLamMoi.Location = new Point(148, 85);
-            btnLamMoi.Name = "btnLamMoi";
-            btnLamMoi.Size = new Size(118, 36);
-            btnLamMoi.TabIndex = 3;
-            btnLamMoi.Text = "Làm mới";
-            btnLamMoi.UseVisualStyleBackColor = true;
-            btnLamMoi.Click += btnLamMoi_Click;
-            // 
-            // btnXoa
-            // 
-            btnXoa.Font = new Font("Segoe UI", 9.5F);
-            btnXoa.Location = new Point(148, 32);
-            btnXoa.Name = "btnXoa";
-            btnXoa.Size = new Size(118, 36);
-            btnXoa.TabIndex = 2;
-            btnXoa.Text = "Xóa";
-            btnXoa.UseVisualStyleBackColor = true;
-            btnXoa.Click += btnXoa_Click;
+            btnThem.Font = new Font("Segoe UI", 9F);
+            btnThem.Location = new Point(10, 21);
+            btnThem.Name = "btnThem";
+            btnThem.Size = new Size(82, 33);
+            btnThem.TabIndex = 0;
+            btnThem.Text = "Thêm";
+            btnThem.UseVisualStyleBackColor = true;
+            btnThem.Click += btnThem_Click;
             // 
             // btnSua
             // 
-            btnSua.Font = new Font("Segoe UI", 9.5F);
-            btnSua.Location = new Point(16, 85);
+            btnSua.Font = new Font("Segoe UI", 9F);
+            btnSua.Location = new Point(98, 21);
             btnSua.Name = "btnSua";
-            btnSua.Size = new Size(118, 36);
+            btnSua.Size = new Size(82, 33);
             btnSua.TabIndex = 1;
             btnSua.Text = "Sửa";
             btnSua.UseVisualStyleBackColor = true;
             btnSua.Click += btnSua_Click;
             // 
-            // btnThem
+            // btnXoa
             // 
-            btnThem.Font = new Font("Segoe UI", 9.5F);
-            btnThem.Location = new Point(16, 32);
-            btnThem.Name = "btnThem";
-            btnThem.Size = new Size(118, 36);
-            btnThem.TabIndex = 0;
-            btnThem.Text = "Thêm";
-            btnThem.UseVisualStyleBackColor = true;
-            btnThem.Click += btnThem_Click;
+            btnXoa.Font = new Font("Segoe UI", 9F);
+            btnXoa.Location = new Point(186, 21);
+            btnXoa.Name = "btnXoa";
+            btnXoa.Size = new Size(86, 33);
+            btnXoa.TabIndex = 2;
+            btnXoa.Text = "Xóa";
+            btnXoa.UseVisualStyleBackColor = true;
+            btnXoa.Click += btnXoa_Click;
+            // 
+            // btnLamMoi
+            // 
+            btnLamMoi.Font = new Font("Segoe UI", 9F);
+            btnLamMoi.Location = new Point(10, 60);
+            btnLamMoi.Name = "btnLamMoi";
+            btnLamMoi.Size = new Size(82, 33);
+            btnLamMoi.TabIndex = 3;
+            btnLamMoi.Text = "Làm mới";
+            btnLamMoi.UseVisualStyleBackColor = true;
+            btnLamMoi.Click += btnLamMoi_Click;
+            // 
+            // btnXuatExcel
+            // 
+            btnXuatExcel.Font = new Font("Segoe UI", 9F);
+            btnXuatExcel.Location = new Point(98, 60);
+            btnXuatExcel.Name = "btnXuatExcel";
+            btnXuatExcel.Size = new Size(82, 33);
+            btnXuatExcel.TabIndex = 4;
+            btnXuatExcel.Text = "📊 Xuất";
+            btnXuatExcel.UseVisualStyleBackColor = true;
+            btnXuatExcel.Click += btnXuatExcel_Click;
+            // 
+            // btnNhapExcel
+            // 
+            btnNhapExcel.Font = new Font("Segoe UI", 9F);
+            btnNhapExcel.Location = new Point(186, 60);
+            btnNhapExcel.Name = "btnNhapExcel";
+            btnNhapExcel.Size = new Size(86, 33);
+            btnNhapExcel.TabIndex = 5;
+            btnNhapExcel.Text = "📥 Nhập";
+            btnNhapExcel.UseVisualStyleBackColor = true;
+            btnNhapExcel.Click += btnNhapExcel_Click;
+            // 
+            // btnXuatLichSu
+            // 
+            btnXuatLichSu.Font = new Font("Segoe UI", 9F);
+            btnXuatLichSu.Location = new Point(10, 100);
+            btnXuatLichSu.Name = "btnXuatLichSu";
+            btnXuatLichSu.Size = new Size(262, 34);
+            btnXuatLichSu.TabIndex = 6;
+            btnXuatLichSu.Text = "📑 Xuất lịch sử mượn";
+            btnXuatLichSu.UseVisualStyleBackColor = true;
+            btnXuatLichSu.Click += btnXuatLichSu_Click;
             // 
             // grpTimKiem
             // 
@@ -431,6 +471,9 @@ namespace QLThuVien.GUI
         private Button btnXoa;
         private Button btnSua;
         private Button btnThem;
+        private Button btnXuatExcel;
+        private Button btnNhapExcel;
+        private Button btnXuatLichSu;
         private GroupBox grpTimKiem;
         private Button btnTatCa;
         private Button btnTimKiem;

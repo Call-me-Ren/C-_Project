@@ -16,16 +16,19 @@ namespace QLThuVien.GUI
         private ComboBox cboTrangThai = null!;
         private Label lblDocGia = null!;
         private ComboBox cboDocGia = null!;
+        private Button btnChonDocGia = null!;
         private Label lblPhieuMuon = null!;
         private ComboBox cboPhieuMuon = null!;
         private Label lblNhanVien = null!;
         private ComboBox cboNhanVien = null!;
+        private Button btnChonNhanVien = null!;
         private Label lblTongTienPhat = null!;
         private TextBox txtTongTienPhat = null!;
         private Button btnThemPhieu = null!;
         private Button btnSuaPhieu = null!;
         private Button btnXoaPhieu = null!;
         private Button btnChiTiet = null!;
+        private Button btnXuatPdf = null!;
         private Button btnLamMoi = null!;
         private TextBox txtTimKiem = null!;
         private Button btnTimKiem = null!;
@@ -44,16 +47,19 @@ namespace QLThuVien.GUI
             cboTrangThai = new ComboBox();
             lblDocGia = new Label();
             cboDocGia = new ComboBox();
+            btnChonDocGia = new Button();
             lblPhieuMuon = new Label();
             cboPhieuMuon = new ComboBox();
             lblNhanVien = new Label();
             cboNhanVien = new ComboBox();
+            btnChonNhanVien = new Button();
             lblTongTienPhat = new Label();
             txtTongTienPhat = new TextBox();
             btnThemPhieu = new Button();
             btnSuaPhieu = new Button();
             btnXoaPhieu = new Button();
             btnChiTiet = new Button();
+            btnXuatPdf = new Button();
             btnLamMoi = new Button();
             txtTimKiem = new TextBox();
             btnTimKiem = new Button();
@@ -109,7 +115,12 @@ namespace QLThuVien.GUI
             lblDocGia.Text = "Độc giả:";
             cboDocGia.DropDownStyle = ComboBoxStyle.DropDownList;
             cboDocGia.Location = new Point(115, 69);
-            cboDocGia.Size = new Size(360, 23);
+            cboDocGia.Size = new Size(320, 23);
+
+            btnChonDocGia.Location = new Point(440, 68);
+            btnChonDocGia.Size = new Size(35, 25);
+            btnChonDocGia.Text = "...";
+            btnChonDocGia.UseVisualStyleBackColor = true;
 
             lblPhieuMuon.AutoSize = true;
             lblPhieuMuon.Location = new Point(505, 73);
@@ -123,7 +134,12 @@ namespace QLThuVien.GUI
             lblNhanVien.Text = "Nhân viên:";
             cboNhanVien.DropDownStyle = ComboBoxStyle.DropDownList;
             cboNhanVien.Location = new Point(115, 108);
-            cboNhanVien.Size = new Size(360, 23);
+            cboNhanVien.Size = new Size(320, 23);
+
+            btnChonNhanVien.Location = new Point(440, 107);
+            btnChonNhanVien.Size = new Size(35, 25);
+            btnChonNhanVien.Text = "...";
+            btnChonNhanVien.UseVisualStyleBackColor = true;
 
             lblTongTienPhat.AutoSize = true;
             lblTongTienPhat.Location = new Point(505, 112);
@@ -149,13 +165,16 @@ namespace QLThuVien.GUI
             btnLamMoi.Location = new Point(515, 151);
             btnLamMoi.Size = new Size(110, 30);
             btnLamMoi.Text = "Làm mới";
+            btnXuatPdf.Location = new Point(635, 151);
+            btnXuatPdf.Size = new Size(110, 30);
+            btnXuatPdf.Text = "Xuất PDF";
 
             grpPhieu.Controls.AddRange(new Control[]
             {
                 lblMaPhieu, txtMaPhieuPhat, lblNgayLap, dtpNgayLap, lblTrangThai, cboTrangThai,
-                lblDocGia, cboDocGia, lblPhieuMuon, cboPhieuMuon, lblNhanVien, cboNhanVien,
+                lblDocGia, cboDocGia, btnChonDocGia, lblPhieuMuon, cboPhieuMuon, lblNhanVien, cboNhanVien, btnChonNhanVien,
                 lblTongTienPhat, txtTongTienPhat, btnThemPhieu, btnSuaPhieu, btnXoaPhieu,
-                btnChiTiet, btnLamMoi
+                btnChiTiet, btnLamMoi, btnXuatPdf
             });
 
             txtTimKiem.Location = new Point(20, 276);

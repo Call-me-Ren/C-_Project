@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using QLThuVien.BUS;
@@ -11,6 +12,7 @@ namespace QLThuVien.GUI
     {
         private readonly PhieuPhatBUS busPhieu = new PhieuPhatBUS();
         private readonly NhanVienBUS busNhanVien = new NhanVienBUS();
+        private readonly PhieuPhatBaoCaoBUS busBaoCao = new PhieuPhatBaoCaoBUS();
         private List<LookupOptionDTO> danhSachPhieuMuon = new List<LookupOptionDTO>();
         private string maPhieuDangChon = string.Empty;
         private bool dangNapDuLieu;
@@ -20,12 +22,15 @@ namespace QLThuVien.GUI
             InitializeComponent();
             Load += frmPhieuPhat_Load;
             cboDocGia.SelectedValueChanged += cboDocGia_SelectedValueChanged;
+            btnChonDocGia.Click += btnChonDocGia_Click;
+            btnChonNhanVien.Click += btnChonNhanVien_Click;
             dgvPhieuPhat.CellClick += dgvPhieuPhat_CellClick;
             txtTimKiem.KeyDown += txtTimKiem_KeyDown;
             btnThemPhieu.Click += btnThemPhieu_Click;
             btnSuaPhieu.Click += btnSuaPhieu_Click;
             btnXoaPhieu.Click += btnXoaPhieu_Click;
             btnChiTiet.Click += btnChiTiet_Click;
+            btnXuatPdf.Click += btnXuatPdf_Click;
             btnLamMoi.Click += btnLamMoi_Click;
             btnTimKiem.Click += btnTimKiem_Click;
             btnTatCa.Click += btnTatCa_Click;
@@ -62,6 +67,49 @@ namespace QLThuVien.GUI
         {
             if (dangNapDuLieu) return;
             NapDanhSachPhieuMuon(GiaTri(cboDocGia));
+        }
+
+        private void btnChonDocGia_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                frmTimKiemDocGiaPopup.SelectedMaDocGia = string.Empty;
+                frmTimKiemDocGiaPopup.SelectedTenDocGia = string.Empty;
+                using var popup = new frmTimKiemDocGiaPopup();
+                if (popup.ShowDialog(this) == DialogResult.OK)
+                {
+                    if (!string.IsNullOrEmpty(frmTimKiemDocGiaPopup.SelectedMaDocGia))
+                    {
+                        cboDocGia.SelectedValue = frmTimKiemDocGiaPopup.SelectedMaDocGia;
+                        cboDocGia_SelectedValueChanged(cboDocGia, EventArgs.Empty);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
+        }
+
+        private void btnChonNhanVien_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                FormSharedData.SelectedMaNV = null;
+                FormSharedData.SelectedTenNV = null;
+                using var popup = new frmChonNhanVienPopup();
+                if (popup.ShowDialog(this) == DialogResult.OK)
+                {
+                    if (!string.IsNullOrEmpty(FormSharedData.SelectedMaNV))
+                    {
+                        cboNhanVien.SelectedValue = FormSharedData.SelectedMaNV;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
         }
 
         private void NapDanhSachPhieuMuon(string? maDocGia, string? maPhieuMuon = null)
@@ -205,6 +253,36 @@ namespace QLThuVien.GUI
         private void btnLamMoi_Click(object? sender, EventArgs e)
         {
             TaiLaiVaLamMoi();
+        }
+
+        private void btnXuatPdf_Click(object? sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(maPhieuDangChon))
+            {
+                MessageBox.Show("Hãy chọn phiếu phạt cần xuất.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                PhieuPhatBaoCaoDTO report = busBaoCao.LayTheoMa(maPhieuDangChon);
+                using SaveFileDialog dialog = new SaveFileDialog
+                {
+                    AddExtension = true,
+                    DefaultExt = "pdf",
+                    FileName = PhieuPhatBaoCaoBUS.TenFileGoiY(report.MaPhieuPhat),
+                    Filter = "Tệp PDF (*.pdf)|*.pdf",
+                    OverwritePrompt = true
+                };
+                if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+                new PhieuPhatPdfExporter(report).Xuat(dialog.FileName);
+                Process.Start(new ProcessStartInfo(dialog.FileName) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(PdfExportErrors.ToVietnamese(ex), "Không thể xuất PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnTimKiem_Click(object? sender, EventArgs e)

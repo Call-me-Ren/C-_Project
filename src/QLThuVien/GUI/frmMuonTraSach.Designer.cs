@@ -27,6 +27,7 @@ namespace QLThuVien.GUI
             cboNhanVien = new ComboBox();
             lblNhanVien = new Label();
             cboDocGia = new ComboBox();
+            btnChonDocGia = new Button();
             lblDocGia = new Label();
             txtMaPM = new TextBox();
             lblMaPM = new Label();
@@ -93,6 +94,7 @@ namespace QLThuVien.GUI
             // 
             // grpThongTinPM
             // 
+            grpThongTinPM.Controls.Add(btnChonDocGia);
             grpThongTinPM.Controls.Add(dtpHanTra);
             grpThongTinPM.Controls.Add(lblHanTra);
             grpThongTinPM.Controls.Add(dtpNgayMuon);
@@ -179,8 +181,24 @@ namespace QLThuVien.GUI
             cboDocGia.FormattingEnabled = true;
             cboDocGia.Location = new Point(275, 26);
             cboDocGia.Name = "cboDocGia";
-            cboDocGia.Size = new Size(160, 25);
+            cboDocGia.Size = new Size(125, 25);
             cboDocGia.TabIndex = 3;
+            // 
+            // btnChonDocGia
+            // 
+            btnChonDocGia.BackColor = Color.FromArgb(226, 232, 240);
+            btnChonDocGia.Cursor = Cursors.Hand;
+            btnChonDocGia.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+            btnChonDocGia.FlatStyle = FlatStyle.Flat;
+            btnChonDocGia.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnChonDocGia.ForeColor = Color.FromArgb(15, 23, 42);
+            btnChonDocGia.Location = new Point(404, 25);
+            btnChonDocGia.Name = "btnChonDocGia";
+            btnChonDocGia.Size = new Size(31, 26);
+            btnChonDocGia.TabIndex = 4;
+            btnChonDocGia.Text = "...";
+            btnChonDocGia.UseVisualStyleBackColor = false;
+            btnChonDocGia.Click += btnChonDocGia_Click;
             // 
             // lblDocGia
             // 
@@ -574,6 +592,7 @@ namespace QLThuVien.GUI
         private TextBox txtMaPM;
         private Label lblMaPM;
         private ComboBox cboDocGia;
+        private Button btnChonDocGia;
         private Label lblDocGia;
         private ComboBox cboNhanVien;
         private Label lblNhanVien;

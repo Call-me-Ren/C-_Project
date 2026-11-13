@@ -1,3 +1,5 @@
+using QLThuVien.GUI;
+
 namespace QLThuVien;
 
 static class Program

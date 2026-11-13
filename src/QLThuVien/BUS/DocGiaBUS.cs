@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Text.RegularExpressions;
 using QLThuVien.DAO;
 using QLThuVien.DTO;
@@ -253,6 +254,36 @@ namespace QLThuVien.BUS
             }
 
             return ketQua;
+        }
+
+        // 9. LẤY LỊCH SỬ MƯỢN TRẢ
+        public DataTable LayLichSuMuonTra(string maDG)
+        {
+            return dgDAO.LayLichSuMuonTra(maDG);
+        }
+
+        // 10. NHẬP DANH SÁCH ĐỘC GIẢ TỪ EXCEL (.XLSX)
+        public (int SuccessCount, int FailCount, List<string> Errors) NhapTuExcel(string filePath)
+        {
+            var ds = ExcelExportService.NhapDanhSachDocGiaTuExcel(filePath);
+            int success = 0;
+            int fail = 0;
+            var errors = new List<string>();
+
+            foreach (var dg in ds)
+            {
+                if (Them(dg, out string err))
+                {
+                    success++;
+                }
+                else
+                {
+                    fail++;
+                    errors.Add($"{dg.MaDG} ({dg.HoTen}): {err}");
+                }
+            }
+
+            return (success, fail, errors);
         }
     }
 }
