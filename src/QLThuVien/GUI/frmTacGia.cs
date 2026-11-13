@@ -20,7 +20,7 @@ namespace QLThuVien.GUI
 
         private void TacGiaGUI_Load(object sender, EventArgs e)
         {
-            TaiDuLieu(tacGiaBUS.DocDSTacGia());
+            TaiDuLieu(tacGiaBUS.DocDSSach());
         }
 
         private void TaiDuLieu(List<TacGiaDTO> ds)
@@ -67,6 +67,13 @@ namespace QLThuVien.GUI
                     return;
                 }
 
+                // Kiểm tra trùng mã trước khi thêm
+                if (tacGiaBUS.KiemTraTrungMa(txtMaTG.Text.Trim()))
+                {
+                    MessageBox.Show("Mã tác giả '" + txtMaTG.Text.Trim() + "' đã tồn tại! Vui lòng nhập mã khác.", "Cảnh báo trùng mã", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 if (string.IsNullOrWhiteSpace(txtTenTG.Text)) { MessageBox.Show("Vui lòng nhập tên tác giả.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
                 string maGoc = (dgvTacGia.CurrentRow.DataBoundItem as TacGiaDTO).MaTG;
                 TacGiaDTO tg = new TacGiaDTO
@@ -79,7 +86,7 @@ namespace QLThuVien.GUI
                 };
 
                 tacGiaBUS.Them(tg);
-                TaiDuLieu(tacGiaBUS.DocDSTacGia());
+                TaiDuLieu(tacGiaBUS.DocDSSach());
                 MessageBox.Show("Thêm tác giả thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -108,7 +115,7 @@ namespace QLThuVien.GUI
                 };
 
                 tacGiaBUS.Sua(tg);
-                TaiDuLieu(tacGiaBUS.DocDSTacGia());
+                TaiDuLieu(tacGiaBUS.DocDSSach());
                 MessageBox.Show("Cập nhật thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -131,7 +138,7 @@ namespace QLThuVien.GUI
                 try
                 {
                     tacGiaBUS.Xoa(ma);
-                    TaiDuLieu(tacGiaBUS.DocDSTacGia());
+                    TaiDuLieu(tacGiaBUS.DocDSSach());
                     LamMoi();
                     MessageBox.Show("Xóa thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
@@ -155,7 +162,7 @@ namespace QLThuVien.GUI
 
         private void btnTaiLai_Click(object sender, EventArgs e)
         {
-            TaiDuLieu(tacGiaBUS.DocDSTacGia());
+            TaiDuLieu(tacGiaBUS.DocDSSach());
             txtTimKiem.Clear();
         }
 

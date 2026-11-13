@@ -21,7 +21,7 @@ namespace QLThuVien.BUS
         }
 
         // 1. Đọc danh sách Đầu sách (Nạp mới từ CSDL)
-        public List<DauSachDTO> DocDSDauSach()
+        public List<DauSachDTO> DocDSSach()
         {
             DauSachDAO dauSachDAO = new DauSachDAO();
             List<DauSachDTO> danhSach = dauSachDAO.DocDSSach();
@@ -33,14 +33,14 @@ namespace QLThuVien.BUS
 
         private ArrayList LayDanhSachTrongBoNho()
         {
-            if (!daNapDanhSach) DocDSDauSach();
+            if (!daNapDanhSach) DocDSSach();
             return danhSachDauSach;
         }
 
         // Kiểm tra trùng Mã Đầu Sách
         public bool KiemTraTrungMa(string maDauSach)
         {
-            List<DauSachDTO> list = DocDSDauSach();
+            List<DauSachDTO> list = DocDSSach();
             foreach (var item in list)
             {
                 if (item.MaDauSach.Equals(maDauSach, StringComparison.OrdinalIgnoreCase))
@@ -52,15 +52,9 @@ namespace QLThuVien.BUS
         // 2. Thêm Đầu sách -> Thêm xong tự gọi đồng bộ lại số lượng
         public void Them(DauSachDTO dauSach)
         {
-            if (dauSach == null || string.IsNullOrWhiteSpace(dauSach.MaDauSach) || string.IsNullOrWhiteSpace(dauSach.TenSach))
-                throw new ArgumentException("Mã đầu sách và tên sách không được để trống.");
-            dauSach.MaDauSach = dauSach.MaDauSach.Trim();
-            dauSach.TenSach = dauSach.TenSach.Trim();
-            if (KiemTraTrungMa(dauSach.MaDauSach)) throw new InvalidOperationException($"Mã đầu sách '{dauSach.MaDauSach}' đã tồn tại.");
             DauSachDAO dauSachDAO = new DauSachDAO();
             dauSachDAO.Them(dauSach);
             CapNhatSoLuong(dauSach.MaDauSach);
-            DocDSDauSach();
         }
 
         // Chỉ thêm mã đầu sách mới; mã trùng và dòng không hợp lệ được báo lại, không ghi đè dữ liệu cũ.
@@ -95,8 +89,8 @@ namespace QLThuVien.BUS
                 viTri[i] = found;
             }
 
-            HashSet<string> maDaCo = new HashSet<string>(DocDSDauSach().Select(x => x.MaDauSach), StringComparer.OrdinalIgnoreCase);
-            HashSet<string> maTacGia = new HashSet<string>(new TacGiaBUS().DocDSTacGia().Select(x => x.MaTG), StringComparer.OrdinalIgnoreCase);
+            HashSet<string> maDaCo = new HashSet<string>(DocDSSach().Select(x => x.MaDauSach), StringComparer.OrdinalIgnoreCase);
+            HashSet<string> maTacGia = new HashSet<string>(new TacGiaBUS().DocDSSach().Select(x => x.MaTG), StringComparer.OrdinalIgnoreCase);
             HashSet<string> maTheLoai = new HashSet<string>(new TheLoaiBUS().DocDSTL().Select(x => x.MaTL), StringComparer.OrdinalIgnoreCase);
             HashSet<string> maNXB = new HashSet<string>(new NXBBUS().DocDSNXB().Select(x => x.MaNXB), StringComparer.OrdinalIgnoreCase);
             DauSachDAO dao = new DauSachDAO();
@@ -287,5 +281,39 @@ namespace QLThuVien.BUS
             return ketQua.ToList();
         }
 
+        public List<DauSachDTO> TimKiemNangCao(string maDauSach, string tenSach, int? soLuong,
+            string toanTuSoLuong, string maTG, string maTL, int? namXB, int? tuNam, int? denNam,
+            string toanTuNam, string toanTuNamDen, decimal? tuGia, string toanTuGia,
+            decimal? denGia, string toanTuGiaDen, string cachKetHop = "AND")
+        {
+            List<Func<DauSachDTO, bool>> dieuKien = new List<Func<DauSachDTO, bool>>();
+            if (!string.IsNullOrWhiteSpace(maDauSach)) dieuKien.Add(s => (s.MaDauSach ?? "").IndexOf(maDauSach.Trim(), StringComparison.OrdinalIgnoreCase) >= 0);
+            if (!string.IsNullOrWhiteSpace(tenSach)) dieuKien.Add(s => (s.TenSach ?? "").IndexOf(tenSach.Trim(), StringComparison.OrdinalIgnoreCase) >= 0);
+            if (!string.IsNullOrWhiteSpace(maTG)) dieuKien.Add(s => string.Equals(s.MaTG, maTG.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(maTL)) dieuKien.Add(s => string.Equals(s.MaTL, maTL.Trim(), StringComparison.OrdinalIgnoreCase));
+            if (soLuong.HasValue) dieuKien.Add(s => SoSanh(s.SoLuong, soLuong.Value, toanTuSoLuong));
+            if (namXB.HasValue) dieuKien.Add(s => s.NamXB.HasValue && s.NamXB.Value == namXB.Value);
+            if (tuNam.HasValue) dieuKien.Add(s => s.NamXB.HasValue && SoSanh(s.NamXB.Value, tuNam.Value, toanTuNam));
+            if (denNam.HasValue) dieuKien.Add(s => s.NamXB.HasValue && SoSanh(s.NamXB.Value, denNam.Value, toanTuNamDen));
+            if (tuGia.HasValue) dieuKien.Add(s => SoSanh(s.DonGia, tuGia.Value, toanTuGia));
+            if (denGia.HasValue) dieuKien.Add(s => SoSanh(s.DonGia, denGia.Value, toanTuGiaDen));
+            IEnumerable<DauSachDTO> danhSach = LayDanhSachTrongBoNho().Cast<DauSachDTO>();
+            bool dungOr = string.Equals(cachKetHop, "OR", StringComparison.OrdinalIgnoreCase);
+            return danhSach.Where(s => dieuKien.Count == 0 || (dungOr ? dieuKien.Any(d => d(s)) : dieuKien.All(d => d(s)))).ToList();
+        }
+
+        private static bool SoSanh<T>(T giaTri, T moc, string toanTu) where T : IComparable<T>
+        {
+            int ketQua = giaTri.CompareTo(moc);
+            switch (toanTu)
+            {
+                case ">": return ketQua > 0;
+                case "<": return ketQua < 0;
+                case ">=": return ketQua >= 0;
+                case "<=": return ketQua <= 0;
+                case "<>": return ketQua != 0;
+                default: return ketQua == 0;
+            }
+        }
     }
 }
