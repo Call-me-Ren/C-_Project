@@ -113,6 +113,53 @@ namespace QLThuVien.GUI
             }
         }
 
+        private void BtnChonNCC_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                FormSharedData.SelectedMaNCC = null;
+                FormSharedData.SelectedTenNCC = null;
+                using (var popup = new frmChonNhaCungCapPopup())
+                {
+                    if (popup.ShowDialog(this) == DialogResult.OK)
+                    {
+                        if (!string.IsNullOrEmpty(FormSharedData.SelectedMaNCC))
+                        {
+                            cboNCC.SelectedValue = FormSharedData.SelectedMaNCC;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi chọn Nhà cung cấp: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnChonDauSach_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                FormSharedData.SelectedMaDauSach = null;
+                FormSharedData.SelectedTenDauSach = null;
+                using (var popup = new frmChonDauSachPopup())
+                {
+                    if (popup.ShowDialog(this) == DialogResult.OK)
+                    {
+                        if (!string.IsNullOrEmpty(FormSharedData.SelectedMaDauSach))
+                        {
+                            cboDauSach.SelectedValue = FormSharedData.SelectedMaDauSach;
+                            CboDauSach_SelectedIndexChanged(null, EventArgs.Empty);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi chọn Đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void CboDauSach_SelectedIndexChanged(object? sender, EventArgs e)
         {
             if (cboDauSach.SelectedItem is DauSachDTO ds)

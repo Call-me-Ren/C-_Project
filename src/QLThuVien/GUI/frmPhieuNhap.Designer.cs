@@ -28,11 +28,13 @@ namespace QLThuVien.GUI
             this.txtMaPN = new System.Windows.Forms.TextBox();
             this.lblNCC = new System.Windows.Forms.Label();
             this.cboNCC = new System.Windows.Forms.ComboBox();
+            this.btnChonNCC = new System.Windows.Forms.Button();
             this.lblNV = new System.Windows.Forms.Label();
             this.txtMaNV = new System.Windows.Forms.TextBox();
             this.pnlBookInputs = new System.Windows.Forms.Panel();
             this.lblDauSach = new System.Windows.Forms.Label();
             this.cboDauSach = new System.Windows.Forms.ComboBox();
+            this.btnChonDauSach = new System.Windows.Forms.Button();
             this.lblDonGia = new System.Windows.Forms.Label();
             this.txtDonGia = new System.Windows.Forms.TextBox();
             this.lblSoLuong = new System.Windows.Forms.Label();
@@ -125,6 +127,7 @@ namespace QLThuVien.GUI
             this.pnlTopInputs.Controls.Add(this.txtMaPN);
             this.pnlTopInputs.Controls.Add(this.lblNCC);
             this.pnlTopInputs.Controls.Add(this.cboNCC);
+            this.pnlTopInputs.Controls.Add(this.btnChonNCC);
             this.pnlTopInputs.Controls.Add(this.lblNV);
             this.pnlTopInputs.Controls.Add(this.txtMaNV);
             this.pnlTopInputs.Dock = System.Windows.Forms.DockStyle.Top;
@@ -134,25 +137,35 @@ namespace QLThuVien.GUI
             this.lblMaPN.Location = new System.Drawing.Point(15, 12);
             this.lblMaPN.Text = "Mã PN:";
             this.txtMaPN.Location = new System.Drawing.Point(70, 9);
-            this.txtMaPN.Width = 110;
+            this.txtMaPN.Width = 100;
 
             this.lblNCC.AutoSize = true;
-            this.lblNCC.Location = new System.Drawing.Point(200, 12);
+            this.lblNCC.Location = new System.Drawing.Point(185, 12);
             this.lblNCC.Text = "Nhà CC:";
             this.cboNCC.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboNCC.Location = new System.Drawing.Point(265, 9);
-            this.cboNCC.Width = 220;
+            this.cboNCC.Location = new System.Drawing.Point(245, 9);
+            this.cboNCC.Width = 190;
+
+            this.btnChonNCC.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+            this.btnChonNCC.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnChonNCC.ForeColor = System.Drawing.Color.White;
+            this.btnChonNCC.Location = new System.Drawing.Point(440, 8);
+            this.btnChonNCC.Size = new System.Drawing.Size(35, 27);
+            this.btnChonNCC.Text = "...";
+            this.btnChonNCC.UseVisualStyleBackColor = false;
+            this.btnChonNCC.Click += new System.EventHandler(this.BtnChonNCC_Click);
 
             this.lblNV.AutoSize = true;
-            this.lblNV.Location = new System.Drawing.Point(505, 12);
+            this.lblNV.Location = new System.Drawing.Point(495, 12);
             this.lblNV.Text = "Mã NV:";
-            this.txtMaNV.Location = new System.Drawing.Point(565, 9);
-            this.txtMaNV.Width = 100;
+            this.txtMaNV.Location = new System.Drawing.Point(555, 9);
+            this.txtMaNV.Width = 90;
             this.txtMaNV.Text = "NV01";
 
             // pnlBookInputs
             this.pnlBookInputs.Controls.Add(this.lblDauSach);
             this.pnlBookInputs.Controls.Add(this.cboDauSach);
+            this.pnlBookInputs.Controls.Add(this.btnChonDauSach);
             this.pnlBookInputs.Controls.Add(this.lblDonGia);
             this.pnlBookInputs.Controls.Add(this.txtDonGia);
             this.pnlBookInputs.Controls.Add(this.lblSoLuong);
@@ -168,38 +181,47 @@ namespace QLThuVien.GUI
             this.lblDauSach.Text = "Đầu sách:";
             this.cboDauSach.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboDauSach.Location = new System.Drawing.Point(85, 9);
-            this.cboDauSach.Width = 220;
+            this.cboDauSach.Width = 190;
             this.cboDauSach.SelectedIndexChanged += new System.EventHandler(this.CboDauSach_SelectedIndexChanged);
 
+            this.btnChonDauSach.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+            this.btnChonDauSach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnChonDauSach.ForeColor = System.Drawing.Color.White;
+            this.btnChonDauSach.Location = new System.Drawing.Point(280, 8);
+            this.btnChonDauSach.Size = new System.Drawing.Size(35, 27);
+            this.btnChonDauSach.Text = "...";
+            this.btnChonDauSach.UseVisualStyleBackColor = false;
+            this.btnChonDauSach.Click += new System.EventHandler(this.BtnChonDauSach_Click);
+
             this.lblDonGia.AutoSize = true;
-            this.lblDonGia.Location = new System.Drawing.Point(320, 12);
+            this.lblDonGia.Location = new System.Drawing.Point(325, 12);
             this.lblDonGia.Text = "Đơn giá:";
-            this.txtDonGia.Location = new System.Drawing.Point(380, 9);
+            this.txtDonGia.Location = new System.Drawing.Point(385, 9);
             this.txtDonGia.ReadOnly = true;
-            this.txtDonGia.Width = 90;
+            this.txtDonGia.Width = 85;
 
             this.lblSoLuong.AutoSize = true;
-            this.lblSoLuong.Location = new System.Drawing.Point(485, 12);
+            this.lblSoLuong.Location = new System.Drawing.Point(480, 12);
             this.lblSoLuong.Text = "SL:";
-            this.numSoLuong.Location = new System.Drawing.Point(515, 10);
+            this.numSoLuong.Location = new System.Drawing.Point(510, 10);
             this.numSoLuong.Minimum = 1;
             this.numSoLuong.Maximum = 1000;
             this.numSoLuong.Value = 1;
-            this.numSoLuong.Width = 60;
+            this.numSoLuong.Width = 55;
             this.numSoLuong.ValueChanged += new System.EventHandler(this.NumSoLuong_ValueChanged);
 
             this.lblThanhTien.AutoSize = true;
-            this.lblThanhTien.Location = new System.Drawing.Point(590, 12);
+            this.lblThanhTien.Location = new System.Drawing.Point(575, 12);
             this.lblThanhTien.Text = "Thành tiền:";
-            this.txtThanhTien.Location = new System.Drawing.Point(670, 9);
+            this.txtThanhTien.Location = new System.Drawing.Point(650, 9);
             this.txtThanhTien.ReadOnly = true;
-            this.txtThanhTien.Width = 110;
+            this.txtThanhTien.Width = 105;
 
             this.btnThemSach.BackColor = System.Drawing.Color.FromArgb(46, 204, 113);
             this.btnThemSach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThemSach.ForeColor = System.Drawing.Color.White;
-            this.btnThemSach.Location = new System.Drawing.Point(795, 7);
-            this.btnThemSach.Size = new System.Drawing.Size(100, 30);
+            this.btnThemSach.Location = new System.Drawing.Point(770, 7);
+            this.btnThemSach.Size = new System.Drawing.Size(110, 30);
             this.btnThemSach.Text = "➕ Thêm dòng";
             this.btnThemSach.Click += new System.EventHandler(this.BtnThemSach_Click);
 
@@ -300,11 +322,13 @@ namespace QLThuVien.GUI
         private System.Windows.Forms.TextBox txtMaPN;
         private System.Windows.Forms.Label lblNCC;
         private System.Windows.Forms.ComboBox cboNCC;
+        private System.Windows.Forms.Button btnChonNCC;
         private System.Windows.Forms.Label lblNV;
         private System.Windows.Forms.TextBox txtMaNV;
         private System.Windows.Forms.Panel pnlBookInputs;
         private System.Windows.Forms.Label lblDauSach;
         private System.Windows.Forms.ComboBox cboDauSach;
+        private System.Windows.Forms.Button btnChonDauSach;
         private System.Windows.Forms.Label lblDonGia;
         private System.Windows.Forms.TextBox txtDonGia;
         private System.Windows.Forms.Label lblSoLuong;

@@ -22,6 +22,8 @@ namespace QLThuVien.GUI
             InitializeComponent();
             Load += frmPhieuPhat_Load;
             cboDocGia.SelectedValueChanged += cboDocGia_SelectedValueChanged;
+            btnChonDocGia.Click += btnChonDocGia_Click;
+            btnChonNhanVien.Click += btnChonNhanVien_Click;
             dgvPhieuPhat.CellClick += dgvPhieuPhat_CellClick;
             txtTimKiem.KeyDown += txtTimKiem_KeyDown;
             btnThemPhieu.Click += btnThemPhieu_Click;
@@ -65,6 +67,49 @@ namespace QLThuVien.GUI
         {
             if (dangNapDuLieu) return;
             NapDanhSachPhieuMuon(GiaTri(cboDocGia));
+        }
+
+        private void btnChonDocGia_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                frmTimKiemDocGiaPopup.SelectedMaDocGia = string.Empty;
+                frmTimKiemDocGiaPopup.SelectedTenDocGia = string.Empty;
+                using var popup = new frmTimKiemDocGiaPopup();
+                if (popup.ShowDialog(this) == DialogResult.OK)
+                {
+                    if (!string.IsNullOrEmpty(frmTimKiemDocGiaPopup.SelectedMaDocGia))
+                    {
+                        cboDocGia.SelectedValue = frmTimKiemDocGiaPopup.SelectedMaDocGia;
+                        cboDocGia_SelectedValueChanged(cboDocGia, EventArgs.Empty);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
+        }
+
+        private void btnChonNhanVien_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                FormSharedData.SelectedMaNV = null;
+                FormSharedData.SelectedTenNV = null;
+                using var popup = new frmChonNhanVienPopup();
+                if (popup.ShowDialog(this) == DialogResult.OK)
+                {
+                    if (!string.IsNullOrEmpty(FormSharedData.SelectedMaNV))
+                    {
+                        cboNhanVien.SelectedValue = FormSharedData.SelectedMaNV;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
         }
 
         private void NapDanhSachPhieuMuon(string? maDocGia, string? maPhieuMuon = null)

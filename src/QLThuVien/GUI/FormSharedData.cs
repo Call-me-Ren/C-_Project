@@ -5,5 +5,11 @@ namespace QLThuVien.GUI
     {
         public static string SelectedMaDauSach = null;
         public static string SelectedTenDauSach = null;
+        public static string SelectedMaNCC = null;
+        public static string SelectedTenNCC = null;
+        public static string SelectedMaDocGia = null;
+        public static string SelectedTenDocGia = null;
+        public static string SelectedMaNV = null;
+        public static string SelectedTenNV = null;
     }
 }

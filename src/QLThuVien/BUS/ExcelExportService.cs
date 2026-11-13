@@ -218,5 +218,170 @@ namespace QLThuVien.BUS
             ws.Columns().AdjustToContents();
             workbook.SaveAs(filePath);
         }
+
+        /// <summary>
+        /// Đọc danh sách độc giả từ file Excel (.xlsx).
+        /// Hỗ trợ cả file mẫu xuất từ phần mềm hoặc bảng tính tùy chỉnh.
+        /// </summary>
+        public static List<DocGiaDTO> NhapDanhSachDocGiaTuExcel(string filePath)
+        {
+            var result = new List<DocGiaDTO>();
+            using var workbook = new XLWorkbook(filePath);
+            var ws = workbook.Worksheet(1);
+            if (ws == null) return result;
+
+            int lastRow = ws.LastRowUsed()?.RowNumber() ?? 0;
+            if (lastRow < 2) return result;
+
+            // Tìm hàng tiêu đề (quét từ hàng 1 đến 10)
+            int headerRowIndex = -1;
+            int colMaDG = -1;
+            int colHoTen = -1;
+            int colHoLot = -1;
+            int colTenDG = -1;
+            int colNgaySinh = -1;
+            int colSDT = -1;
+            int colMaLDG = -1;
+
+            for (int r = 1; r <= Math.Min(10, lastRow); r++)
+            {
+                var row = ws.Row(r);
+                int lastCol = row.LastCellUsed()?.Address.ColumnNumber ?? 0;
+                for (int c = 1; c <= lastCol; c++)
+                {
+                    string text = row.Cell(c).GetString().Trim().ToLower();
+                    if (text.Contains("mã đg") || text.Contains("madg") || text.Contains("mã độc giả"))
+                    {
+                        headerRowIndex = r;
+                        break;
+                    }
+                }
+                if (headerRowIndex != -1) break;
+            }
+
+            // Nếu tìm thấy hàng tiêu đề, xác định vị trí từng cột
+            if (headerRowIndex != -1)
+            {
+                var hRow = ws.Row(headerRowIndex);
+                int lastCol = hRow.LastCellUsed()?.Address.ColumnNumber ?? 0;
+                for (int c = 1; c <= lastCol; c++)
+                {
+                    string text = hRow.Cell(c).GetString().Trim().ToLower();
+                    if (text.Contains("mã đg") || text.Contains("madg") || text.Contains("mã độc giả"))
+                        colMaDG = c;
+                    else if (text.Contains("họ lót") || text.Contains("holot"))
+                        colHoLot = c;
+                    else if (text.Contains("tên đg") || text == "tên" || text.Contains("tendg"))
+                        colTenDG = c;
+                    else if (text.Contains("họ và tên") || text.Contains("họ tên") || text.Contains("hoten"))
+                        colHoTen = c;
+                    else if (text.Contains("ngày sinh") || text.Contains("ngaysinh"))
+                        colNgaySinh = c;
+                    else if (text.Contains("số điện thoại") || text.Contains("sđt") || text.Contains("sdt") || text.Contains("điện thoại"))
+                        colSDT = c;
+                    else if (text.Contains("mã loại") || text.Contains("maldg") || text.Contains("loại độc giả"))
+                        colMaLDG = c;
+                }
+            }
+            else
+            {
+                headerRowIndex = 4;
+                colMaDG = 2;
+                colHoTen = 3;
+                colNgaySinh = 4;
+                colSDT = 5;
+                colMaLDG = 6;
+            }
+
+            if (colMaDG == -1) colMaDG = 2;
+
+            for (int r = headerRowIndex + 1; r <= lastRow; r++)
+            {
+                var row = ws.Row(r);
+                string maDG = colMaDG != -1 ? row.Cell(colMaDG).GetString().Trim() : string.Empty;
+                if (string.IsNullOrWhiteSpace(maDG)) continue;
+
+                string? hoLot = null;
+                string tenDG = string.Empty;
+
+                if (colHoLot != -1 && colTenDG != -1)
+                {
+                    hoLot = row.Cell(colHoLot).GetString().Trim();
+                    tenDG = row.Cell(colTenDG).GetString().Trim();
+                }
+                else if (colHoTen != -1)
+                {
+                    string hoTen = row.Cell(colHoTen).GetString().Trim();
+                    if (!string.IsNullOrWhiteSpace(hoTen))
+                    {
+                        int lastSpace = hoTen.LastIndexOf(' ');
+                        if (lastSpace > 0)
+                        {
+                            hoLot = hoTen.Substring(0, lastSpace).Trim();
+                            tenDG = hoTen.Substring(lastSpace + 1).Trim();
+                        }
+                        else
+                        {
+                            tenDG = hoTen;
+                        }
+                    }
+                }
+                else if (colTenDG != -1)
+                {
+                    tenDG = row.Cell(colTenDG).GetString().Trim();
+                }
+
+                if (string.IsNullOrWhiteSpace(tenDG))
+                {
+                    tenDG = "Độc giả";
+                }
+
+                DateTime? ngaySinh = null;
+                if (colNgaySinh != -1)
+                {
+                    var cellNS = row.Cell(colNgaySinh);
+                    if (cellNS.DataType == XLDataType.DateTime)
+                    {
+                        ngaySinh = cellNS.GetDateTime();
+                    }
+                    else
+                    {
+                        string strNS = cellNS.GetString().Trim();
+                        if (DateTime.TryParse(strNS, out DateTime parsedNS))
+                        {
+                            ngaySinh = parsedNS;
+                        }
+                    }
+                }
+
+                string? sdt = null;
+                if (colSDT != -1)
+                {
+                    string rawSDT = row.Cell(colSDT).GetString().Trim();
+                    if (!string.IsNullOrWhiteSpace(rawSDT) && rawSDT != "-")
+                    {
+                        sdt = rawSDT;
+                        if (!sdt.StartsWith("0") && sdt.Length == 9)
+                        {
+                            sdt = "0" + sdt;
+                        }
+                    }
+                }
+
+                string maLDG = "LDG01";
+                if (colMaLDG != -1)
+                {
+                    string rawLDG = row.Cell(colMaLDG).GetString().Trim();
+                    if (!string.IsNullOrWhiteSpace(rawLDG) && rawLDG != "-")
+                    {
+                        maLDG = rawLDG;
+                    }
+                }
+
+                result.Add(new DocGiaDTO(maDG, hoLot, tenDG, ngaySinh, sdt, maLDG, null));
+            }
+
+            return result;
+        }
     }
 }

@@ -1,95 +1,120 @@
 #nullable disable
 using System;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Windows.Forms;
-using QLThuVien.DTO;
 using QLThuVien.BUS;
+using QLThuVien.DTO;
 
 namespace QLThuVien.GUI
 {
-    public class frmChonDauSachPopup : Form
+    public partial class frmChonDauSachPopup : Form
     {
-        private DataGridView dgvDauSach;
-        private Button btnChon, btnHuy;
-        private readonly DauSachBUS dauSachBUS = new DauSachBUS();
+        // Biến static hỗ trợ theo Yêu cầu 4 của GV
+        public static string SelectedMaDauSach = null;
+        public static string SelectedTenDauSach = null;
+
+        private readonly DauSachBUS _dauSachBUS;
 
         public frmChonDauSachPopup()
         {
-            InitPopup();
+            InitializeComponent();
+            _dauSachBUS = new DauSachBUS();
+            SelectedMaDauSach = null;
+            SelectedTenDauSach = null;
         }
 
-        private void InitPopup()
+        private void FrmChonDauSachPopup_Load(object sender, EventArgs e)
         {
-            Text = "Chọn Đầu sách";
-            Size = new Size(700, 400);
-            StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            Font = new Font("Segoe UI", 10F);
-
-            dgvDauSach = new DataGridView
+            try
             {
-                Location = new Point(12, 12),
-                Size = new Size(660, 300),
-                ReadOnly = true,
-                AllowUserToAddRows = false,
-                AllowUserToDeleteRows = false,
-                MultiSelect = false,
-                RowHeadersVisible = false,
-                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                BackgroundColor = Color.White
-            };
-            dgvDauSach.CellDoubleClick += (s, e) => ChonDuLieu();
-            Controls.Add(dgvDauSach);
-
-            btnChon = new Button
+                TaiDanhSach(_dauSachBUS.DocDSSach());
+                txtTimKiem.Focus();
+            }
+            catch (Exception ex)
             {
-                Text = "Chọn",
-                Location = new Point(480, 320),
-                Size = new Size(90, 30),
-                BackColor = Color.FromArgb(46, 204, 113),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
-            };
-            btnChon.Click += (s, e) => ChonDuLieu();
+                MessageBox.Show("Lỗi khi tải danh sách Đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-            btnHuy = new Button
+        private void TaiDanhSach(List<DauSachDTO> ds)
+        {
+            dgvDauSach.DataSource = null;
+            dgvDauSach.DataSource = ds;
+
+            if (dgvDauSach.Columns["MaDauSach"] is DataGridViewColumn c1) c1.HeaderText = "Mã Đầu Sách";
+            if (dgvDauSach.Columns["TenSach"] is DataGridViewColumn c2) c2.HeaderText = "Tên Sách";
+            if (dgvDauSach.Columns["DonGia"] is DataGridViewColumn c3)
             {
-                Text = "Hủy",
-                Location = new Point(580, 320),
-                Size = new Size(90, 30),
-                BackColor = Color.FromArgb(149, 165, 166),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
-                DialogResult = DialogResult.Cancel
-            };
+                c3.HeaderText = "Đơn Giá (VNĐ)";
+                c3.DefaultCellStyle.Format = "N0";
+            }
+            if (dgvDauSach.Columns["SoLuong"] is DataGridViewColumn c4) c4.HeaderText = "Số Lượng";
+            if (dgvDauSach.Columns["SLChoMuon"] is DataGridViewColumn c5) c5.HeaderText = "Đang Mượn";
+        }
 
-            Controls.Add(btnChon);
-            Controls.Add(btnHuy);
-
-            Load += (s, e) =>
+        private void TxtTimKiem_TextChanged(object sender, EventArgs e)
+        {
+            try
             {
-                dgvDauSach.DataSource = dauSachBUS.DocDSSach();
-                if (dgvDauSach.Columns["DonGia"] != null)
-                    dgvDauSach.Columns["DonGia"].Visible = false;
-            };
+                string tuKhoa = txtTimKiem.Text.Trim();
+                if (string.IsNullOrWhiteSpace(tuKhoa))
+                {
+                    TaiDanhSach(_dauSachBUS.DocDSSach());
+                }
+                else
+                {
+                    TaiDanhSach(_dauSachBUS.TimKiem(tuKhoa, tuKhoa));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tìm kiếm đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnChon_Click(object sender, EventArgs e)
+        {
+            ChonDuLieu();
+        }
+
+        private void DgvDauSach_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                ChonDuLieu();
+            }
         }
 
         private void ChonDuLieu()
         {
-            if (dgvDauSach.CurrentRow != null && dgvDauSach.CurrentRow.DataBoundItem is DauSachDTO ds)
+            try
             {
-                FormSharedData.SelectedMaDauSach = ds.MaDauSach;
-                FormSharedData.SelectedTenDauSach = ds.TenSach;
-                DialogResult = DialogResult.OK;
-                Close();
+                if (dgvDauSach.CurrentRow != null && dgvDauSach.CurrentRow.DataBoundItem is DauSachDTO ds)
+                {
+                    SelectedMaDauSach = ds.MaDauSach;
+                    SelectedTenDauSach = ds.TenSach;
+
+                    FormSharedData.SelectedMaDauSach = ds.MaDauSach;
+                    FormSharedData.SelectedTenDauSach = ds.TenSach;
+
+                    DialogResult = DialogResult.OK;
+                    Close();
+                }
+                else
+                {
+                    MessageBox.Show("Vui lòng chọn 1 đầu sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Vui lòng chọn 1 đầu sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Lỗi khi chọn đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void BtnHuy_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
     }
 }

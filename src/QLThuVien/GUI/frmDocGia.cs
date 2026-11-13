@@ -388,5 +388,42 @@ namespace QLThuVien.GUI
                 FormErrors.Show(ex);
             }
         }
+
+        // 14. NHẬP DANH SÁCH ĐỘC GIẢ TỪ FILE EXCEL (.XLSX)
+        private void btnNhapExcel_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using var ofd = new OpenFileDialog();
+                ofd.Filter = "Tài liệu Excel (*.xlsx)|*.xlsx";
+                ofd.Title = "Chọn file Excel chứa danh sách độc giả";
+
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    var (success, fail, errors) = docGiaBUS.NhapTuExcel(ofd.FileName);
+
+                    HienThiDanhSach(docGiaBUS.dsdg_arr);
+
+                    string thongBao = $"Nhập Excel hoàn tất!\n- Thành công: {success} độc giả\n- Bị lỗi / Trùng mã: {fail} độc giả";
+                    if (errors.Count > 0)
+                    {
+                        string chiTietLoi = string.Join("\n", errors.Take(5));
+                        if (errors.Count > 5) chiTietLoi += $"\n... và {errors.Count - 5} lỗi khác.";
+                        thongBao += $"\n\nChi tiết lỗi:\n{chiTietLoi}";
+                    }
+
+                    MessageBox.Show(
+                        thongBao,
+                        "Kết quả nhập Excel",
+                        MessageBoxButtons.OK,
+                        fail > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
     }
 }
