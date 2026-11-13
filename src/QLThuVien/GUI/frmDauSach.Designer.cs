@@ -56,7 +56,7 @@ namespace QLThuVien.GUI
             txtMaTG = new TextBox { Location = new Point(95, 60), Size = new Size(75, 24), Font = fontNormal };
             grpNhapLieu.Controls.Add(txtMaTG);
             btnChonTG = CreateLookupButton(173, 59);
-            btnChonTG.Click += (s, e) => { using (frmTacGia frm = new frmTacGia()) frm.ShowDialog(this); };
+            btnChonTG.Click += btnChonTG_Click;
             grpNhapLieu.Controls.Add(btnChonTG);
 
             // 2. Mã thể loại (Đã nới rộng nhãn sang X=215, ô TextBox sang X=300 để không che chữ T)
@@ -64,7 +64,7 @@ namespace QLThuVien.GUI
             txtMaTL = new TextBox { Location = new Point(300, 60), Size = new Size(75, 24), Font = fontNormal };
             grpNhapLieu.Controls.Add(txtMaTL);
             btnChonTL = CreateLookupButton(378, 59);
-            btnChonTL.Click += (s, e) => { using (frmTheLoai frm = new frmTheLoai()) frm.ShowDialog(this); };
+            btnChonTL.Click += btnChonTL_Click;
             grpNhapLieu.Controls.Add(btnChonTL);
 
             // 3. Mã NXB (Dời X sang 420, ô TextBox sang 485)
@@ -72,7 +72,7 @@ namespace QLThuVien.GUI
             txtMaNXB = new TextBox { Location = new Point(485, 60), Size = new Size(75, 24), Font = fontNormal };
             grpNhapLieu.Controls.Add(txtMaNXB);
             btnChonNXB = CreateLookupButton(563, 59);
-            btnChonNXB.Click += (s, e) => { using (frmNhaXuatBan frm = new frmNhaXuatBan()) frm.ShowDialog(this); };
+            btnChonNXB.Click += btnChonNXB_Click;
             grpNhapLieu.Controls.Add(btnChonNXB);
 
             // 4. Năm XB (Dời X sang 605, ô TextBox sang 670)

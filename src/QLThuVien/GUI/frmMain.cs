@@ -34,15 +34,9 @@ namespace QLThuVien.GUI
                     "TacGia" => new frmTacGia(),
                     "NhaXuatBan" => new frmNhaXuatBan(),
 
-                    // 3. NHẬP KHO & ĐỐI TÁC (Thành viên 2)
-                    "PhieuNhap" => new frmPhieuNhap(),
-                    "NhaCungCap" => new frmNhaCungCap(),
-                    "ThamSo" => new frmThamSo(),
-
-                    // 4. XỬ PHẠT & THỐNG KÊ (Thành viên 4)
+                    // 3. XỬ PHẠT (Thành viên 4)
                     "PhieuPhat" => new frmPhieuPhat(),
                     "QuyDinhPhat" => new frmQuyDinhPhat(),
-                    "ThongKe" => new frmThongKe(),
                     "NhanVien" => new frmNhanVien(),
 
                     _ => throw new InvalidOperationException($"Không tìm thấy màn hình được chọn: {button.Tag}")

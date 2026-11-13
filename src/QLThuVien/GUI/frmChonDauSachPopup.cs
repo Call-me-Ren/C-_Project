@@ -71,7 +71,7 @@ namespace QLThuVien.GUI
 
             Load += (s, e) =>
             {
-                dgvDauSach.DataSource = dauSachBUS.DocDSSach();
+                dgvDauSach.DataSource = dauSachBUS.DocDSDauSach();
                 if (dgvDauSach.Columns["DonGia"] != null)
                     dgvDauSach.Columns["DonGia"].Visible = false;
             };

@@ -79,15 +79,9 @@ namespace QLThuVien.GUI
             ThemVaoMenu(TaoNutMenu("✍️  Tác giả", "TacGia"));
             ThemVaoMenu(TaoNutMenu("🏢  Nhà xuất bản", "NhaXuatBan"));
 
-            ThemVaoMenu(TaoTieuDeNhom("NHẬP KHO & ĐỐI TÁC"));
-            ThemVaoMenu(TaoNutMenu("📦  Phiếu nhập sách", "PhieuNhap"));
-            ThemVaoMenu(TaoNutMenu("🚚  Nhà cung cấp", "NhaCungCap"));
-            ThemVaoMenu(TaoNutMenu("⚙️  Tham số hệ thống", "ThamSo"));
-
-            ThemVaoMenu(TaoTieuDeNhom("XỬ PHẠT & BÁO CÁO"));
+            ThemVaoMenu(TaoTieuDeNhom("XỬ PHẠT"));
             ThemVaoMenu(TaoNutMenu("⚖️  Xử lý phiếu phạt", "PhieuPhat"));
             ThemVaoMenu(TaoNutMenu("📜  Quy định xử phạt", "QuyDinhPhat"));
-            ThemVaoMenu(TaoNutMenu("📊  Báo cáo thống kê", "ThongKe"));
             ThemVaoMenu(TaoNutMenu("🧑‍💼  Quản lý nhân viên", "NhanVien"));
 
             // 

@@ -47,8 +47,15 @@ namespace QLThuVien.BUS
         // 3. Thêm Thể loại
         public void Them(TheLoaiDTO TheLoai)
         {
+            if (TheLoai == null || string.IsNullOrWhiteSpace(TheLoai.MaTL) || string.IsNullOrWhiteSpace(TheLoai.TenTL))
+                throw new ArgumentException("Mã và tên thể loại không được để trống.");
+            string ma = TheLoai.MaTL.Trim();
+            if (KiemTraTrungMa(ma)) throw new InvalidOperationException($"Mã thể loại '{ma}' đã tồn tại.");
+            TheLoai.MaTL = ma;
+            TheLoai.TenTL = TheLoai.TenTL.Trim();
             TheLoaiDAO TheLoaiDAO = new TheLoaiDAO();
             TheLoaiDAO.Them(TheLoai);
+            DocDSTL();
         }
 
         // 4. Xóa Thể loại
@@ -56,6 +63,7 @@ namespace QLThuVien.BUS
         {
             TheLoaiDAO TheLoaiDAO = new TheLoaiDAO();
             TheLoaiDAO.Xoa(maTL);
+            DocDSTL();
         }
 
         // 5. Sửa Thể loại
@@ -63,6 +71,7 @@ namespace QLThuVien.BUS
         {
             TheLoaiDAO TheLoaiDAO = new TheLoaiDAO();
             TheLoaiDAO.Sua(TheLoai);
+            DocDSTL();
         }
 
         // 6. Tìm kiếm
