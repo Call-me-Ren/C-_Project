@@ -1,10 +1,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using QLThuVien.DTO;
 using QLThuVien.BUS;
 
@@ -289,7 +286,9 @@ namespace QLThuVien.GUI
                         popup.SoLuong,
                         popup.NamXB,
                         popup.MaTG,
-                        popup.MaTL
+                        popup.MaTL,
+                        popup.TuGia,
+                        popup.DenGia
                     );
 
                     TaiDauSach(ketQua);
@@ -320,9 +319,9 @@ namespace QLThuVien.GUI
             using (SaveFileDialog dialog = new SaveFileDialog
             {
                 Title = "Lưu danh sách đầu sách",
-                Filter = "CSV mở bằng Excel (*.csv)|*.csv",
-                FileName = "DanhSachDauSach.csv",
-                DefaultExt = "csv",
+                Filter = "Sổ làm việc Excel (*.xlsx)|*.xlsx",
+                FileName = "DanhSachDauSach.xlsx",
+                DefaultExt = "xlsx",
                 AddExtension = true
             })
             {
@@ -330,30 +329,18 @@ namespace QLThuVien.GUI
 
                 try
                 {
-                    StringBuilder csv = new StringBuilder();
-                    csv.AppendLine("sep=;");
-                    csv.AppendLine(string.Join(";", new[] { "Mã đầu sách", "Tên sách", "Mã tác giả", "Mã thể loại", "Mã NXB", "Năm xuất bản", "Đơn giá", "Số lượng", "Đã mượn", "Còn lại" }.Select(GiaTriCsv)));
-
-                    foreach (DauSachDTO sach in danhSach)
+                    string[] tieuDe = { "Mã đầu sách", "Tên sách", "Mã tác giả", "Mã thể loại", "Mã NXB", "Năm xuất bản", "Đơn giá", "Số lượng", "Đã mượn", "Còn lại" };
+                    List<IReadOnlyList<string>> cacDong = danhSach.Select(sach => (IReadOnlyList<string>)new[]
                     {
-                        string[] cot =
-                        {
-                            sach.MaDauSach,
-                            sach.TenSach,
-                            sach.MaTG,
-                            sach.MaTL,
-                            sach.MaNXB,
-                            sach.NamXB?.ToString(CultureInfo.InvariantCulture) ?? "",
-                            sach.DonGia.ToString(CultureInfo.InvariantCulture),
-                            sach.SoLuong.ToString(CultureInfo.InvariantCulture),
-                            sach.SLChoMuon.ToString(CultureInfo.InvariantCulture),
-                            sach.SLConLai.ToString(CultureInfo.InvariantCulture)
-                        };
-                        csv.AppendLine(string.Join(";", cot.Select(GiaTriCsv)));
-                    }
-
-                    File.WriteAllText(dialog.FileName, csv.ToString(), new UTF8Encoding(true));
-                    MessageBox.Show($"Đã xuất {danhSach.Count} đầu sách ra file CSV mở bằng Excel.", "Xuất thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        sach.MaDauSach, sach.TenSach, sach.MaTG, sach.MaTL, sach.MaNXB,
+                        sach.NamXB?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "",
+                        sach.DonGia.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        sach.SoLuong.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        sach.SLChoMuon.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        sach.SLConLai.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    }).ToList();
+                    DauSachExcelService.Ghi(dialog.FileName, tieuDe, cacDong);
+                    MessageBox.Show($"Đã xuất {danhSach.Count} đầu sách ra file Excel .xlsx.", "Xuất thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
@@ -362,10 +349,30 @@ namespace QLThuVien.GUI
             }
         }
 
-        private static string GiaTriCsv(string value)
+        private void btnNhapExcel_Click(object sender, EventArgs e)
         {
-            string text = value ?? string.Empty;
-            return "\"" + text.Replace("\"", "\"\"") + "\"";
+            try
+            {
+                using OpenFileDialog dialog = new OpenFileDialog
+                {
+                    Title = "Chọn file Excel chứa đầu sách",
+                    Filter = "Sổ làm việc Excel (*.xlsx)|*.xlsx",
+                    DefaultExt = "xlsx",
+                    CheckFileExists = true
+                };
+                if (dialog.ShowDialog(this) != DialogResult.OK) return;
+
+                string ketQua = dauSachBUS.NhapExcel(dialog.FileName, out int soLuongThem, out int soLuongBoQua, out List<string> loi);
+                LoadDuLieu();
+                string chiTiet = loi.Count == 0 ? string.Empty : Environment.NewLine + Environment.NewLine + string.Join(Environment.NewLine, loi.Take(10));
+                if (loi.Count > 10) chiTiet += Environment.NewLine + $"... còn {loi.Count - 10} dòng có thông báo.";
+                MessageBox.Show(ketQua + chiTiet, "Kết quả nhập Excel", MessageBoxButtons.OK,
+                    soLuongBoQua > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Không thể nhập file Excel: " + ex.Message, "Lỗi nhập Excel", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnTaiLai_Click(object sender, EventArgs e)

@@ -7,7 +7,7 @@ namespace QLThuVien.GUI
 {
     public class frmTimKiemPopup : Form
     {
-        private TextBox txtMaDauSach, txtTenSach, txtSoLuong, txtNamXB, txtMaTG, txtMaTL;
+        private TextBox txtMaDauSach, txtTenSach, txtSoLuong, txtNamXB, txtMaTG, txtMaTL, txtTuGia, txtDenGia;
         private Button btnTim, btnHuy;
 
         public string MaDauSach => string.IsNullOrWhiteSpace(txtMaDauSach.Text) ? null : txtMaDauSach.Text.Trim();
@@ -16,11 +16,13 @@ namespace QLThuVien.GUI
         public int? NamXB => int.TryParse(txtNamXB.Text.Trim(), out int nxb) ? nxb : null;
         public string MaTG => string.IsNullOrWhiteSpace(txtMaTG.Text) ? null : txtMaTG.Text.Trim();
         public string MaTL => string.IsNullOrWhiteSpace(txtMaTL.Text) ? null : txtMaTL.Text.Trim();
+        public decimal? TuGia => decimal.TryParse(txtTuGia.Text.Trim(), out decimal gia) ? gia : null;
+        public decimal? DenGia => decimal.TryParse(txtDenGia.Text.Trim(), out decimal gia) ? gia : null;
 
         public frmTimKiemPopup()
         {
             Text = "Tìm kiếm nâng cao";
-            Size = new Size(360, 310);
+            Size = new Size(380, 390);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -52,8 +54,16 @@ namespace QLThuVien.GUI
             txtMaTL = new TextBox { Location = new Point(130, 192), Size = new Size(180, 24), Font = f };
             Controls.Add(txtMaTL);
 
-            btnTim = new Button { Text = "Tìm kiếm", Location = new Point(130, 235), Size = new Size(85, 30), DialogResult = DialogResult.OK, Font = f, BackColor = Color.FromArgb(52, 152, 219), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
-            btnHuy = new Button { Text = "Hủy", Location = new Point(225, 235), Size = new Size(85, 30), DialogResult = DialogResult.Cancel, Font = f, BackColor = Color.FromArgb(149, 165, 166), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            Controls.Add(new Label { Text = "Đơn giá từ:", Location = new Point(20, 230), AutoSize = true, Font = f });
+            txtTuGia = new TextBox { Location = new Point(130, 227), Size = new Size(200, 24), Font = f };
+            Controls.Add(txtTuGia);
+
+            Controls.Add(new Label { Text = "Đến đơn giá:", Location = new Point(20, 265), AutoSize = true, Font = f });
+            txtDenGia = new TextBox { Location = new Point(130, 262), Size = new Size(200, 24), Font = f };
+            Controls.Add(txtDenGia);
+
+            btnTim = new Button { Text = "Tìm kiếm", Location = new Point(130, 305), Size = new Size(85, 30), DialogResult = DialogResult.OK, Font = f, BackColor = Color.FromArgb(52, 152, 219), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            btnHuy = new Button { Text = "Hủy", Location = new Point(225, 305), Size = new Size(85, 30), DialogResult = DialogResult.Cancel, Font = f, BackColor = Color.FromArgb(149, 165, 166), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
             btnTim.FlatAppearance.BorderSize = 0;
             btnHuy.FlatAppearance.BorderSize = 0;
 
