@@ -39,6 +39,50 @@ namespace QLThuVien.GUI
             return btn;
         }
 
+        private void btnChonTG_Click(object sender, EventArgs e)
+        {
+            using Form popup = TaoPopupChon(
+                new TacGiaBUS().DocDSTacGia().Select(x => new LookupOptionDTO(x.MaTG, $"{x.MaTG} - {x.HoLot} {x.TenTG}")), "Chọn tác giả");
+            if (popup.ShowDialog(this) == DialogResult.OK) txtMaTG.Text = FormSharedData.SelectedID;
+        }
+
+        private void btnChonTL_Click(object sender, EventArgs e)
+        {
+            using Form popup = TaoPopupChon(
+                new TheLoaiBUS().DocDSTL().Select(x => new LookupOptionDTO(x.MaTL, $"{x.MaTL} - {x.TenTL}")), "Chọn thể loại");
+            if (popup.ShowDialog(this) == DialogResult.OK) txtMaTL.Text = FormSharedData.SelectedID;
+        }
+
+        private void btnChonNXB_Click(object sender, EventArgs e)
+        {
+            using Form popup = TaoPopupChon(
+                new NXBBUS().DocDSNXB().Select(x => new LookupOptionDTO(x.MaNXB, $"{x.MaNXB} - {x.TenNXB}")), "Chọn nhà xuất bản");
+            if (popup.ShowDialog(this) == DialogResult.OK) txtMaNXB.Text = FormSharedData.SelectedID;
+        }
+
+        private static Form TaoPopupChon(IEnumerable<LookupOptionDTO> options, string title)
+        {
+            Form popup = new Form { Text = title, Size = new Size(480, 350), StartPosition = FormStartPosition.CenterParent, FormBorderStyle = FormBorderStyle.FixedDialog };
+            DataGridView grid = new DataGridView { Dock = DockStyle.Top, Height = 260, ReadOnly = true, AutoGenerateColumns = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, MultiSelect = false };
+            grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LookupOptionDTO.Ma), HeaderText = "Mã", Width = 120 });
+            grid.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = nameof(LookupOptionDTO.HienThi), HeaderText = "Tên", AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill });
+            grid.DataSource = options.ToList();
+            Button choose = new Button { Text = "Chọn", Dock = DockStyle.Bottom, Height = 38, DialogResult = DialogResult.None };
+            choose.Click += (sender, args) =>
+            {
+                if (grid.CurrentRow?.DataBoundItem is LookupOptionDTO selected)
+                {
+                    FormSharedData.SelectedID = selected.Ma;
+                    FormSharedData.SelectedName = selected.HienThi;
+                    popup.DialogResult = DialogResult.OK;
+                    popup.Close();
+                }
+            };
+            popup.Controls.Add(grid);
+            popup.Controls.Add(choose);
+            return popup;
+        }
+
         private void DauSachGUI_Load(object sender, EventArgs e)
         {
             LoadDuLieu();
@@ -46,7 +90,7 @@ namespace QLThuVien.GUI
 
         private void LoadDuLieu(string selectMaDauSach = null)
         {
-            List<DauSachDTO> ds = dauSachBUS.DocDSSach();
+            List<DauSachDTO> ds = dauSachBUS.DocDSDauSach();
             TaiDauSach(ds, selectMaDauSach);
         }
 
@@ -167,12 +211,6 @@ namespace QLThuVien.GUI
                 if (string.IsNullOrWhiteSpace(txtMaDauSach.Text) || string.IsNullOrWhiteSpace(txtTenSach.Text))
                 {
                     MessageBox.Show("Vui lòng nhập đầy đủ Mã đầu sách và Tên sách.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                if (dauSachBUS.KiemTraTrungMa(txtMaDauSach.Text.Trim()))
-                {
-                    MessageBox.Show("Mã đầu sách '" + txtMaDauSach.Text.Trim() + "' đã tồn tại!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
