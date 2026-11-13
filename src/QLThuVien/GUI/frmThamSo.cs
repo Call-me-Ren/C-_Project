@@ -21,7 +21,7 @@ namespace QLThuVien.GUI
         {
             try
             {
-                dgvThamSo.DataSource = _tsBUS.DocDS();
+                dgvThamSo.DataSource = _tsBUS.DocDS(forceReload: true);
 
                 if (dgvThamSo.Columns["MaTS"] is DataGridViewColumn c1)
                     c1.HeaderText = "Mã Tham Số";
@@ -29,10 +29,16 @@ namespace QLThuVien.GUI
                     c2.HeaderText = "Tên Quy Định / Tham Số";
                 if (dgvThamSo.Columns["GiaTri"] is DataGridViewColumn c3)
                     c3.HeaderText = "Giá Trị Cấu Hình";
+
+                if (dgvThamSo.Rows.Count > 0)
+                {
+                    dgvThamSo.Rows[0].Selected = true;
+                    DgvThamSo_CellClick(dgvThamSo, new DataGridViewCellEventArgs(0, 0));
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi tải bảng tham số: " + ex.Message, "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                FormErrors.Show(ex);
             }
         }
 

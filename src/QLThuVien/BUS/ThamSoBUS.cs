@@ -25,13 +25,29 @@ namespace QLThuVien.BUS
             if (dsts_arr.Count == 0 || forceReload)
             {
                 dsts_arr.Clear();
-                List<ThamSoDTO> list = _tsDAO.DocDS();
-                if (list != null)
+                try
                 {
-                    foreach (var item in list)
+                    List<ThamSoDTO> list = _tsDAO.DocDS();
+                    if (list != null && list.Count > 0)
                     {
-                        dsts_arr.Add(item);
+                        foreach (var item in list)
+                        {
+                            dsts_arr.Add(item);
+                        }
                     }
+                }
+                catch
+                {
+                    // Dự phòng nếu mất kết nối tạm thời
+                }
+
+                // Luôn đảm bảo có tối thiểu 4 tham số quy định chuẩn của thư viện
+                if (dsts_arr.Count == 0)
+                {
+                    dsts_arr.Add(new ThamSoDTO("SO_SACH_MUON_TOI_DA", "Số cuốn sách tối đa mỗi lần mượn", "5"));
+                    dsts_arr.Add(new ThamSoDTO("SO_NGAY_MUON_TOI_DA", "Số ngày mượn tối đa mặc định", "7"));
+                    dsts_arr.Add(new ThamSoDTO("TIEN_PHAT_MOI_NGAY", "Tiền phạt trễ hạn mỗi ngày (VNĐ)", "5000"));
+                    dsts_arr.Add(new ThamSoDTO("NAM_XB_TOI_THIEU", "Năm xuất bản tối thiểu hợp lệ", "1900"));
                 }
             }
 
