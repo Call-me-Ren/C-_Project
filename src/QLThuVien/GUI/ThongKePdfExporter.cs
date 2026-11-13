@@ -12,6 +12,7 @@ namespace QLThuVien.GUI
 {
     public sealed class ThongKePdfExporter
     {
+        private const string GhiChuThongKeQuy = "Bảng quý tính tổng tiền phạt của tất cả phiếu phạt đã lập, kể cả phiếu chưa thanh toán. Tổng thu ở bảng Thu - Chi chỉ tính phiếu đã thanh toán.";
         private readonly ThongKeTongHopDTO thongKe;
         private readonly DateTime tuNgay;
         private readonly DateTime denNgay;
@@ -92,6 +93,8 @@ namespace QLThuVien.GUI
                     if (!gomCuoi)
                     {
                         column.Item().PaddingTop(2).Element(container => BangDauSach(container, 0, thongKe.ThongKeDauSachTheoQuy.Count, true));
+                        column.Item().PaddingTop(3).DefaultTextStyle(style => style.FontSize(Math.Max(8f, fontSize * 0.78f)).FontColor(Colors.Grey.Darken1))
+                            .Text(GhiChuThongKeQuy);
                         column.Item().PaddingTop(5).Row(row =>
                         {
                             row.RelativeItem().AlignCenter().Column(signature =>
@@ -116,6 +119,8 @@ namespace QLThuVien.GUI
                         column.Item().ShowEntire().Column(last =>
                         {
                             last.Item().PaddingTop(2).Element(container => BangDauSach(container, splitAt, thongKe.ThongKeDauSachTheoQuy.Count, true));
+                            last.Item().PaddingTop(3).DefaultTextStyle(style => style.FontSize(Math.Max(8f, fontSize * 0.78f)).FontColor(Colors.Grey.Darken1))
+                                .Text(GhiChuThongKeQuy);
                             last.Item().PaddingTop(5).Row(row =>
                             {
                                 row.RelativeItem().AlignCenter().Column(signature =>

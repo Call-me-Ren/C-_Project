@@ -37,36 +37,124 @@ namespace QLThuVien.DAO
             return dt.Rows.Count == 0 ? null : DocDongDuLieu(dt.Rows[0]);
         }
 
-        public int Them(ChiTietPhieuPhatDTO ct)
+        public int ThemVaCapNhatTongTien(ChiTietPhieuPhatDTO ct, decimal tongTien)
         {
-            string query = @"INSERT INTO ChiTietPhieuPhat (MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat)
-                             OUTPUT INSERTED.MaCTPP
-                             VALUES (@MaPhieuPhat, @MaQD, @MaSach, @DonGia, @SoNgayTre, @GhiChu, @TienPhat)";
-            object? result = MyConnection.ExecuteScalar(query, TaoThamSo(ct));
-            return result == null || result == DBNull.Value ? 0 : Convert.ToInt32(result);
+            using SqlConnection conn = MyConnection.GetConnection();
+            conn.Open();
+            using SqlTransaction tran = conn.BeginTransaction();
+            try
+            {
+                string query = @"INSERT INTO ChiTietPhieuPhat (MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat)
+                                 OUTPUT INSERTED.MaCTPP
+                                 VALUES (@MaPhieuPhat, @MaQD, @MaSach, @DonGia, @SoNgayTre, @GhiChu, @TienPhat)";
+                int maCTPP;
+                using (SqlCommand cmd = new SqlCommand(query, conn, tran))
+                {
+                    cmd.Parameters.AddRange(TaoThamSo(ct));
+                    maCTPP = Convert.ToInt32(cmd.ExecuteScalar());
+                }
+
+                CapNhatTongTienTrongGiaoDich(conn, tran, ct.MaPhieuPhat, tongTien);
+                tran.Commit();
+                return maCTPP;
+            }
+            catch
+            {
+                RollbackAnToan(tran);
+                throw;
+            }
         }
 
-        public bool Sua(ChiTietPhieuPhatDTO ct)
+        public bool SuaVaCapNhatTongTien(ChiTietPhieuPhatDTO ct, decimal tongTien)
         {
-            string query = @"UPDATE ChiTietPhieuPhat
-                             SET MaQD = @MaQD, MaSach = @MaSach, DonGia = @DonGia,
-                                 SoNgayTre = @SoNgayTre, GhiChu = @GhiChu, TienPhat = @TienPhat
-                             WHERE MaCTPP = @MaCTPP";
-            List<SqlParameter> parameters = new List<SqlParameter>(TaoThamSo(ct))
+            using SqlConnection conn = MyConnection.GetConnection();
+            conn.Open();
+            using SqlTransaction tran = conn.BeginTransaction();
+            try
             {
-                new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = ct.MaCTPP }
-            };
-            return MyConnection.ExecuteNonQuery(query, parameters.ToArray()) > 0;
+                string query = @"UPDATE ChiTietPhieuPhat
+                                 SET MaQD = @MaQD, MaSach = @MaSach, DonGia = @DonGia,
+                                     SoNgayTre = @SoNgayTre, GhiChu = @GhiChu, TienPhat = @TienPhat
+                                 WHERE MaCTPP = @MaCTPP";
+                int affected;
+                using (SqlCommand cmd = new SqlCommand(query, conn, tran))
+                {
+                    List<SqlParameter> parameters = new List<SqlParameter>(TaoThamSo(ct))
+                    {
+                        new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = ct.MaCTPP }
+                    };
+                    cmd.Parameters.AddRange(parameters.ToArray());
+                    affected = cmd.ExecuteNonQuery();
+                }
+                if (affected == 0)
+                {
+                    tran.Rollback();
+                    return false;
+                }
+
+                CapNhatTongTienTrongGiaoDich(conn, tran, ct.MaPhieuPhat, tongTien);
+                tran.Commit();
+                return true;
+            }
+            catch
+            {
+                RollbackAnToan(tran);
+                throw;
+            }
         }
 
-        public bool Xoa(int maCTPP)
+        public bool XoaVaCapNhatTongTien(int maCTPP, string maPhieuPhat, decimal tongTien)
         {
-            string query = "DELETE FROM ChiTietPhieuPhat WHERE MaCTPP = @MaCTPP";
-            SqlParameter[] parameters =
+            using SqlConnection conn = MyConnection.GetConnection();
+            conn.Open();
+            using SqlTransaction tran = conn.BeginTransaction();
+            try
             {
-                new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = maCTPP }
-            };
-            return MyConnection.ExecuteNonQuery(query, parameters) > 0;
+                string query = "DELETE FROM ChiTietPhieuPhat WHERE MaCTPP = @MaCTPP";
+                using (SqlCommand cmd = new SqlCommand(query, conn, tran))
+                {
+                    cmd.Parameters.Add(new SqlParameter("@MaCTPP", SqlDbType.Int) { Value = maCTPP });
+                    if (cmd.ExecuteNonQuery() == 0)
+                    {
+                        tran.Rollback();
+                        return false;
+                    }
+                }
+
+                CapNhatTongTienTrongGiaoDich(conn, tran, maPhieuPhat, tongTien);
+                tran.Commit();
+                return true;
+            }
+            catch
+            {
+                RollbackAnToan(tran);
+                throw;
+            }
+        }
+
+        private static void CapNhatTongTienTrongGiaoDich(SqlConnection conn, SqlTransaction tran, string maPhieuPhat, decimal tongTien)
+        {
+            const string query = "UPDATE PhieuPhat SET TongTienPhat = @TongTienPhat WHERE MaPhieuPhat = @MaPhieuPhat";
+            using SqlCommand cmd = new SqlCommand(query, conn, tran);
+            cmd.Parameters.Add(new SqlParameter("@TongTienPhat", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = tongTien });
+            cmd.Parameters.Add(new SqlParameter("@MaPhieuPhat", SqlDbType.VarChar, 20) { Value = maPhieuPhat });
+            if (cmd.ExecuteNonQuery() == 0)
+                throw new InvalidOperationException("Không tìm thấy phiếu phạt cần cập nhật tổng tiền.");
+        }
+
+        private static void RollbackAnToan(SqlTransaction tran)
+        {
+            if (tran.Connection == null) return;
+            try
+            {
+                tran.Rollback();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+            catch (SqlException)
+            {
+            }
         }
 
         public bool KiemTraTrung(string maPhieuPhat, string maSach, string maQD, int? boQuaMaCTPP = null)
