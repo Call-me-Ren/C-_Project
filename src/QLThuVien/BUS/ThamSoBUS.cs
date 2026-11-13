@@ -1,67 +1,99 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using QLThuVien.DAO;
 using QLThuVien.DTO;
 
 namespace QLThuVien.BUS
 {
     /// <summary>
-    /// BUS quản lý cấu hình các tham số hệ thống từ bảng ThamSo (bảng thứ 17).
+    /// Business Logic Layer cho bảng ThamSo (Bảng thứ 17 - Yêu cầu 9 của GV)
+    /// Đọc và lưu trữ tham số trên ArrayList, cung cấp hàm lấy giá trị theo mã tham số.
     /// </summary>
     public class ThamSoBUS
     {
-        private readonly ThamSoDAO tsDAO = new ThamSoDAO();
-        public ArrayList dsThamSo_arr = new ArrayList();
+        private readonly ThamSoDAO _tsDAO;
+        public ArrayList dsts_arr { get; } = new ArrayList();
 
-        public static string LayGiaTriTheoMa(string maTS, string macDinh = "")
+        public ThamSoBUS()
         {
-            return ThamSoDAO.LayGiaTriTheoMa(maTS, macDinh);
+            _tsDAO = new ThamSoDAO();
         }
 
-        public static int LayGiaTriInt(string maTS, int macDinh)
+        public List<ThamSoDTO> DocDS(bool forceReload = false)
         {
-            string raw = LayGiaTriTheoMa(maTS, macDinh.ToString(CultureInfo.InvariantCulture));
-            return int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out int val) ? val : macDinh;
-        }
-
-        public static decimal LayGiaTriDecimal(string maTS, decimal macDinh)
-        {
-            string raw = LayGiaTriTheoMa(maTS, macDinh.ToString(CultureInfo.InvariantCulture));
-            return decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal val) ? val : macDinh;
-        }
-
-        public ArrayList DocDSThamSo()
-        {
-            List<ThamSoDTO> list = tsDAO.DocDSThamSo();
-            dsThamSo_arr.Clear();
-            foreach (ThamSoDTO ts in list)
+            if (dsts_arr.Count == 0 || forceReload)
             {
-                dsThamSo_arr.Add(ts);
+                dsts_arr.Clear();
+                List<ThamSoDTO> list = _tsDAO.DocDS();
+                if (list != null)
+                {
+                    foreach (var item in list)
+                    {
+                        dsts_arr.Add(item);
+                    }
+                }
             }
-            return dsThamSo_arr;
+
+            List<ThamSoDTO> result = new List<ThamSoDTO>();
+            foreach (ThamSoDTO item in dsts_arr)
+            {
+                result.Add(item);
+            }
+            return result;
         }
 
-        public bool CapNhatGiaTri(string maTS, string giaTri, out string error)
+        /// <summary>
+        /// Lấy giá trị tham số cấu hình từ ArrayList trên RAM theo mã tham số (không query CSDL liên tục)
+        /// </summary>
+        public string LayGiaTriTheoMa(string maTS, string giaTriMacDinh = "")
         {
-            error = string.Empty;
+            DocDS();
+            foreach (ThamSoDTO item in dsts_arr)
+            {
+                if (item.MaTS.Equals(maTS.Trim(), StringComparison.OrdinalIgnoreCase))
+                    return item.GiaTri;
+            }
+            return giaTriMacDinh;
+        }
+
+        /// <summary>
+        /// Cập nhật giá trị tham số cấu hình với kiểm tra dữ liệu hợp lệ
+        /// </summary>
+        public (bool Success, string Message) CapNhat(string maTS, string giaTriMoi)
+        {
             if (string.IsNullOrWhiteSpace(maTS))
+                return (false, "Mã tham số không hợp lệ!");
+
+            if (string.IsNullOrWhiteSpace(giaTriMoi))
+                return (false, "Giá trị tham số không được để trống!");
+
+            maTS = maTS.Trim();
+            giaTriMoi = giaTriMoi.Trim();
+
+            // Validate logic cho các tham số dạng số
+            if (maTS == "SO_SACH_MUON_TOI_DA" || maTS == "SO_NGAY_MUON_TOI_DA" || 
+                maTS == "TIEN_PHAT_MOI_NGAY" || maTS == "NAM_XB_TOI_THIEU")
             {
-                error = "Mã tham số không được rỗng!";
-                return false;
+                if (!long.TryParse(giaTriMoi, out long val) || val < 0)
+                    return (false, "Giá trị của tham số này phải là một số nguyên không âm!");
             }
 
-            bool ok = tsDAO.CapNhatGiaTri(maTS, giaTri.Trim());
-            if (ok)
+            if (_tsDAO.CapNhatGiaTri(maTS, giaTriMoi))
             {
-                DocDSThamSo();
+                // Đồng bộ lên ArrayList
+                foreach (ThamSoDTO item in dsts_arr)
+                {
+                    if (item.MaTS.Equals(maTS, StringComparison.OrdinalIgnoreCase))
+                    {
+                        item.GiaTri = giaTriMoi;
+                        break;
+                    }
+                }
+                return (true, "Cập nhật tham số cấu hình thành công!");
             }
-            else
-            {
-                error = "Cập nhật giá trị tham số thất bại!";
-            }
-            return ok;
+
+            return (false, "Lỗi khi cập nhật cơ sở dữ liệu!");
         }
     }
 }

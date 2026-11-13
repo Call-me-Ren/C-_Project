@@ -23,6 +23,7 @@ namespace QLThuVien.BUS
 
         private readonly PhieuMuonDAO pmDAO = new PhieuMuonDAO();
         private readonly ChiTietPhieuMuonDAO ctDAO = new ChiTietPhieuMuonDAO();
+        private readonly ThamSoBUS tsBUS = new ThamSoBUS();
 
         // Thuộc tính ArrayList lưu danh sách phiếu mượn trong RAM
         public ArrayList dsPhieuMuon_arr = new ArrayList();
@@ -72,13 +73,13 @@ namespace QLThuVien.BUS
         // 3. ĐỌC THAM SỐ CẤU HÌNH HỆ THỐNG
         public int LaySoSachMuonToiDa()
         {
-            string val = ThamSoBUS.LayGiaTriTheoMa("SO_SACH_MUON_TOI_DA", "5");
+            string val = tsBUS.LayGiaTriTheoMa("SO_SACH_MUON_TOI_DA", "5");
             return int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) ? result : 5;
         }
 
         public int LaySoNgayMuonToiDa()
         {
-            string val = ThamSoBUS.LayGiaTriTheoMa("SO_NGAY_MUON_TOI_DA", "7");
+            string val = tsBUS.LayGiaTriTheoMa("SO_NGAY_MUON_TOI_DA", "7");
             return int.TryParse(val, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result) ? result : 7;
         }
 

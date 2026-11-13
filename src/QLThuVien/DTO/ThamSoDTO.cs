@@ -1,7 +1,7 @@
 namespace QLThuVien.DTO
 {
     /// <summary>
-    /// DTO đại diện cho bảng cấu hình tham số hệ thống ThamSo (bảng thứ 17).
+    /// DTO đại diện cho bảng ThamSo (Bảng thứ 17 - Yêu cầu 9 của GV)
     /// </summary>
     public class ThamSoDTO
     {
@@ -9,9 +9,7 @@ namespace QLThuVien.DTO
         public string TenTS { get; set; } = string.Empty;
         public string GiaTri { get; set; } = string.Empty;
 
-        public ThamSoDTO()
-        {
-        }
+        public ThamSoDTO() { }
 
         public ThamSoDTO(string maTS, string tenTS, string giaTri)
         {

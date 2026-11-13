@@ -11,6 +11,7 @@ namespace QLThuVien.GUI
         private readonly Button btnThongKe = new Button();
         private readonly Button btnLamMoi = new Button();
         private readonly Button btnXuatPdf = new Button();
+        private readonly Button btnXuatExcel = new Button();
         private readonly Label lblTrangThai = new Label();
         private readonly TabControl tabsThongKe = new TabControl();
         private readonly Label lblTongThu = new Label();
@@ -68,12 +69,15 @@ namespace QLThuVien.GUI
             btnXuatPdf.Location = new Point(720, 27);
             btnXuatPdf.Size = new Size(145, 31);
             btnXuatPdf.Text = "Xuất báo cáo PDF";
+            btnXuatExcel.Location = new Point(872, 27);
+            btnXuatExcel.Size = new Size(120, 31);
+            btnXuatExcel.Text = "Xuất Excel";
             lblTrangThai.AutoEllipsis = true;
             lblTrangThai.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
             lblTrangThai.Location = new Point(485, 64);
             lblTrangThai.Size = new Size(770, 20);
             lblTrangThai.ForeColor = Color.DimGray;
-            filters.Controls.AddRange(new Control[] { fromLabel, dtpTuNgay, toLabel, dtpDenNgay, btnThongKe, btnLamMoi, btnXuatPdf, lblTrangThai });
+            filters.Controls.AddRange(new Control[] { fromLabel, dtpTuNgay, toLabel, dtpDenNgay, btnThongKe, btnLamMoi, btnXuatPdf, btnXuatExcel, lblTrangThai });
 
             numNamThongKe.Name = "numNamThongKe";
             numNamThongKe.Maximum = DateTime.Today.Year + 1;
