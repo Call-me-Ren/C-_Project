@@ -20,7 +20,14 @@ namespace QLThuVien.GUI
 
         private void TacGiaGUI_Load(object sender, EventArgs e)
         {
-            TaiDuLieu(tacGiaBUS.DocDSTacGia());
+            try
+            {
+                TaiDuLieu(tacGiaBUS.DocDSTacGia());
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void TaiDuLieu(List<TacGiaDTO> ds)
@@ -150,19 +157,33 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            string kw = txtTimKiem.Text.Trim();
-            if (string.IsNullOrWhiteSpace(kw))
+            try
             {
-                MessageBox.Show("Vui lòng nhập từ khóa tìm kiếm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                string kw = txtTimKiem.Text.Trim();
+                if (string.IsNullOrWhiteSpace(kw))
+                {
+                    MessageBox.Show("Vui lòng nhập từ khóa tìm kiếm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                TaiDuLieu(tacGiaBUS.timKiem(kw, kw));
             }
-            TaiDuLieu(tacGiaBUS.timKiem(kw, kw));
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnTaiLai_Click(object sender, EventArgs e)
         {
-            TaiDuLieu(tacGiaBUS.DocDSTacGia());
-            txtTimKiem.Clear();
+            try
+            {
+                TaiDuLieu(tacGiaBUS.DocDSTacGia());
+                txtTimKiem.Clear();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void LamMoi()

@@ -114,7 +114,14 @@ namespace QLThuVien.DAO
         // 5. KIỂM TRA CUỐN SÁCH CÓ ĐANG BỊ MƯỢN CHƯA TRẢ HAY KHÔNG
         public bool KiemTraSachDangMuon(string maSach)
         {
-            string query = "SELECT COUNT(1) FROM ChiTietPhieuMuon WHERE MaSach = @MaSach AND NgayThucTra IS NULL";
+            string query = @"
+                SELECT COUNT(1)
+                FROM Sach s
+                WHERE s.MaSach = @MaSach
+                  AND (s.TrangThai = 1 OR EXISTS (
+                      SELECT 1 FROM ChiTietPhieuMuon ct
+                      WHERE ct.MaSach = s.MaSach AND ct.NgayThucTra IS NULL
+                  ))";
             SqlParameter[] parameters = new SqlParameter[]
             {
                 new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = maSach }
@@ -124,7 +131,8 @@ namespace QLThuVien.DAO
             return count > 0;
         }
 
-        // 6. CẬP NHẬT TỒN KHO KHI MƯỢN SÁCH: Giảm SLConLai đi 1, tăng SLChoMuon lên 1
+        // 6. CẬP NHẬT TỒN KHO & TRẠNG THÁI SÁCH KHI MƯỢN:
+        // Giảm SLConLai đi 1, tăng SLChoMuon lên 1 ở DauSach và đánh dấu Sach.TrangThai = 1
         public bool CapNhatTonKhoKhiMuon(string maSach)
         {
             string query = @"
@@ -132,7 +140,11 @@ namespace QLThuVien.DAO
                 SET SLConLai = SLConLai - 1,
                     SLChoMuon = SLChoMuon + 1
                 WHERE MaDauSach = (SELECT MaDauSach FROM Sach WHERE MaSach = @MaSach)
-                  AND SLConLai > 0";
+                  AND SLConLai > 0;
+
+                UPDATE Sach
+                SET TrangThai = 1
+                WHERE MaSach = @MaSach;";
 
             SqlParameter[] parameters = new SqlParameter[]
             {
@@ -142,14 +154,19 @@ namespace QLThuVien.DAO
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
-        // 7. CẬP NHẬT TỒN KHO KHI TRẢ SÁCH: Tăng SLConLai lên 1, giảm SLChoMuon đi 1
+        // 7. CẬP NHẬT TỒN KHO & TRẠNG THÁI SÁCH KHI TRẢ:
+        // Tăng SLConLai lên 1, giảm SLChoMuon đi 1 ở DauSach và trả Sach.TrangThai = 0
         public bool CapNhatTonKhoKhiTra(string maSach)
         {
             string query = @"
                 UPDATE DauSach
                 SET SLConLai = SLConLai + 1,
                     SLChoMuon = CASE WHEN SLChoMuon > 0 THEN SLChoMuon - 1 ELSE 0 END
-                WHERE MaDauSach = (SELECT MaDauSach FROM Sach WHERE MaSach = @MaSach)";
+                WHERE MaDauSach = (SELECT MaDauSach FROM Sach WHERE MaSach = @MaSach);
+
+                UPDATE Sach
+                SET TrangThai = 0
+                WHERE MaSach = @MaSach;";
 
             SqlParameter[] parameters = new SqlParameter[]
             {
@@ -172,6 +189,7 @@ namespace QLThuVien.DAO
                 FROM Sach s
                 INNER JOIN DauSach ds ON s.MaDauSach = ds.MaDauSach
                 WHERE ds.SLConLai > 0
+                  AND s.TrangThai = 0
                   AND s.MaSach NOT IN (
                       SELECT MaSach FROM ChiTietPhieuMuon WHERE NgayThucTra IS NULL
                   )

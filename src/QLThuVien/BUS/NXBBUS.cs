@@ -32,13 +32,14 @@ namespace QLThuVien.BUS
             return danhSachNXB;
         }
 
-        // 2. Kiểm tra trùng Mã NXB
+        // 2. Kiểm tra trùng Mã NXB (duyệt trên ArrayList trong RAM)
         public bool KiemTraTrungMa(string maNXB)
         {
-            List<NXBDTO> list = DocDSNXB();
-            foreach (var item in list)
+            if (string.IsNullOrWhiteSpace(maNXB)) return false;
+            string ma = maNXB.Trim();
+            foreach (NXBDTO item in LayDanhSachTrongBoNho())
             {
-                if (item.MaNXB.Equals(maNXB, StringComparison.OrdinalIgnoreCase))
+                if (item.MaNXB.Equals(ma, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;

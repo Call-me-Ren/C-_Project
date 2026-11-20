@@ -31,6 +31,7 @@ namespace QLThuVien.GUI
             this.btnChonNCC = new System.Windows.Forms.Button();
             this.lblNV = new System.Windows.Forms.Label();
             this.txtMaNV = new System.Windows.Forms.TextBox();
+            this.btnChonNV = new System.Windows.Forms.Button();
             this.pnlBookInputs = new System.Windows.Forms.Panel();
             this.lblDauSach = new System.Windows.Forms.Label();
             this.cboDauSach = new System.Windows.Forms.ComboBox();
@@ -130,6 +131,7 @@ namespace QLThuVien.GUI
             this.pnlTopInputs.Controls.Add(this.btnChonNCC);
             this.pnlTopInputs.Controls.Add(this.lblNV);
             this.pnlTopInputs.Controls.Add(this.txtMaNV);
+            this.pnlTopInputs.Controls.Add(this.btnChonNV);
             this.pnlTopInputs.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTopInputs.Height = 45;
 
@@ -161,6 +163,15 @@ namespace QLThuVien.GUI
             this.txtMaNV.Location = new System.Drawing.Point(555, 9);
             this.txtMaNV.Width = 90;
             this.txtMaNV.Text = "NV01";
+
+            this.btnChonNV.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
+            this.btnChonNV.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnChonNV.ForeColor = System.Drawing.Color.White;
+            this.btnChonNV.Location = new System.Drawing.Point(650, 8);
+            this.btnChonNV.Size = new System.Drawing.Size(35, 27);
+            this.btnChonNV.Text = "...";
+            this.btnChonNV.UseVisualStyleBackColor = false;
+            this.btnChonNV.Click += new System.EventHandler(this.BtnChonNV_Click);
 
             // pnlBookInputs
             this.pnlBookInputs.Controls.Add(this.lblDauSach);
@@ -325,6 +336,7 @@ namespace QLThuVien.GUI
         private System.Windows.Forms.Button btnChonNCC;
         private System.Windows.Forms.Label lblNV;
         private System.Windows.Forms.TextBox txtMaNV;
+        private System.Windows.Forms.Button btnChonNV;
         private System.Windows.Forms.Panel pnlBookInputs;
         private System.Windows.Forms.Label lblDauSach;
         private System.Windows.Forms.ComboBox cboDauSach;
