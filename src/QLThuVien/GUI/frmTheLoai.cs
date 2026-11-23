@@ -20,7 +20,14 @@ namespace QLThuVien.GUI
 
         private void TheLoaiGUI_Load(object sender, EventArgs e)
         {
-            TaiDuLieu(theLoaiBUS.DocDSTL());
+            try
+            {
+                TaiDuLieu(theLoaiBUS.DocDSTL());
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void TaiDuLieu(List<TheLoaiDTO> ds)
@@ -90,15 +97,23 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            string kw = txtTimKiem.Text.Trim();
-            if (string.IsNullOrWhiteSpace(kw)) { MessageBox.Show("Nhập từ khóa tìm kiếm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
-            TaiDuLieu(theLoaiBUS.timKiem(kw, kw));
+            try
+            {
+                string kw = txtTimKiem.Text.Trim();
+                if (string.IsNullOrWhiteSpace(kw)) { MessageBox.Show("Nhập từ khóa tìm kiếm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+                TaiDuLieu(theLoaiBUS.timKiem(kw, kw));
+            }
+            catch (Exception ex) { FormErrors.Show(ex); }
         }
 
         private void btnTaiLai_Click(object sender, EventArgs e)
         {
-            TaiDuLieu(theLoaiBUS.DocDSTL());
-            txtTimKiem.Clear();
+            try
+            {
+                TaiDuLieu(theLoaiBUS.DocDSTL());
+                txtTimKiem.Clear();
+            }
+            catch (Exception ex) { FormErrors.Show(ex); }
         }
 
         private void LamMoi()

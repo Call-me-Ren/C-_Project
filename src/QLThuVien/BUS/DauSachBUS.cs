@@ -40,25 +40,59 @@ namespace QLThuVien.BUS
             return danhSachDauSach;
         }
 
-        // Kiểm tra trùng Mã Đầu Sách
+        // Kiểm tra trùng Mã Đầu Sách (duyệt trên ArrayList trong RAM)
         public bool KiemTraTrungMa(string maDauSach)
         {
-            List<DauSachDTO> list = DocDSDauSach();
-            foreach (var item in list)
+            if (string.IsNullOrWhiteSpace(maDauSach)) return false;
+            string ma = maDauSach.Trim();
+            foreach (DauSachDTO item in LayDanhSachTrongBoNho())
             {
-                if (item.MaDauSach.Equals(maDauSach, StringComparison.OrdinalIgnoreCase))
+                if (item.MaDauSach.Equals(ma, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;
         }
 
-        // 2. Thêm Đầu sách -> Thêm xong tự gọi đồng bộ lại số lượng
-        public void Them(DauSachDTO dauSach)
+        private void KiemTraHopLe(DauSachDTO dauSach)
         {
             if (dauSach == null || string.IsNullOrWhiteSpace(dauSach.MaDauSach) || string.IsNullOrWhiteSpace(dauSach.TenSach))
                 throw new ArgumentException("Mã đầu sách và tên sách không được để trống.");
+
             dauSach.MaDauSach = dauSach.MaDauSach.Trim();
             dauSach.TenSach = dauSach.TenSach.Trim();
+            dauSach.MaTG = (dauSach.MaTG ?? string.Empty).Trim();
+            dauSach.MaTL = (dauSach.MaTL ?? string.Empty).Trim();
+            dauSach.MaNXB = (dauSach.MaNXB ?? string.Empty).Trim();
+
+            if (dauSach.MaDauSach.Length > 20)
+                throw new ArgumentException("Mã đầu sách không được vượt quá 20 ký tự.");
+            if (dauSach.TenSach.Length > 200)
+                throw new ArgumentException("Tên sách không được vượt quá 200 ký tự.");
+            if (dauSach.DonGia < 0)
+                throw new ArgumentException("Đơn giá không được âm.");
+
+            if (dauSach.NamXB.HasValue)
+            {
+                int namToiThieu = 1900;
+                if (int.TryParse(new ThamSoBUS().LayGiaTriTheoMa("NAM_XB_TOI_THIEU", "1900"), out int parsed))
+                    namToiThieu = parsed;
+
+                if (dauSach.NamXB.Value < namToiThieu || dauSach.NamXB.Value > DateTime.Now.Year)
+                    throw new ArgumentException($"Năm xuất bản phải từ {namToiThieu} đến {DateTime.Now.Year}.");
+            }
+
+            if (string.IsNullOrWhiteSpace(dauSach.MaTG) || !new TacGiaBUS().DocDSTacGia().Any(x => x.MaTG.Equals(dauSach.MaTG, StringComparison.OrdinalIgnoreCase)))
+                throw new ArgumentException($"Mã tác giả '{dauSach.MaTG}' không tồn tại.");
+            if (string.IsNullOrWhiteSpace(dauSach.MaTL) || !new TheLoaiBUS().DocDSTL().Any(x => x.MaTL.Equals(dauSach.MaTL, StringComparison.OrdinalIgnoreCase)))
+                throw new ArgumentException($"Mã thể loại '{dauSach.MaTL}' không tồn tại.");
+            if (string.IsNullOrWhiteSpace(dauSach.MaNXB) || !new NXBBUS().DocDSNXB().Any(x => x.MaNXB.Equals(dauSach.MaNXB, StringComparison.OrdinalIgnoreCase)))
+                throw new ArgumentException($"Mã nhà xuất bản '{dauSach.MaNXB}' không tồn tại.");
+        }
+
+        // 2. Thêm Đầu sách -> Thêm xong tự gọi đồng bộ lại số lượng
+        public void Them(DauSachDTO dauSach)
+        {
+            KiemTraHopLe(dauSach);
             if (KiemTraTrungMa(dauSach.MaDauSach)) throw new InvalidOperationException($"Mã đầu sách '{dauSach.MaDauSach}' đã tồn tại.");
             DauSachDAO dauSachDAO = new DauSachDAO();
             dauSachDAO.Them(dauSach);
@@ -193,15 +227,17 @@ namespace QLThuVien.BUS
             DauSachDTO dauSach = dauSachDAO.DocTheoMa(maDauSach);
             if (dauSach != null && dauSach.SLChoMuon > 0)
             {
-                throw new Exception($"Đầu sách '{maDauSach}' hiện đang có {dauSach.SLChoMuon} cuốn sách được mượn, không được phép xóa!");
+                throw new InvalidOperationException($"Đầu sách '{maDauSach}' hiện đang có {dauSach.SLChoMuon} cuốn sách được mượn, không được phép xóa!");
             }
 
             dauSachDAO.Xoa(maDauSach);
+            DocDSDauSach();
         }
 
         // 4. Sửa Đầu sách
         public void Sua(DauSachDTO dauSach, string maCu)
         {
+            KiemTraHopLe(dauSach);
             DauSachDAO dauSachDAO = new DauSachDAO();
 
             // Nếu đổi mã đầu sách mới thì phải kiểm tra xem mã mới có bị trùng với mã khác không
@@ -209,12 +245,13 @@ namespace QLThuVien.BUS
             {
                 if (KiemTraTrungMa(dauSach.MaDauSach))
                 {
-                    throw new Exception($"Mã đầu sách mới '{dauSach.MaDauSach}' đã tồn tại trong hệ thống!");
+                    throw new InvalidOperationException($"Mã đầu sách mới '{dauSach.MaDauSach}' đã tồn tại trong hệ thống!");
                 }
             }
 
             dauSachDAO.Sua(dauSach, maCu);
             CapNhatSoLuong(dauSach.MaDauSach);
+            DocDSDauSach();
         }
 
         // 5. Đồng bộ số lượng từ CSDL vào CSDL

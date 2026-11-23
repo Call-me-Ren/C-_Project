@@ -4,7 +4,6 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Windows.Forms;
 
 namespace QLThuVien.DAO
 {
@@ -48,64 +47,43 @@ namespace QLThuVien.DAO
         // 2. Thêm Đầu sách mới
         public void Them(DauSachDTO ds)
         {
-            try
+            const string query = @"INSERT INTO DauSach (MaDauSach, MaNXB, MaTG, MaTL, TenSach, NamXB, SoLuong, SLChoMuon, SLConLai, DonGia) 
+                                   VALUES (@MaDauSach, @MaNXB, @MaTG, @MaTL, @TenSach, @NamXB, 0, 0, 0, @DonGia)";
+            SqlParameter[] parameters =
             {
-                string query = @"INSERT INTO DauSach (MaDauSach, MaNXB, MaTG, MaTL, TenSach, NamXB, SoLuong, SLChoMuon, SLConLai, DonGia) 
-                                 VALUES (@MaDauSach, @MaNXB, @MaTG, @MaTL, @TenSach, @NamXB, 0, 0, 0, @DonGia)";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaDauSach", ds.MaDauSach);
-                    cmd.Parameters.AddWithValue("@MaNXB", (object)ds.MaNXB ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@MaTG", (object)ds.MaTG ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@MaTL", (object)ds.MaTL ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@TenSach", ds.TenSach);
-                    cmd.Parameters.AddWithValue("@NamXB", (object)ds.NamXB ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DonGia", ds.DonGia);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi thêm Đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                new SqlParameter("@MaDauSach", SqlDbType.VarChar, 20) { Value = ds.MaDauSach },
+                new SqlParameter("@MaNXB", SqlDbType.VarChar, 20) { Value = (object)ds.MaNXB ?? DBNull.Value },
+                new SqlParameter("@MaTG", SqlDbType.VarChar, 20) { Value = (object)ds.MaTG ?? DBNull.Value },
+                new SqlParameter("@MaTL", SqlDbType.VarChar, 20) { Value = (object)ds.MaTL ?? DBNull.Value },
+                new SqlParameter("@TenSach", SqlDbType.NVarChar, 200) { Value = ds.TenSach },
+                new SqlParameter("@NamXB", SqlDbType.Int) { Value = (object)ds.NamXB ?? DBNull.Value },
+                new SqlParameter("@DonGia", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = ds.DonGia }
+            };
+            MyConnection.ExecuteNonQuery(query, parameters);
         }
 
         // 3. Sửa Đầu sách (Cập nhật theo Mã Cũ)
         public void Sua(DauSachDTO ds, string maCu)
         {
-            try
+            const string query = @"UPDATE DauSach 
+                                   SET MaDauSach = @MaDauSachMoi, MaNXB = @MaNXB, MaTG = @MaTG, MaTL = @MaTL, 
+                                       TenSach = @TenSach, NamXB = @NamXB, DonGia = @DonGia 
+                                   WHERE MaDauSach = @MaDauSachCu";
+            SqlParameter[] parameters =
             {
-                string query = @"UPDATE DauSach 
-                                 SET MaDauSach = @MaDauSachMoi, MaNXB = @MaNXB, MaTG = @MaTG, MaTL = @MaTL, 
-                                     TenSach = @TenSach, NamXB = @NamXB, DonGia = @DonGia 
-                                 WHERE MaDauSach = @MaDauSachCu";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaDauSachMoi", ds.MaDauSach);
-                    cmd.Parameters.AddWithValue("@MaDauSachCu", maCu);
-                    cmd.Parameters.AddWithValue("@MaNXB", (object)ds.MaNXB ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@MaTG", (object)ds.MaTG ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@MaTL", (object)ds.MaTL ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@TenSach", ds.TenSach);
-                    cmd.Parameters.AddWithValue("@NamXB", (object)ds.NamXB ?? DBNull.Value);
-                    cmd.Parameters.AddWithValue("@DonGia", ds.DonGia);
-
-                    int rows = cmd.ExecuteNonQuery();
-                    if (rows == 0)
-                    {
-                        MessageBox.Show($"Không tìm thấy đầu sách mã '{maCu}' trong CSDL để cập nhật!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-                }
-            }
-            catch (Exception ex)
+                new SqlParameter("@MaDauSachMoi", SqlDbType.VarChar, 20) { Value = ds.MaDauSach },
+                new SqlParameter("@MaDauSachCu", SqlDbType.VarChar, 20) { Value = maCu },
+                new SqlParameter("@MaNXB", SqlDbType.VarChar, 20) { Value = (object)ds.MaNXB ?? DBNull.Value },
+                new SqlParameter("@MaTG", SqlDbType.VarChar, 20) { Value = (object)ds.MaTG ?? DBNull.Value },
+                new SqlParameter("@MaTL", SqlDbType.VarChar, 20) { Value = (object)ds.MaTL ?? DBNull.Value },
+                new SqlParameter("@TenSach", SqlDbType.NVarChar, 200) { Value = ds.TenSach },
+                new SqlParameter("@NamXB", SqlDbType.Int) { Value = (object)ds.NamXB ?? DBNull.Value },
+                new SqlParameter("@DonGia", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = ds.DonGia }
+            };
+            int rows = MyConnection.ExecuteNonQuery(query, parameters);
+            if (rows == 0)
             {
-                MessageBox.Show("Lỗi cập nhật Đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                throw new InvalidOperationException($"Không tìm thấy đầu sách mã '{maCu}' trong CSDL để cập nhật.");
             }
         }
 
@@ -166,36 +144,26 @@ namespace QLThuVien.DAO
         // 6. Tính toán & Đồng bộ lại số lượng từ bảng Sach
         public void DongBoSoLuong(string maDauSach)
         {
-            try
+            const string query = @"UPDATE ds
+                                   SET ds.SoLuong = ISNULL(x.TongSo, 0),
+                                       ds.SLChoMuon = ISNULL(x.SoMuon, 0),
+                                       ds.SLConLai = ISNULL(x.TongSo, 0) - ISNULL(x.SoMuon, 0)
+                                   FROM DauSach ds
+                                   LEFT JOIN (
+                                       SELECT 
+                                           MaDauSach,
+                                           COUNT(*) AS TongSo,
+                                           SUM(CASE WHEN CAST(TrangThai AS VARCHAR) = '1' OR CAST(TrangThai AS VARCHAR) = 'True' THEN 1 ELSE 0 END) AS SoMuon
+                                       FROM Sach
+                                       WHERE MaDauSach = @MaDauSach
+                                       GROUP BY MaDauSach
+                                   ) x ON ds.MaDauSach = x.MaDauSach
+                                   WHERE ds.MaDauSach = @MaDauSach";
+            SqlParameter[] parameters =
             {
-                string query = @"UPDATE ds
-                                 SET ds.SoLuong = ISNULL(x.TongSo, 0),
-                                     ds.SLChoMuon = ISNULL(x.SoMuon, 0),
-                                     ds.SLConLai = ISNULL(x.TongSo, 0) - ISNULL(x.SoMuon, 0)
-                                 FROM DauSach ds
-                                 LEFT JOIN (
-                                     SELECT 
-                                         MaDauSach,
-                                         COUNT(*) AS TongSo,
-                                         SUM(CASE WHEN CAST(TrangThai AS VARCHAR) = '1' OR CAST(TrangThai AS VARCHAR) = 'True' THEN 1 ELSE 0 END) AS SoMuon
-                                     FROM Sach
-                                     WHERE MaDauSach = @MaDauSach
-                                     GROUP BY MaDauSach
-                                 ) x ON ds.MaDauSach = x.MaDauSach
-                                 WHERE ds.MaDauSach = @MaDauSach";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaDauSach", maDauSach);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi đồng bộ số lượng Đầu sách: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                new SqlParameter("@MaDauSach", SqlDbType.VarChar, 20) { Value = maDauSach }
+            };
+            MyConnection.ExecuteNonQuery(query, parameters);
         }
     }
 }

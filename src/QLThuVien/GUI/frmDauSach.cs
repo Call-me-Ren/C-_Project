@@ -85,7 +85,14 @@ namespace QLThuVien.GUI
 
         private void DauSachGUI_Load(object sender, EventArgs e)
         {
-            LoadDuLieu();
+            try
+            {
+                LoadDuLieu();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void LoadDuLieu(string selectMaDauSach = null)
@@ -301,42 +308,56 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            string keyword = txtTimKiem.Text.Trim();
-            if (string.IsNullOrWhiteSpace(keyword))
+            try
             {
-                MessageBox.Show("Vui lòng nhập từ khóa tìm kiếm (mã hoặc tên sách).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                string keyword = txtTimKiem.Text.Trim();
+                if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    MessageBox.Show("Vui lòng nhập từ khóa tìm kiếm (mã hoặc tên sách).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                List<DauSachDTO> ketQua = dauSachBUS.TimKiem(keyword, keyword);
+                TaiDauSach(ketQua);
+                lblThongTin.Text = "Kết quả: " + ketQua.Count + " đầu sách";
             }
-            List<DauSachDTO> ketQua = dauSachBUS.TimKiem(keyword, keyword);
-            TaiDauSach(ketQua);
-            lblThongTin.Text = "Kết quả: " + ketQua.Count + " đầu sách";
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnTimNangCao_Click(object sender, EventArgs e)
         {
-            using (frmTimKiemPopup popup = new frmTimKiemPopup())
+            try
             {
-                if (popup.ShowDialog(this) == DialogResult.OK)
+                using (frmTimKiemPopup popup = new frmTimKiemPopup())
                 {
-                    List<DauSachDTO> ketQua = dauSachBUS.TimKiemNangCao(
-                        popup.MaDauSach,
-                        popup.TenSach,
-                        popup.SoLuong,
-                        popup.NamXB,
-                        popup.MaTG,
-                        popup.MaTL,
-                        popup.TuGia,
-                        popup.DenGia
-                    );
-
-                    TaiDauSach(ketQua);
-                    lblThongTin.Text = "Tìm nâng cao: " + ketQua.Count + " đầu sách";
-
-                    if (ketQua.Count == 0)
+                    if (popup.ShowDialog(this) == DialogResult.OK)
                     {
-                        MessageBox.Show("Không tìm thấy đầu sách nào phù hợp điều kiện.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        List<DauSachDTO> ketQua = dauSachBUS.TimKiemNangCao(
+                            popup.MaDauSach,
+                            popup.TenSach,
+                            popup.SoLuong,
+                            popup.NamXB,
+                            popup.MaTG,
+                            popup.MaTL,
+                            popup.TuGia,
+                            popup.DenGia
+                        );
+
+                        TaiDauSach(ketQua);
+                        lblThongTin.Text = "Tìm nâng cao: " + ketQua.Count + " đầu sách";
+
+                        if (ketQua.Count == 0)
+                        {
+                            MessageBox.Show("Không tìm thấy đầu sách nào phù hợp điều kiện.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
             }
         }
 
@@ -415,8 +436,15 @@ namespace QLThuVien.GUI
 
         private void btnTaiLai_Click(object sender, EventArgs e)
         {
-            LoadDuLieu();
-            txtTimKiem.Clear();
+            try
+            {
+                LoadDuLieu();
+                txtTimKiem.Clear();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnLamMoi_Click(object sender, EventArgs e)

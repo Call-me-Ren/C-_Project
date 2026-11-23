@@ -136,6 +136,29 @@ namespace QLThuVien.GUI
             }
         }
 
+        private void BtnChonNV_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                FormSharedData.SelectedMaNV = null;
+                FormSharedData.SelectedTenNV = null;
+                using (var popup = new frmChonNhanVienPopup())
+                {
+                    if (popup.ShowDialog(this) == DialogResult.OK)
+                    {
+                        if (!string.IsNullOrEmpty(FormSharedData.SelectedMaNV))
+                        {
+                            txtMaNV.Text = FormSharedData.SelectedMaNV;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi chọn Nhân viên: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void BtnChonDauSach_Click(object? sender, EventArgs e)
         {
             try

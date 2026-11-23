@@ -132,7 +132,7 @@ namespace QLThuVien.DAO
                     s.MaSach,
                     ds.TenSach,
                     ct.NgayThucTra,
-                    ct.TinhTrangTra,
+                    ct.TinhTrang,
                     CASE 
                         WHEN ct.NgayThucTra IS NOT NULL THEN N'Đã trả'
                         WHEN GETDATE() > pm.HanTra THEN N'Quá hạn'

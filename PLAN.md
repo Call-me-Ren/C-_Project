@@ -102,19 +102,19 @@ flowchart LR
 
 Mục tiêu của giai đoạn này là làm **1 đường thẳng mẫu thông suốt từ CSDL lên Giao diện** để bạn nắm vững 100% luồng 3 lớp trước khi nhân bản sang các bảng khác.
 
-- [ ] **Bước 1.1 — Viết `DTO/TheLoaiDTO.cs`:**
+- [x] **Bước 1.1 — Viết `DTO/TheLoaiDTO.cs`:**
   - Khai báo thuộc tính `MaTL`, `TenTL`, constructor không tham số và có tham số.
-- [ ] **Bước 1.2 — Viết `DAO/TheLoaiDAO.cs`:**
+- [x] **Bước 1.2 — Viết `DAO/TheLoaiDAO.cs`:**
   - Gọi `MyConnection` thực hiện 4 hàm: `DocDSTheLoai()`, `Them(TheLoaiDTO tl)`, `Sua(TheLoaiDTO tl)`, `Xoa(string maTL)` và `KiemTraDangSuDung(string maTL)` (kiểm tra xem `DauSach` có đang tham chiếu không trước khi xóa).
-- [ ] **Bước 1.3 — Viết `BUS/TheLoaiBUS.cs` (Trọng tâm cô sẽ hỏi):**
+- [x] **Bước 1.3 — Viết `BUS/TheLoaiBUS.cs` (Trọng tâm cô sẽ hỏi):**
   - Khai báo `public ArrayList dstl_arr = new ArrayList();` (hoặc `List<TheLoaiDTO>`).
   - Hàm `DocDSTheLoai()`: Gọi `DAO` lấy dữ liệu nạp vào `dstl_arr`.
   - Hàm `KiemTraMaDuyNhat(string maTL)`: Duyệt trên `dstl_arr` kiểm tra trùng mã.
   - Hàm `Them`, `Sua`, `Xoa`: Kiểm tra hợp lệ $\rightarrow$ Gọi `DAO` cập nhật xuống SQL Server $\rightarrow$ Cập nhật ngay trên `dstl_arr`.
   - Hàm `TimKiem(string tuKhoa)`: Lọc trực tiếp trên `dstl_arr` (tuyệt đối không gọi `SELECT` xuống CSDL).
-- [ ] **Bước 1.4 — Thiết kế `GUI/frmTheLoai.cs`:**
+- [x] **Bước 1.4 — Thiết kế `GUI/frmTheLoai.cs`:**
   - Gồm các ô nhập `txtMaTL`, `txtTenTL`, ô tìm kiếm `txtTimKiem`, các nút `Thêm`, `Sửa`, `Xóa`, `Làm mới`, `Tìm kiếm`, và bảng danh sách `lvTheLoai` / `dgvTheLoai`.
-- [ ] **Bước 1.5 — Thiết kế Màn hình chính `GUI/frmMain.cs` (Yêu cầu 13 của GV):**
+- [x] **Bước 1.5 — Thiết kế Màn hình chính `GUI/frmMain.cs` (Yêu cầu 13 của GV):**
   - Bố cục Desktop: Thanh Menu bên trái (`pnlMenuLeft`) chứa các nút điều hướng, phần tiêu đề phía trên (`pnlHeader`), và vùng chứa Form con ở giữa (`pnlContent`).
   - Viết hàm nhúng Form con (`OpenChildForm(Form childForm)`) để khi bấm nút *"Quản lý Thể loại"* ở menu trái thì `frmTheLoai` hiện gọn bên trong `pnlContent`.
 
@@ -124,34 +124,34 @@ Mục tiêu của giai đoạn này là làm **1 đường thẳng mẫu thông 
 
 Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh mục độc lập:
 
-- [ ] **Bước 2.1 — Module Nhà xuất bản (`NhaXuatBan`):**
+- [x] **Bước 2.1 — Module Nhà xuất bản (`NhaXuatBan`):**
   - Tạo `NhaXuatBanDTO`, `NhaXuatBanDAO`, `NhaXuatBanBUS` (`ArrayList`), `frmNhaXuatBan`.
   - Ràng buộc xóa: Không cho xóa nếu đã có `DauSach` thuộc NXB đó.
-- [ ] **Bước 2.2 — Module Tác giả (`TacGia`):**
+- [x] **Bước 2.2 — Module Tác giả (`TacGia`):**
   - Tạo `TacGiaDTO`, `TacGiaDAO`, `TacGiaBUS` (`ArrayList`), `frmTacGia` (`MaTG`, `HoLot`, `TenTG`, `NgaySinh`, `SDT`).
-- [ ] **Bước 2.3 — Module Nhà cung cấp (`NhaCungCap`):**
+- [x] **Bước 2.3 — Module Nhà cung cấp (`NhaCungCap`):**
   - Tạo `NhaCungCapDTO`, `NhaCungCapDAO`, `NhaCungCapBUS` (`ArrayList`), `frmNhaCungCap`.
 - [x] **Bước 2.4 — Module Loại độc giả (`LoaiDocGia`):**
   - Tạo `LoaiDocGiaDTO`, `LoaiDocGiaDAO`, `LoaiDocGiaBUS` (`ArrayList`), `frmLoaiDocGia`.
-- [ ] **Bước 2.5 — Module Nhân viên (`NhanVien`):**
+- [x] **Bước 2.5 — Module Nhân viên (`NhanVien`):**
   - Tạo `NhanVienDTO`, `NhanVienDAO`, `NhanVienBUS` (`ArrayList`), `frmNhanVien` (`MaNV`, `HoLot`, `TenNV`, `ChucVu`).
-- [ ] **Bước 2.6 — Module Quy định phạt (`QuyDinhPhat`):**
+- [x] **Bước 2.6 — Module Quy định phạt (`QuyDinhPhat`):**
   - Tạo `QuyDinhPhatDTO`, `QuyDinhPhatDAO`, `QuyDinhPhatBUS`, `frmQuyDinhPhat` (`MaQD`, `TenQD`, `LoaiPhat`, `CachTinh`, `DonViTinh`, `MucPhat >= 0`).
-- [ ] **Bước 2.7 — Module Bảng Tham Số (`ThamSo` — Yêu cầu số 9 của GV):**
+- [x] **Bước 2.7 — Module Bảng Tham Số (`ThamSo` — Yêu cầu số 9 của GV):**
   - Tạo `ThamSoDTO`, `ThamSoDAO`, `ThamSoBUS`, `frmThamSo` để xem và cập nhật các hằng số hệ thống (`SO_SACH_MUON_TOI_DA`, `SO_NGAY_MUON_TOI_DA`, `TIEN_PHAT_MOI_NGAY`...).
 
 ---
 
 ### 🟡 GIAI ĐOẠN 3: NHÓM CHỨC NĂNG CỐT LÕI (ĐẦU SÁCH, CUỐN SÁCH, ĐỘC GIẢ) & NÚT TÌM KIẾM `...`
 
-- [ ] **Bước 3.1 — Xây dựng Form Popup Tìm kiếm dùng chung `frmTimKiemPopup.cs` (Yêu cầu 4 của GV):**
+- [x] **Bước 3.1 — Xây dựng Form Popup Tìm kiếm dùng chung `frmTimKiemPopup.cs` (Yêu cầu 4 của GV):**
   - Khai báo biến `public static string SelectedID = "";` và `public static string SelectedName = "";`.
   - Khi người dùng bấm nút `...` cạnh ô Mã (trên các form Đầu sách, Phiếu nhập, Phiếu mượn...), `frmTimKiemPopup` bật lên cho phép gõ tên lọc nhanh, click 1 dòng $\rightarrow$ gán mã vào `SelectedID` $\rightarrow$ tự đóng form và điền mã + tên về form chính.
 - [x] **Bước 3.2 — Module Quản lý Độc giả (`DocGia`):**
   - Tạo `DocGiaDTO`, `DocGiaDAO`, `DocGiaBUS`, `frmDocGia`.
   - Có nút `...` (hoặc ComboBox) chọn `MaLDG`.
   - Có bảng phụ bên dưới hiển thị **Lịch sử mượn - trả sách** của độc giả đang được chọn.
-- [ ] **Bước 3.3 — Module Quản lý Đầu sách & Cuốn sách (`DauSach` & `Sach` — Form Main-Sub 1-N):**
+- [x] **Bước 3.3 — Module Quản lý Đầu sách & Cuốn sách (`DauSach` & `Sach` — Form Main-Sub 1-N):**
   - Tạo `DauSachDTO/DAO/BUS` và `SachDTO/DAO/BUS`.
   - Thiết kế `frmDauSach`:
     - **Phần Main (Trên/Trái):** Quản lý `DauSach` (`MaDauSach`, `TenSach`, `NamXB`, `DonGia`, nút `...` chọn `MaTL`, `MaTG`, `MaNXB`). Các ô `SoLuong`, `SLChoMuon`, `SLConLai` để chế độ **chỉ xem (`ReadOnly = true`)** (Yêu cầu 7 của GV).
@@ -163,7 +163,7 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
 
 Đây là phần quan trọng nhất về nghiệp vụ tính toán ở lớp `BUS` và liên kết 2 bảng (Main-Sub) mà cô sẽ hỏi kỹ khi chấm.
 
-- [ ] **Bước 4.1 — Module Quản lý Nhập sách (`PhieuNhap` & `ChiTietPhieuNhap` — Form Main-Sub 1-N):**
+- [x] **Bước 4.1 — Module Quản lý Nhập sách (`PhieuNhap` & `ChiTietPhieuNhap` — Form Main-Sub 1-N):**
   - Tạo `PhieuNhapDTO/DAO/BUS` và `ChiTietPhieuNhapDTO/DAO/BUS`.
   - Thiết kế `frmPhieuNhap`:
     - **Bảng Master (`lvPhieuNhap`):** Hiển thị danh sách phiếu nhập (`MaPN`, `MaNCC`, `MaNV`, `NgayNhap`, `TongTien`).
@@ -186,7 +186,7 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
     - Ghi nhận `NgayThucTra = DateTime.Now` và tình trạng sách khi trả (*Tốt / Hư hỏng / Mất*).
     - **Nghiệp vụ tại `BUS`:** Nếu sách trả bình thường $\rightarrow$ **Tăng `DauSach.SLConLai` lên 1, giảm `DauSach.SLChoMuon` đi 1**, đổi `Sach.TinhTrang = N'Tốt'`.
     - Kiểm tra nếu `NgayThucTra > HanTra` (trả trễ) hoặc sách bị *Hư hỏng / Mất* $\rightarrow$ tự động tính `SoNgayTre = (NgayThucTra - HanTra).Days` và mở nhanh sang chức năng lập Phiếu phạt!
-- [ ] **Bước 4.4 — Module Quản lý Phiếu phạt (`PhieuPhat` & `ChiTietPhieuPhat` — Form Main-Sub 1-N):**
+- [x] **Bước 4.4 — Module Quản lý Phiếu phạt (`PhieuPhat` & `ChiTietPhieuPhat` — Form Main-Sub 1-N):**
   - Tạo `PhieuPhatDTO/DAO/BUS` và `ChiTietPhieuPhatDTO/DAO/BUS`.
   - Thiết kế `frmPhieuPhat`:
     - **Bảng Master (`lvPhieuPhat`):** `MaPhieuPhat`, `MaDocGia`, `MaPhieuMuon`, `MaNV`, `NgayLap`, `TrangThai` (*Chưa thanh toán / Đã thanh toán*), `TongTienPhat` (chỉ xem).
@@ -201,17 +201,17 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
 
 ### 🔴 GIAI ĐOẠN 5: TÌM KIẾM NÂNG CAO, THỐNG KÊ 3 BẢNG QUÝ, EXCEL & REPORT PDF
 
-- [ ] **Bước 5.1 — Chức năng Tìm kiếm nâng cao (Yêu cầu 8 của GV):**
+- [x] **Bước 5.1 — Chức năng Tìm kiếm nâng cao (Yêu cầu 8 của GV):**
   - Tích hợp bộ lọc nâng cao trên Form Đầu sách, Phiếu nhập, Phiếu mượn:
   - Cho phép chọn nhiều điều kiện kết hợp toán tử `AND`, `OR`, `NOT` và các phép so sánh `>`, `<`, `>=`, `<=`, `<>`, `=` lọc trên `ArrayList` trong lớp `BUS` (Ví dụ: Lọc đầu sách theo khoảng giá `DonGia >= TuGia AND DonGia <= DenGia`, năm xuất bản, thể loại...).
-- [ ] **Bước 5.2 — Module Thống kê tổng hợp & 3 Bảng chéo theo Quý (Yêu cầu 10 của GV):**
+- [x] **Bước 5.2 — Module Thống kê tổng hợp & 3 Bảng chéo theo Quý (Yêu cầu 10 của GV):**
   - Tạo `ThongKeBUS.cs` và `frmThongKe.cs` gồm các tab:
     1. **Thống kê Thu - Chi tổng hợp:** Tổng thu (`PhieuPhat.TongTienPhat`), Tổng chi (`PhieuNhap.TongTien`), Chênh lệch theo khoảng *Từ ngày $\rightarrow$ Đến ngày* và theo *Tháng / Quý / Năm*.
     2. **Bảng chéo 1 (Nhân viên × Quý):** Hàng là các `NhanVien`, cột là `Q1 | Q2 | Q3 | Q4 | Tổng cộng (TC)`.
     3. **Bảng chéo 2 (Độc giả × Quý):** Hàng là các `DocGia`, cột là `Q1 | Q2 | Q3 | Q4 | Tổng cộng (TC)`.
     4. **Bảng chéo 3 (Đầu sách × Quý):** Hàng là các `DauSach`, cột là `Q1 | Q2 | Q3 | Q4 | Tổng cộng (TC)`.
     5. **Thống kê hiện trạng kho sách:** Tổng số đầu sách, tổng số cuốn sách (Có sẵn / Đang mượn / Hư hỏng / Mất), Top sách mượn nhiều nhất.
-- [ ] **Bước 5.3 — Chức năng Export / Import file Excel (`.xlsx` / `.xls`) (Yêu cầu 11 — 1 điểm):**
+- [x] **Bước 5.3 — Chức năng Export / Import file Excel (`.xlsx` / `.xls`) (Yêu cầu 11 — 1 điểm):**
   - Viết tiện ích đọc/ghi Excel (dùng thư viện nhẹ như `ClosedXML` / `EPPlus` hoặc xuất định dạng bảng Excel) để xuất danh sách Sách, Độc giả, Thống kê ra file Excel và nhập danh sách Sách từ Excel vào phần mềm.
 - [x] **Bước 5.4 — Chức năng Xuất Report ra PDF (Yêu cầu 12 — 1 điểm):**
   - Viết tiện ích xuất hóa đơn/phiếu (Phiếu nhập, Phiếu mượn, Phiếu phạt, Bảng báo cáo thống kê) ra file `.pdf` trình bày đẹp, rõ nét, tự động mở file PDF sau khi xuất.

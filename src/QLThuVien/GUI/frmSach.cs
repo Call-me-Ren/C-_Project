@@ -23,7 +23,14 @@ namespace QLThuVien.GUI
 
         private void SachGUI_Load(object sender, EventArgs e)
         {
-            TaiDuLieu(sachBUS.DocDSSach());
+            try
+            {
+                TaiDuLieu(sachBUS.DocDSSach());
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnChonDauSach_Click(object sender, EventArgs e)
@@ -205,20 +212,34 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            string kw = txtTimKiem.Text.Trim();
-            if (string.IsNullOrWhiteSpace(kw))
+            try
             {
-                MessageBox.Show("Nhập từ khóa mã sách hoặc mã đầu sách cần tìm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+                string kw = txtTimKiem.Text.Trim();
+                if (string.IsNullOrWhiteSpace(kw))
+                {
+                    MessageBox.Show("Nhập từ khóa mã sách hoặc mã đầu sách cần tìm.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            TaiDuLieu(sachBUS.TimKiemTuKhoa(kw));
+                TaiDuLieu(sachBUS.TimKiemTuKhoa(kw));
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnTaiLai_Click(object sender, EventArgs e)
         {
-            TaiDuLieu(sachBUS.DocDSSach());
-            txtTimKiem.Clear();
+            try
+            {
+                TaiDuLieu(sachBUS.DocDSSach());
+                txtTimKiem.Clear();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void LamMoi()

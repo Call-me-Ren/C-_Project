@@ -27,13 +27,20 @@ namespace QLThuVien.BUS
             return danhSach;
         }
 
-        // 2. KIỂM TRA TRÙNG MÃ TÁC GIẢ
+        private ArrayList LayDanhSachTrongBoNho()
+        {
+            if (!daNapDanhSach) DocDSTacGia();
+            return danhSachTacGia;
+        }
+
+        // 2. KIỂM TRA TRÙNG MÃ TÁC GIẢ (duyệt trên ArrayList trong RAM)
         public bool KiemTraTrungMa(string maTG)
         {
-            List<TacGiaDTO> list = DocDSTacGia();
-            foreach (var item in list)
+            if (string.IsNullOrWhiteSpace(maTG)) return false;
+            string ma = maTG.Trim();
+            foreach (TacGiaDTO item in LayDanhSachTrongBoNho())
             {
-                if (item.MaTG.Equals(maTG, StringComparison.OrdinalIgnoreCase))
+                if (item.MaTG.Equals(ma, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;

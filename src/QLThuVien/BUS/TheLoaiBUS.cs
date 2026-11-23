@@ -32,13 +32,14 @@ namespace QLThuVien.BUS
             return danhSachTheLoai;
         }
 
-        // 2. Kiểm tra trùng Mã thể loại
+        // 2. Kiểm tra trùng Mã thể loại (duyệt trên ArrayList trong RAM)
         public bool KiemTraTrungMa(string maTL)
         {
-            List<TheLoaiDTO> list = DocDSTL();
-            foreach (var item in list)
+            if (string.IsNullOrWhiteSpace(maTL)) return false;
+            string ma = maTL.Trim();
+            foreach (TheLoaiDTO item in LayDanhSachTrongBoNho())
             {
-                if (item.MaTL.Equals(maTL, StringComparison.OrdinalIgnoreCase))
+                if (item.MaTL.Equals(ma, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
             return false;

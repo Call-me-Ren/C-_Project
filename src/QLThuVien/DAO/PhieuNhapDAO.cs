@@ -98,21 +98,32 @@ namespace QLThuVien.DAO
                                 cmdDS.ExecuteNonQuery();
                             }
 
-                            // 2.3 Lấy số lượng cuốn sách hiện có để sinh tiếp mã sách vật lý
-                            string sqlCount = "SELECT COUNT(*) FROM Sach WHERE MaDauSach = @MaDauSach";
-                            int currentCount = 0;
-                            using (SqlCommand cmdCount = new SqlCommand(sqlCount, conn, tran))
+                            // 2.3 Tìm chỉ số tiếp theo chưa bị trùng trong bảng Sach (tránh trùng PK nếu có sách đã xóa)
+                            string sqlMax = "SELECT COUNT(*) FROM Sach WHERE MaDauSach = @MaDauSach";
+                            int nextIndex = 1;
+                            using (SqlCommand cmdCount = new SqlCommand(sqlMax, conn, tran))
                             {
                                 cmdCount.Parameters.Add(new SqlParameter("@MaDauSach", SqlDbType.VarChar) { Value = ct.MaDauSach });
                                 object? countObj = cmdCount.ExecuteScalar();
-                                currentCount = countObj != null ? Convert.ToInt32(countObj) : 0;
+                                nextIndex = (countObj != null ? Convert.ToInt32(countObj) : 0) + 1;
                             }
 
                             // 2.4 Sinh mã và chèn từng cuốn sách vật lý vào bảng Sach với TrangThai = 0 (Chưa mượn)
                             for (int i = 1; i <= ct.SoLuong; i++)
                             {
-                                int nextIndex = currentCount + i;
-                                string maSachMoi = $"{ct.MaDauSach}_{nextIndex:D3}";
+                                string maSachMoi;
+                                while (true)
+                                {
+                                    maSachMoi = $"{ct.MaDauSach}_{nextIndex:D3}";
+                                    string sqlCheck = "SELECT COUNT(1) FROM Sach WHERE MaSach = @MaSach";
+                                    using (SqlCommand cmdCheck = new SqlCommand(sqlCheck, conn, tran))
+                                    {
+                                        cmdCheck.Parameters.Add(new SqlParameter("@MaSach", SqlDbType.VarChar) { Value = maSachMoi });
+                                        int exists = Convert.ToInt32(cmdCheck.ExecuteScalar());
+                                        if (exists == 0) break;
+                                    }
+                                    nextIndex++;
+                                }
 
                                 string sqlSach = @"INSERT INTO Sach (MaSach, MaDauSach, TrangThai, TinhTrang, ViTri) 
                                                    VALUES (@MaSach, @MaDauSach, 0, N'Mới', N'Kho chính')";
@@ -122,6 +133,7 @@ namespace QLThuVien.DAO
                                     cmdSach.Parameters.Add(new SqlParameter("@MaDauSach", SqlDbType.VarChar) { Value = ct.MaDauSach });
                                     cmdSach.ExecuteNonQuery();
                                 }
+                                nextIndex++;
                             }
                         }
 
