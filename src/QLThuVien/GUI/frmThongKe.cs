@@ -9,10 +9,12 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.GUI
 {
+    /// <summary>Biểu mẫu GUI xem thu-chi theo kỳ và các bảng quỹ theo năm thông qua <see cref="ThongKeBUS"/>.</summary>
     public partial class frmThongKe : Form
     {
         private readonly ThongKeBUS bus = new ThongKeBUS();
 
+        /// <summary>Khởi tạo biểu mẫu và gắn các thao tác thống kê, lọc theo năm và xuất báo cáo.</summary>
         public frmThongKe()
         {
             InitializeComponent();
@@ -27,6 +29,9 @@ namespace QLThuVien.GUI
         }
 
 
+        /// <summary>Đặt kỳ mặc định từ đầu tháng đến hôm nay rồi nạp giao dịch và các bảng quỹ.</summary>
+        /// <param name="sender">Đối tượng phát sinh sự kiện nạp biểu mẫu.</param>
+        /// <param name="e">Thông tin sự kiện nạp biểu mẫu.</param>
         private void frmThongKe_Load(object? sender, EventArgs e)
         {
             try
@@ -43,6 +48,9 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Nạp lại danh sách giao dịch và tổng thu-chi theo khoảng ngày đang chọn.</summary>
+        /// <param name="sender">Nút thống kê.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnThongKe_Click(object? sender, EventArgs e)
         {
             try
@@ -55,6 +63,9 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Đặt lại khoảng ngày về đầu tháng đến hôm nay rồi nạp lại giao dịch.</summary>
+        /// <param name="sender">Nút làm mới.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnLamMoi_Click(object? sender, EventArgs e)
         {
             try
@@ -70,6 +81,10 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Lấy báo cáo từ BUS, cho chọn nơi lưu, xuất PDF thu-chi và mở tệp đã tạo.</summary>
+        /// <param name="sender">Nút xuất báo cáo PDF.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Trước khi mở hộp thoại lưu, biểu mẫu kiểm tra kỳ ngày; hủy hộp thoại thì không tạo tệp.</remarks>
         private void btnXuatPdf_Click(object? sender, EventArgs e)
         {
             try
@@ -126,6 +141,8 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Kiểm tra kỳ ngày, lấy giao dịch và cập nhật các tổng thu-chi trên biểu mẫu.</summary>
+        /// <remarks>Tổng thu, tổng chi và chênh lệch lấy trực tiếp từ DTO BUS; không tự cộng lại dữ liệu trong giao diện.</remarks>
         private void NapThongKe()
         {
             ThongKeBUS.KiemTraKhoangNgay(dtpTuNgay.Value, dtpDenNgay.Value);
@@ -145,6 +162,9 @@ namespace QLThuVien.GUI
                 : $"Đã thống kê {tuNgay:dd/MM/yyyy} - {denNgay:dd/MM/yyyy}: {soKhoanThu} khoản thu, {soKhoanChi} khoản chi";
         }
 
+        /// <summary>Nạp lại các bảng quỹ khi năm thống kê thay đổi.</summary>
+        /// <param name="sender">Bộ chọn năm phát sinh thay đổi.</param>
+        /// <param name="e">Thông tin thay đổi giá trị.</param>
         private void numNamThongKe_ValueChanged(object? sender, EventArgs e)
         {
             try
@@ -157,6 +177,8 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Lấy và hiển thị quỹ nhân viên, quỹ độc giả và thống kê đầu sách trong năm đang chọn.</summary>
+        /// <remarks>Ba lưới được nạp riêng qua BUS; mỗi lưới dùng cùng định dạng hiển thị tiền và số liệu.</remarks>
         private void NapThongKeQuy()
         {
             int nam = decimal.ToInt32(numNamThongKe.Value);

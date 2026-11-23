@@ -6,16 +6,24 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.DAO
 {
+    /// <summary>Lớp DAO truy vấn vi phạm, xác minh dữ liệu sách và lưu chi tiết cùng tổng tiền phiếu phạt.</summary>
     public class ChiTietPhieuPhatDAO
     {
         private const string CacCot = "MaCTPP, MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat";
 
+        /// <summary>Đọc toàn bộ vi phạm theo mã phiếu và mã dòng.</summary>
+        /// <returns>Danh sách chi tiết; rỗng nếu chưa có vi phạm.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<ChiTietPhieuPhatDTO> LayTatCa()
         {
             string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat ORDER BY MaPhieuPhat, MaCTPP";
             return DocDanhSach(query);
         }
 
+        /// <summary>Đọc các vi phạm thuộc một phiếu phạt theo thứ tự mã dòng.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu cần lấy chi tiết, tối đa 20 ký tự.</param>
+        /// <returns>Danh sách vi phạm của phiếu; rỗng nếu phiếu chưa có chi tiết.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<ChiTietPhieuPhatDTO> LayDanhSachTheoPhieu(string maPhieuPhat)
         {
             string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat WHERE MaPhieuPhat = @MaPhieuPhat ORDER BY MaCTPP";
@@ -26,6 +34,10 @@ namespace QLThuVien.DAO
             return DocDanhSach(query, parameters);
         }
 
+        /// <summary>Tìm một vi phạm theo mã dòng tự tăng.</summary>
+        /// <param name="maCTPP">Mã dòng vi phạm cần tra cứu.</param>
+        /// <returns>DTO chi tiết nếu tìm thấy; nếu không thì <see langword="null"/>.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public ChiTietPhieuPhatDTO? LayTheoMaCTPP(int maCTPP)
         {
             string query = $"SELECT {CacCot} FROM ChiTietPhieuPhat WHERE MaCTPP = @MaCTPP";
@@ -37,10 +49,17 @@ namespace QLThuVien.DAO
             return dt.Rows.Count == 0 ? null : DocDongDuLieu(dt.Rows[0]);
         }
 
+        /// <summary>Thêm vi phạm và cập nhật tổng tiền phiếu trong cùng một giao dịch.</summary>
+        /// <param name="ct">Chi tiết vi phạm đã được lớp BUS tính và kiểm tra.</param>
+        /// <param name="tongTien">Tổng tiền mới của phiếu, tính bằng VNĐ.</param>
+        /// <returns>Mã dòng do cơ sở dữ liệu cấp; giá trị dương nếu thành công.</returns>
+        /// <exception cref="SqlException">Lưu chi tiết hoặc cập nhật tổng tiền thất bại.</exception>
+        /// <remarks>Nếu một trong hai thao tác không thành công, giao dịch được hoàn tác để chi tiết và tổng tiền không lệch nhau.</remarks>
         public int ThemVaCapNhatTongTien(ChiTietPhieuPhatDTO ct, decimal tongTien)
         {
             using SqlConnection conn = MyConnection.GetConnection();
             conn.Open();
+            // Chi tiết và tổng tiền phải cùng được ghi để phiếu không lưu trạng thái dở dang.
             using SqlTransaction tran = conn.BeginTransaction();
             try
             {
@@ -65,10 +84,17 @@ namespace QLThuVien.DAO
             }
         }
 
+        /// <summary>Sửa vi phạm và cập nhật tổng tiền phiếu trong cùng một giao dịch.</summary>
+        /// <param name="ct">Chi tiết mới, gồm mã dòng hiện có và dữ liệu đã qua lớp BUS kiểm tra.</param>
+        /// <param name="tongTien">Tổng tiền mới của phiếu, tính bằng VNĐ.</param>
+        /// <returns><see langword="true"/> nếu cập nhật dòng và tổng tiền; <see langword="false"/> nếu không tìm thấy dòng.</returns>
+        /// <exception cref="SqlException">Lưu chi tiết hoặc cập nhật tổng tiền thất bại.</exception>
+        /// <remarks>Giao dịch được hoàn tác nếu lưu dòng hoặc ghi tổng tiền gặp lỗi.</remarks>
         public bool SuaVaCapNhatTongTien(ChiTietPhieuPhatDTO ct, decimal tongTien)
         {
             using SqlConnection conn = MyConnection.GetConnection();
             conn.Open();
+            // Giữ tổng tiền đồng bộ với dòng vi phạm vừa cập nhật trong cùng giao dịch.
             using SqlTransaction tran = conn.BeginTransaction();
             try
             {
@@ -103,10 +129,18 @@ namespace QLThuVien.DAO
             }
         }
 
+        /// <summary>Xóa vi phạm và ghi lại tổng tiền còn lại trong cùng một giao dịch.</summary>
+        /// <param name="maCTPP">Mã dòng vi phạm cần xóa.</param>
+        /// <param name="maPhieuPhat">Mã phiếu chứa dòng, dùng để cập nhật tổng tiền.</param>
+        /// <param name="tongTien">Tổng tiền sau khi loại dòng bị xóa, tính bằng VNĐ.</param>
+        /// <returns><see langword="true"/> nếu dòng được xóa và tổng tiền được cập nhật; nếu không thì <see langword="false"/>.</returns>
+        /// <exception cref="SqlException">Lệnh xóa hoặc cập nhật tổng tiền thất bại.</exception>
+        /// <remarks>Nếu không xóa được dòng, giao dịch được hoàn tác và không ghi tổng tiền mới.</remarks>
         public bool XoaVaCapNhatTongTien(int maCTPP, string maPhieuPhat, decimal tongTien)
         {
             using SqlConnection conn = MyConnection.GetConnection();
             conn.Open();
+            // Xóa dòng và cập nhật tổng phải cùng thành công để không giữ tổng tiền cũ.
             using SqlTransaction tran = conn.BeginTransaction();
             try
             {
@@ -157,6 +191,13 @@ namespace QLThuVien.DAO
             }
         }
 
+        /// <summary>Kiểm tra một cuốn và một quy định đã được ghi trên cùng phiếu hay chưa.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu phạt cần giới hạn trùng.</param>
+        /// <param name="maSach">Mã cuốn sách cần đối chiếu.</param>
+        /// <param name="maQD">Mã quy định cần đối chiếu.</param>
+        /// <param name="boQuaMaCTPP">Mã dòng được bỏ qua khi đang sửa chính dòng đó; có thể là <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> nếu đã có dòng khác cùng bộ ba mã.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public bool KiemTraTrung(string maPhieuPhat, string maSach, string maQD, int? boQuaMaCTPP = null)
         {
             string query = @"SELECT COUNT(1)
@@ -176,6 +217,10 @@ namespace QLThuVien.DAO
             return result != null && Convert.ToInt32(result) > 0;
         }
 
+        /// <summary>Lấy các cuốn sách thuộc phiếu mượn cùng hạn trả và ngày thực trả.</summary>
+        /// <param name="maPhieuMuon">Mã phiếu mượn dùng để giới hạn danh sách sách.</param>
+        /// <returns>Các sách được ghi trong phiếu mượn; rỗng nếu phiếu không có chi tiết.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<SachMuonDTO> LaySachTheoPhieuMuon(string maPhieuMuon)
         {
             string query = @"SELECT cpm.MaSach, ds.TenSach, pm.HanTra, cpm.NgayThucTra
@@ -202,6 +247,10 @@ namespace QLThuVien.DAO
             return list;
         }
 
+        /// <summary>Lấy đơn giá của đầu sách chứa cuốn sách.</summary>
+        /// <param name="maSach">Mã cuốn sách cần tra giá.</param>
+        /// <returns>Đơn giá VNĐ; trả về 0 nếu giá trong dữ liệu là <see langword="null"/>.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public decimal LayDonGiaSach(string maSach)
         {
             string query = "SELECT ISNULL(ds.DonGia, 0) FROM Sach s JOIN DauSach ds ON s.MaDauSach = ds.MaDauSach WHERE s.MaSach = @MaSach";
@@ -213,6 +262,10 @@ namespace QLThuVien.DAO
             return result != null ? Convert.ToDecimal(result) : 0;
         }
 
+        /// <summary>Kiểm tra cuốn sách có tồn tại trong danh mục hay không.</summary>
+        /// <param name="maSach">Mã cuốn sách cần tra cứu.</param>
+        /// <returns><see langword="true"/> nếu tìm thấy cuốn sách.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public bool KiemTraSachTonTai(string maSach)
         {
             string query = "SELECT COUNT(1) FROM Sach WHERE MaSach = @MaSach";

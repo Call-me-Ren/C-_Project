@@ -10,6 +10,7 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.BUS
 {
+    /// <summary>Lớp BUS kiểm tra và xử lý phiếu phạt, tính vi phạm, đồng bộ tổng tiền và phối hợp với các lớp DAO.</summary>
     public class PhieuPhatBUS
     {
         private readonly PhieuPhatDAO daoPhieu = new PhieuPhatDAO();
@@ -18,29 +19,53 @@ namespace QLThuVien.BUS
         private readonly QuyDinhPhatBUS busQuyDinh = new QuyDinhPhatBUS();
         private bool danhSachDaDoc;
 
+        /// <summary>Bộ nhớ đệm các phiếu phạt đã đọc để lớp GUI hiển thị và tìm kiếm.</summary>
         public ArrayList dsPhieuPhat_arr = new ArrayList();
+        /// <summary>Bộ nhớ đệm các vi phạm đã đọc để lớp GUI lấy chi tiết theo phiếu.</summary>
         public ArrayList dsChiTiet_arr = new ArrayList();
 
+        /// <summary>Lấy lựa chọn độc giả từ DAO để lớp GUI lập phiếu.</summary>
+        /// <returns>Các lựa chọn gồm mã và nhãn độc giả; rỗng nếu chưa có dữ liệu.</returns>
+        /// <exception cref="SqlException">Truy vấn danh sách độc giả thất bại.</exception>
         public List<LookupOptionDTO> LayDanhSachDocGiaLookup() => daoPhieu.LayDanhSachDocGiaLookup();
 
+        /// <summary>Lấy lựa chọn phiếu mượn kèm mã độc giả và hạn trả.</summary>
+        /// <returns>Các lựa chọn phiếu mượn; rỗng nếu chưa có phiếu.</returns>
+        /// <exception cref="SqlException">Truy vấn danh sách phiếu mượn thất bại.</exception>
         public List<LookupOptionDTO> LayDanhSachPhieuMuonLookup() => daoPhieu.LayDanhSachPhieuMuonLookup();
 
+        /// <summary>Lấy các cuốn sách thuộc phiếu mượn để lập vi phạm.</summary>
+        /// <param name="maPhieuMuon">Mã phiếu mượn cần tra cứu; rỗng sẽ không truy vấn.</param>
+        /// <returns>Các cuốn sách kèm hạn trả và ngày thực trả; rỗng nếu mã trống hoặc phiếu không có sách.</returns>
+        /// <exception cref="SqlException">Truy vấn sách thuộc phiếu mượn thất bại.</exception>
         public List<SachMuonDTO> LaySachTheoPhieuMuon(string maPhieuMuon)
         {
             if (string.IsNullOrWhiteSpace(maPhieuMuon)) return new List<SachMuonDTO>();
             return daoChiTiet.LaySachTheoPhieuMuon(maPhieuMuon.Trim());
         }
 
+        /// <summary>Lấy danh sách quy định phạt thông qua BUS quy định.</summary>
+        /// <param name="reload"><see langword="true"/> để yêu cầu đọc lại từ DAO; mặc định là <see langword="true"/>.</param>
+        /// <returns>Các quy định phạt; rỗng nếu chưa có quy định.</returns>
+        /// <exception cref="SqlException">Đọc danh sách quy định thất bại.</exception>
         public List<QuyDinhPhatDTO> LayDanhSachQuyDinh(bool reload = true)
         {
             return busQuyDinh.LayDanhSach(reload);
         }
 
+        /// <summary>Sinh mã phiếu phạt kế tiếp từ các phiếu hiện có.</summary>
+        /// <returns>Mã dạng PPnn đầu tiên chưa được sử dụng.</returns>
+        /// <exception cref="SqlException">Không đọc được danh sách mã phiếu từ DAO.</exception>
         public string TaoMaPhieuTiepTheo()
         {
             return SinhMaPhieuTiepTheo(daoPhieu.LayDanhSach().Select(pp => pp.MaPhieuPhat));
         }
 
+        /// <summary>Tìm mã PPnn đầu tiên chưa có trong tập mã đã cấp.</summary>
+        /// <param name="maHienCo">Tập mã đang sử dụng; so sánh không phân biệt hoa thường.</param>
+        /// <returns>Mã nhỏ nhất còn trống, đệm phần số tối thiểu hai chữ số.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="maHienCo"/> là <see langword="null"/>.</exception>
+        /// <remarks>Ví dụ với PP01 và PP03, kết quả là PP02; sau PP99 mã được mở rộng thành PP100. Mã không theo mẫu không ngăn sinh PPnn.</remarks>
         public static string SinhMaPhieuTiepTheo(IEnumerable<string> maHienCo)
         {
             HashSet<string> daSuDung = new HashSet<string>(maHienCo, StringComparer.OrdinalIgnoreCase);
@@ -51,6 +76,9 @@ namespace QLThuVien.BUS
             }
         }
 
+        /// <summary>Đọc lại phiếu và vi phạm từ DAO, đồng thời đánh dấu bộ nhớ đệm đã được nạp.</summary>
+        /// <returns>Danh sách phiếu phạt theo ngày mới nhất trước; rỗng nếu chưa có phiếu.</returns>
+        /// <exception cref="SqlException">Đọc phiếu hoặc chi tiết thất bại.</exception>
         public List<PhieuPhatDTO> DocDS()
         {
             List<PhieuPhatDTO> list = daoPhieu.LayDanhSach();
@@ -65,6 +93,9 @@ namespace QLThuVien.BUS
             return list;
         }
 
+        /// <summary>Đọc lại toàn bộ vi phạm từ DAO và thay thế bộ nhớ đệm chi tiết.</summary>
+        /// <returns>Danh sách vi phạm theo phiếu và mã dòng; rỗng nếu chưa có vi phạm.</returns>
+        /// <exception cref="SqlException">Truy vấn chi tiết phiếu phạt thất bại.</exception>
         public List<ChiTietPhieuPhatDTO> DocTatCaChiTiet()
         {
             List<ChiTietPhieuPhatDTO> list = daoChiTiet.LayTatCa();
@@ -76,6 +107,10 @@ namespace QLThuVien.BUS
             return list;
         }
 
+        /// <summary>Lấy danh sách phiếu từ bộ nhớ đệm hoặc nạp lại từ DAO.</summary>
+        /// <param name="reload"><see langword="true"/> để đọc mới; mặc định là <see langword="false"/>.</param>
+        /// <returns>Bản sao danh sách phiếu đang có; có thể rỗng.</returns>
+        /// <exception cref="SqlException">Lỗi đọc dữ liệu khi bộ nhớ đệm cần nạp lại.</exception>
         public List<PhieuPhatDTO> LayDanhSach(bool reload = false)
         {
             if (reload || !danhSachDaDoc)
@@ -91,6 +126,10 @@ namespace QLThuVien.BUS
             return result;
         }
 
+        /// <summary>Lấy các vi phạm của một phiếu từ bộ nhớ đệm, nạp dữ liệu trước nếu cần.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu cần lấy; rỗng sẽ trả danh sách rỗng.</param>
+        /// <returns>Chi tiết thuộc phiếu đã chọn; rỗng nếu không có mã hoặc chưa có vi phạm.</returns>
+        /// <exception cref="SqlException">Lỗi đọc dữ liệu khi bộ nhớ đệm chưa được nạp.</exception>
         public List<ChiTietPhieuPhatDTO> LayChiTietTheoPhieu(string maPhieuPhat)
         {
             EnsureLoaded();
@@ -105,6 +144,10 @@ namespace QLThuVien.BUS
             return result;
         }
 
+        /// <summary>Kiểm tra mã phiếu chưa xuất hiện trong bộ nhớ đệm.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu cần kiểm tra; rỗng luôn trả về <see langword="false"/>.</param>
+        /// <returns><see langword="true"/> nếu chưa có phiếu cùng mã trong bộ nhớ đệm.</returns>
+        /// <exception cref="SqlException">Lỗi nạp bộ nhớ đệm lần đầu.</exception>
         public bool KiemTraMaPhieuDuyNhat(string maPhieuPhat)
         {
             EnsureLoaded();
@@ -117,6 +160,13 @@ namespace QLThuVien.BUS
             return true;
         }
 
+        /// <summary>Kiểm tra phiếu chưa có vi phạm trùng cùng cuốn sách và quy định.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu cần kiểm tra.</param>
+        /// <param name="maSach">Mã cuốn sách cần đối chiếu.</param>
+        /// <param name="maQD">Mã quy định cần đối chiếu.</param>
+        /// <param name="boQuaMaCTPP">Mã dòng đang sửa cần bỏ qua; có thể là <see langword="null"/>.</param>
+        /// <returns><see langword="true"/> nếu chưa có dòng trùng khác trong bộ nhớ đệm.</returns>
+        /// <exception cref="SqlException">Lỗi nạp bộ nhớ đệm lần đầu.</exception>
         public bool KiemTraChiTietDuyNhat(string maPhieuPhat, string maSach, string maQD, int? boQuaMaCTPP = null)
         {
             EnsureLoaded();
@@ -129,6 +179,13 @@ namespace QLThuVien.BUS
                 (!boQuaMaCTPP.HasValue || ct.MaCTPP != boQuaMaCTPP.Value));
         }
 
+        /// <summary>Kiểm tra thông tin phiếu, các liên kết độc giả/phiếu mượn/nhân viên và trạng thái.</summary>
+        /// <param name="pp">Phiếu cần kiểm tra.</param>
+        /// <param name="isThemMoi"><see langword="true"/> để kiểm tra mã chưa tồn tại khi thêm mới.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="pp"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Thiếu hoặc sai mã liên kết, phiếu mượn không thuộc độc giả, ngày lập không hợp lệ hoặc trạng thái không được hỗ trợ.</exception>
+        /// <exception cref="SqlException">Không xác minh được độc giả, nhân viên, phiếu mượn hoặc ngày mượn.</exception>
+        /// <remarks>Ngày lập không được ở tương lai hay trước ngày mượn; trạng thái chỉ nhận Chưa thanh toán hoặc Đã thanh toán.</remarks>
         public void KiemTraHopLePhieuPhat(PhieuPhatDTO pp, bool isThemMoi)
         {
             if (pp == null) throw new ArgumentNullException(nameof(pp), "Dữ liệu phiếu phạt không được null.");
@@ -191,6 +248,13 @@ namespace QLThuVien.BUS
             }
         }
 
+        /// <summary>Kiểm tra vi phạm thuộc phiếu hợp lệ, sách trong phiếu mượn và quy định tồn tại.</summary>
+        /// <param name="ct">Chi tiết vi phạm cần kiểm tra.</param>
+        /// <param name="isThemMoi"><see langword="true"/> để từ chối trùng cùng phiếu, cuốn sách và quy định.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="ct"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Mã hoặc số tiền không hợp lệ, sách không thuộc phiếu mượn, hoặc có vi phạm trùng.</exception>
+        /// <exception cref="SqlException">Không xác minh được phiếu, sách hoặc quy định trong cơ sở dữ liệu.</exception>
+        /// <remarks>Số ngày trễ, đơn giá và tiền phạt phải không âm; ghi chú tối đa 200 ký tự.</remarks>
         public void KiemTraHopLeChiTiet(ChiTietPhieuPhatDTO ct, bool isThemMoi)
         {
             EnsureLoaded();
@@ -244,11 +308,25 @@ namespace QLThuVien.BUS
             }
         }
 
+        /// <summary>Tính số ngày trễ giữa hạn trả và ngày trả hoặc ngày lập vi phạm, theo ngày lịch.</summary>
+        /// <param name="hanTra">Ngày đến hạn trả.</param>
+        /// <param name="ngayThucTra">Ngày dùng để chốt số ngày trễ.</param>
+        /// <returns>Số ngày chênh lệch nếu trễ; bằng 0 khi trả đúng hạn hoặc trước hạn.</returns>
+        /// <remarks>Phần giờ bị bỏ qua và kết quả được chặn ở 0, nên ngày trả trước hạn không tạo số ngày âm.</remarks>
         public static int TinhSoNgayTre(DateTime hanTra, DateTime ngayThucTra)
         {
             return Math.Max(0, (ngayThucTra.Date - hanTra.Date).Days);
         }
 
+        /// <summary>Tính tiền theo loại quy định, làm tròn đến hai chữ số thập phân.</summary>
+        /// <param name="quyDinh">Quy định xác định cách tính và mức phạt.</param>
+        /// <param name="soNgayTre">Số ngày trễ không âm; quy định cố định và mất sách không dùng giá trị này.</param>
+        /// <param name="donGiaSach">Giá sách tính bằng VNĐ, không âm.</param>
+        /// <returns>Tiền phạt đã làm tròn, tính bằng VNĐ.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="quyDinh"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Mức phạt, số ngày trễ hoặc giá sách là số âm.</exception>
+        /// <exception cref="OverflowException">Tích tiền vượt phạm vi biểu diễn của kiểu <see cref="Decimal"/>.</exception>
+        /// <remarks>QD01: số ngày trễ × mức phạt/ngày; QD02: mức cố định; QD03: giá sách × hệ số. Ví dụ 6 × 5.000 = 30.000 VNĐ; QD03 với giá 110.000 và hệ số 1,00 là 110.000 VNĐ. QD01 với 0 ngày có tiền phạt 0; không đặt ngưỡng ngày tối đa ngoài giới hạn kiểu số. Kết quả làm tròn 2 chữ số theo AwayFromZero.</remarks>
         public static decimal TinhTienPhat(QuyDinhPhatDTO quyDinh, int soNgayTre, decimal donGiaSach)
         {
             if (quyDinh == null) throw new ArgumentNullException(nameof(quyDinh));
@@ -266,6 +344,16 @@ namespace QLThuVien.BUS
             return decimal.Round(tienPhat, 2, MidpointRounding.AwayFromZero);
         }
 
+        /// <summary>Tạo chi tiết vi phạm đã tính tiền cho mã phiếu, quy định và cuốn sách được chọn.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu phạt đã có trong bộ nhớ đệm.</param>
+        /// <param name="maQD">Mã quy định phạt cần áp dụng.</param>
+        /// <param name="maSach">Mã cuốn sách thuộc phiếu mượn liên quan.</param>
+        /// <param name="ghiChu">Ghi chú tùy chọn; giá trị rỗng sẽ dùng nội dung mặc định theo quy định.</param>
+        /// <returns>DTO chi tiết có số ngày trễ, đơn giá, ghi chú và tiền phạt đã tính.</returns>
+        /// <exception cref="BusinessRuleException">Không chọn được phiếu, quy định hoặc sách hợp lệ; hoặc ngày lập không phù hợp với hạn/trả thực tế.</exception>
+        /// <exception cref="SqlException">Không đọc được thông tin phiếu mượn, sách hoặc giá sách.</exception>
+        /// <exception cref="OverflowException">Phép tính tiền vượt phạm vi biểu diễn của kiểu <see cref="Decimal"/>.</exception>
+        /// <remarks>QD01 dùng ngày trả thực tế nếu đã trả, nếu chưa thì dùng ngày lập phiếu; QD02 lấy mức phạt cố định; QD03 dùng giá sách và hệ số. Vi phạm trễ hạn phải được lập sau hạn trả và không trước ngày thực trả.</remarks>
         public ChiTietPhieuPhatDTO TinhChiTietPhat(string maPhieuPhat, string maQD, string? maSach, string? ghiChu = null)
         {
             if (string.IsNullOrWhiteSpace(maPhieuPhat)) throw new BusinessRuleException("Vui lòng chọn phiếu phạt.");
@@ -336,6 +424,13 @@ namespace QLThuVien.BUS
             );
         }
 
+        /// <summary>Sinh mã, kiểm tra và lưu phiếu phạt mới, sau đó thêm phiếu vào bộ nhớ đệm.</summary>
+        /// <param name="pp">Thông tin phiếu cần lưu; mã đầu vào được thay bằng mã tự sinh.</param>
+        /// <returns><see langword="true"/> nếu DAO lưu thành công; nếu không thì <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="pp"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Thông tin phiếu không đạt quy tắc nghiệp vụ.</exception>
+        /// <exception cref="SqlException">Lỗi kiểm tra hoặc lưu phiếu được truyền từ DAO.</exception>
+        /// <remarks>Phiếu đầu được lưu với tổng tiền 0 VNĐ; các dòng vi phạm chỉ có thể ghi sau khi mã phiếu đã tồn tại.</remarks>
         public bool ThemPhieu(PhieuPhatDTO pp)
         {
             EnsureLoaded();
@@ -353,11 +448,19 @@ namespace QLThuVien.BUS
                 0
             );
 
+            // Lưu đầu phiếu trước để các vi phạm sau đó có mã phiếu hợp lệ làm khóa liên kết.
             bool success = daoPhieu.Them(normalized);
             if (success) dsPhieuPhat_arr.Insert(0, normalized);
             return success;
         }
 
+        /// <summary>Kiểm tra và cập nhật thông tin phiếu, giữ nguyên tổng từ các chi tiết hiện có.</summary>
+        /// <param name="pp">Thông tin phiếu cần cập nhật, gồm mã phiếu hiện có.</param>
+        /// <returns><see langword="true"/> nếu DAO cập nhật thành công; nếu không thì <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="pp"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Phiếu không hợp lệ, không tìm thấy, thay đổi liên kết khi còn vi phạm hoặc làm sai số tiền chi tiết.</exception>
+        /// <exception cref="SqlException">Lỗi đọc chi tiết hoặc cập nhật phiếu được truyền từ DAO.</exception>
+        /// <remarks>Nếu đã có vi phạm thì không cho đổi độc giả hoặc phiếu mượn; các dòng được tính lại trước khi lưu đầu phiếu.</remarks>
         public bool SuaPhieu(PhieuPhatDTO pp)
         {
             EnsureLoaded();
@@ -403,6 +506,11 @@ namespace QLThuVien.BUS
             return success;
         }
 
+        /// <summary>Xóa phiếu phạt và loại phiếu cùng chi tiết khỏi bộ nhớ đệm khi DAO xóa thành công.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu cần xóa.</param>
+        /// <returns><see langword="true"/> nếu DAO xóa được phiếu; nếu không thì <see langword="false"/>.</returns>
+        /// <exception cref="BusinessRuleException">Mã rỗng hoặc phiếu không tồn tại.</exception>
+        /// <exception cref="SqlException">Lỗi kiểm tra hoặc xóa phiếu được truyền từ DAO.</exception>
         public bool XoaPhieu(string maPhieuPhat)
         {
             EnsureLoaded();
@@ -420,6 +528,13 @@ namespace QLThuVien.BUS
             return success;
         }
 
+        /// <summary>Tính lại, kiểm tra trùng rồi lưu vi phạm mới và cập nhật tổng tiền phiếu.</summary>
+        /// <param name="ct">Thông tin mã phiếu, quy định, cuốn sách và ghi chú cần thêm.</param>
+        /// <returns><see langword="true"/> nếu vi phạm được lưu; nếu không thì <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="ct"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Dữ liệu không hợp lệ hoặc đã có vi phạm cùng cuốn và quy định trong phiếu.</exception>
+        /// <exception cref="SqlException">Lỗi cơ sở dữ liệu không thuộc trường hợp trùng khóa.</exception>
+        /// <remarks>Tiền và số ngày đầu vào không được tin cậy: chúng được tính lại theo dữ liệu sách, ngày phiếu và quy định trước khi lưu.</remarks>
         public bool ThemChiTiet(ChiTietPhieuPhatDTO ct)
         {
             EnsureLoaded();
@@ -445,6 +560,14 @@ namespace QLThuVien.BUS
             }
         }
 
+        /// <summary>Tính lại và lưu thay đổi của vi phạm, đồng bộ tổng tiền và bộ nhớ đệm.</summary>
+        /// <param name="maCTPP">Mã dòng vi phạm cần sửa, phải lớn hơn 0.</param>
+        /// <param name="ct">Quy định, sách và ghi chú mới; phiếu được giữ theo dòng đang sửa.</param>
+        /// <returns><see langword="true"/> nếu dòng được cập nhật; <see langword="false"/> nếu dòng không còn tồn tại.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="ct"/> là <see langword="null"/>.</exception>
+        /// <exception cref="BusinessRuleException">Không chọn được dòng, dữ liệu không hợp lệ hoặc vi phạm bị trùng với dòng khác.</exception>
+        /// <exception cref="SqlException">Lỗi cơ sở dữ liệu không thuộc trường hợp trùng khóa.</exception>
+        /// <remarks>Khi kiểm tra trùng, mã dòng đang sửa được bỏ qua; sau đó tiền được tính lại trước khi DAO cập nhật dòng và tổng.</remarks>
         public bool SuaChiTiet(int maCTPP, ChiTietPhieuPhatDTO ct)
         {
             EnsureLoaded();
@@ -500,6 +623,11 @@ namespace QLThuVien.BUS
             }
         }
 
+        /// <summary>Xóa một vi phạm và tính lại tổng tiền còn lại của phiếu.</summary>
+        /// <param name="maCTPP">Mã dòng vi phạm cần xóa, phải lớn hơn 0.</param>
+        /// <returns><see langword="true"/> nếu dòng được xóa; nếu không thì <see langword="false"/>.</returns>
+        /// <exception cref="BusinessRuleException">Không chọn được dòng hoặc không tìm thấy vi phạm.</exception>
+        /// <exception cref="SqlException">Lệnh xóa hoặc cập nhật tổng tiền thất bại.</exception>
         public bool XoaChiTiet(int maCTPP)
         {
             EnsureLoaded();
@@ -531,6 +659,12 @@ namespace QLThuVien.BUS
             }
         }
 
+        /// <summary>Tính lại tổng tiền từ các dòng đang lưu và ghi kết quả vào phiếu.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu cần tính lại.</param>
+        /// <returns>Tổng tiền các vi phạm, làm tròn hai chữ số và tính bằng VNĐ.</returns>
+        /// <exception cref="BusinessRuleException">Mã phiếu rỗng hoặc phiếu không tồn tại khi cập nhật.</exception>
+        /// <exception cref="SqlException">Không đọc được chi tiết hoặc không cập nhật được phiếu.</exception>
+        /// <remarks>Tổng là tổng TienPhat của các dòng trên phiếu, làm tròn theo AwayFromZero; phiếu không có dòng có tổng bằng 0.</remarks>
         public decimal CapNhatTongTienPhieu(string maPhieuPhat)
         {
             EnsureLoaded();
@@ -556,6 +690,10 @@ namespace QLThuVien.BUS
             return tongTien;
         }
 
+        /// <summary>Tìm phiếu theo mã phiếu, mã độc giả, mã phiếu mượn, mã nhân viên hoặc trạng thái.</summary>
+        /// <param name="tuKhoa">Từ khóa không phân biệt hoa thường; rỗng trả toàn bộ danh sách đã nạp.</param>
+        /// <returns>Các phiếu có trường tìm kiếm chứa từ khóa; rỗng nếu không có kết quả.</returns>
+        /// <exception cref="SqlException">Lỗi nạp danh sách lần đầu.</exception>
         public List<PhieuPhatDTO> TimKiemPhieu(string tuKhoa)
         {
             EnsureLoaded();

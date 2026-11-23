@@ -6,8 +6,12 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.DAO
 {
+    /// <summary>Lớp DAO truy vấn và cập nhật bảng nhân viên, ánh xạ dữ liệu sang <see cref="NhanVienDTO"/>.</summary>
     public class NhanVienDAO
     {
+        /// <summary>Đọc toàn bộ nhân viên theo mã tăng dần.</summary>
+        /// <returns>Danh sách nhân viên; rỗng nếu bảng chưa có dữ liệu.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<NhanVienDTO> LayDanhSach()
         {
             List<NhanVienDTO> list = new List<NhanVienDTO>();
@@ -28,6 +32,10 @@ namespace QLThuVien.DAO
             return list;
         }
 
+        /// <summary>Tìm một nhân viên theo mã định danh.</summary>
+        /// <param name="maNV">Mã nhân viên cần tìm, tối đa 20 ký tự.</param>
+        /// <returns>DTO của nhân viên nếu tìm thấy; nếu không thì <see langword="null"/>.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public NhanVienDTO? LayTheoMa(string maNV)
         {
             string query = "SELECT MaNV, HoLot, TenNV, ChucVu FROM NhanVien WHERE MaNV = @MaNV";
@@ -51,6 +59,10 @@ namespace QLThuVien.DAO
             return null;
         }
 
+        /// <summary>Thêm một bản ghi nhân viên vào cơ sở dữ liệu.</summary>
+        /// <param name="nv">DTO chứa mã, họ lót, tên và chức vụ đã được lớp BUS kiểm tra.</param>
+        /// <returns><see langword="true"/> nếu có dòng được thêm; ngược lại là <see langword="false"/>.</returns>
+        /// <exception cref="SqlException">Lệnh thêm thất bại, chẳng hạn do trùng khóa hoặc lỗi kết nối.</exception>
         public bool Them(NhanVienDTO nv)
         {
             string query = "INSERT INTO NhanVien (MaNV, HoLot, TenNV, ChucVu) VALUES (@MaNV, @HoLot, @TenNV, @ChucVu)";
@@ -65,6 +77,10 @@ namespace QLThuVien.DAO
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
+        /// <summary>Cập nhật họ tên và chức vụ của nhân viên theo mã.</summary>
+        /// <param name="nv">DTO chứa mã nhân viên và các giá trị cần ghi.</param>
+        /// <returns><see langword="true"/> nếu có dòng được cập nhật; nếu mã không có thì <see langword="false"/>.</returns>
+        /// <exception cref="SqlException">Lệnh cập nhật thất bại.</exception>
         public bool Sua(NhanVienDTO nv)
         {
             string query = "UPDATE NhanVien SET HoLot = @HoLot, TenNV = @TenNV, ChucVu = @ChucVu WHERE MaNV = @MaNV";
@@ -79,6 +95,10 @@ namespace QLThuVien.DAO
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
+        /// <summary>Xóa nhân viên theo mã.</summary>
+        /// <param name="maNV">Mã nhân viên cần xóa, tối đa 20 ký tự.</param>
+        /// <returns><see langword="true"/> nếu có dòng được xóa; nếu mã không có thì <see langword="false"/>.</returns>
+        /// <exception cref="SqlException">Lệnh xóa thất bại, bao gồm trường hợp còn ràng buộc dữ liệu.</exception>
         public bool Xoa(string maNV)
         {
             string query = "DELETE FROM NhanVien WHERE MaNV = @MaNV";
@@ -90,6 +110,10 @@ namespace QLThuVien.DAO
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
+        /// <summary>Kiểm tra mã nhân viên đã tồn tại trong bảng hay chưa.</summary>
+        /// <param name="maNV">Mã nhân viên cần tra cứu.</param>
+        /// <returns><see langword="true"/> nếu có bản ghi mang mã đó.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public bool KiemTraTonTai(string maNV)
         {
             string query = "SELECT COUNT(1) FROM NhanVien WHERE MaNV = @MaNV";
@@ -102,6 +126,10 @@ namespace QLThuVien.DAO
             return result != null && Convert.ToInt32(result) > 0;
         }
 
+        /// <summary>Kiểm tra nhân viên có đang được phiếu nhập, phiếu mượn hoặc phiếu phạt tham chiếu không.</summary>
+        /// <param name="maNV">Mã nhân viên cần kiểm tra ràng buộc.</param>
+        /// <returns><see langword="true"/> nếu tồn tại ít nhất một giao dịch tham chiếu mã này.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public bool KiemTraKhoaNgoai(string maNV)
         {
             string query = @"SELECT

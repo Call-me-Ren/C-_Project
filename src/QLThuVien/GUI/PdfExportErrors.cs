@@ -4,8 +4,13 @@ using Microsoft.Data.SqlClient;
 
 namespace QLThuVien.GUI
 {
+    /// <summary>Lớp GUI chuyển các lỗi xuất PDF thường gặp thành hướng dẫn ngắn gọn cho người dùng.</summary>
     internal static class PdfExportErrors
     {
+        /// <summary>Phân loại lỗi xuất tệp và trả về nội dung tiếng Việt có thể hiển thị.</summary>
+        /// <param name="exception">Lỗi xuất PDF cần phân loại, có thể chứa lỗi cơ sở dữ liệu lồng bên trong.</param>
+        /// <returns>Thông báo phù hợp với lỗi nhận diện được hoặc thông báo chung nếu không xác định được nguyên nhân.</returns>
+        /// <remarks>Lỗi cơ sở dữ liệu được tìm trong toàn bộ chuỗi nguyên nhân trước khi xét lỗi đường dẫn và quyền ghi.</remarks>
         public static string ToVietnamese(Exception exception)
         {
             for (Exception? current = exception; current != null; current = current.InnerException)

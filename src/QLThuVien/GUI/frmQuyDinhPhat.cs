@@ -6,15 +6,20 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.GUI
 {
+    /// <summary>Biểu mẫu GUI quản lý quy định phạt, chuyển kiểm tra và lưu dữ liệu cho <see cref="QuyDinhPhatBUS"/>.</summary>
     public partial class frmQuyDinhPhat : Form
     {
         private readonly QuyDinhPhatBUS bus = new QuyDinhPhatBUS();
 
+        /// <summary>Khởi tạo biểu mẫu quy định phạt.</summary>
         public frmQuyDinhPhat()
         {
             InitializeComponent();
         }
 
+        /// <summary>Nạp các lựa chọn loại, cách tính, đơn vị và danh sách quy định phạt.</summary>
+        /// <param name="sender">Đối tượng phát sinh sự kiện nạp biểu mẫu.</param>
+        /// <param name="e">Thông tin sự kiện nạp biểu mẫu.</param>
         private void frmQuyDinhPhat_Load(object sender, EventArgs e)
         {
             try
@@ -38,6 +43,9 @@ namespace QLThuVien.GUI
             dgvQuyDinhPhat.DataSource = list;
         }
 
+        /// <summary>Đưa quy định được chọn trên bảng vào các trường để xem hoặc sửa.</summary>
+        /// <param name="sender">Bảng quy định phát sinh thao tác chọn dòng.</param>
+        /// <param name="e">Vị trí dòng được chọn; dòng tiêu đề bị bỏ qua.</param>
         private void dgvQuyDinhPhat_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvQuyDinhPhat.Rows.Count) return;
@@ -55,6 +63,10 @@ namespace QLThuVien.GUI
             txtMaQD.ReadOnly = true;
         }
 
+        /// <summary>Tạo quy định từ biểu mẫu rồi nhờ BUS kiểm tra và lưu mã mới.</summary>
+        /// <param name="sender">Nút thêm quy định.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Sau khi thêm, bảng được đọc lại để hiển thị mã do BUS sinh.</remarks>
         private void btnThem_Click(object sender, EventArgs e)
         {
             try
@@ -70,6 +82,10 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Gửi quy định đang chọn sang BUS để kiểm tra và cập nhật.</summary>
+        /// <param name="sender">Nút sửa quy định.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Mã phải là một quy định đang tồn tại; BUS giữ các ràng buộc của cách tính và đơn vị.</remarks>
         private void btnSua_Click(object sender, EventArgs e)
         {
             try
@@ -87,6 +103,10 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Yêu cầu xác nhận rồi nhờ BUS xóa quy định đang chọn.</summary>
+        /// <param name="sender">Nút xóa quy định.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Thao tác dừng nếu người dùng chọn Không hoặc BUS xác định quy định còn được vi phạm tham chiếu.</remarks>
         private void btnXoa_Click(object sender, EventArgs e)
         {
             try
@@ -106,6 +126,9 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Nạp mới danh sách quy định và đặt lại các trường nhập.</summary>
+        /// <param name="sender">Nút làm mới danh sách.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             try
@@ -151,11 +174,17 @@ namespace QLThuVien.GUI
             combo.SelectedIndex = selected == null ? -1 : combo.Items.IndexOf(selected);
         }
 
+        /// <summary>Tìm quy định theo nội dung nhập và hiển thị các kết quả BUS trả về.</summary>
+        /// <param name="sender">Nút tìm kiếm.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
             HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
         }
 
+        /// <summary>Xóa từ khóa và nạp lại toàn bộ danh sách quy định từ BUS.</summary>
+        /// <param name="sender">Nút hiện tất cả.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnTatCa_Click(object sender, EventArgs e)
         {
             try
@@ -169,6 +198,9 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Kích hoạt tìm kiếm khi nhấn Enter trong ô từ khóa.</summary>
+        /// <param name="sender">Ô tìm kiếm phát sinh sự kiện bàn phím.</param>
+        /// <param name="e">Phím vừa nhấn; chỉ phím Enter được xử lý.</param>
         private void txtTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;

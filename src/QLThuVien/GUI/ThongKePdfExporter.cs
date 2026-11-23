@@ -10,6 +10,7 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.GUI
 {
+    /// <summary>Lớp GUI dựng PDF thu-chi và các bảng thống kê theo quý từ DTO do lớp BUS tổng hợp.</summary>
     public sealed class ThongKePdfExporter
     {
         private const string GhiChuThongKeQuy = "Bảng quý tính tổng tiền phạt của tất cả phiếu phạt đã lập, kể cả phiếu chưa thanh toán. Tổng thu ở bảng Thu - Chi chỉ tính phiếu đã thanh toán.";
@@ -19,6 +20,11 @@ namespace QLThuVien.GUI
         private float fontSize;
         private float tableFontSize;
 
+        /// <summary>Khởi tạo bộ xuất báo cáo cùng kỳ ngày và dữ liệu thống kê.</summary>
+        /// <param name="thongKe">DTO chứa giao dịch, tổng tiền và các bảng thống kê; không được <see langword="null"/>.</param>
+        /// <param name="tuNgay">Ngày đầu kỳ; phần thời gian được bỏ.</param>
+        /// <param name="denNgay">Ngày cuối kỳ; phần thời gian được bỏ.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="thongKe"/> là <see langword="null"/>.</exception>
         public ThongKePdfExporter(ThongKeTongHopDTO thongKe, DateTime tuNgay, DateTime denNgay)
         {
             this.thongKe = thongKe ?? throw new ArgumentNullException(nameof(thongKe));
@@ -26,6 +32,12 @@ namespace QLThuVien.GUI
             this.denNgay = denNgay.Date;
         }
 
+        /// <summary>Dựng báo cáo thu-chi khổ ngang A4 và ghi PDF vào đường dẫn đã chọn.</summary>
+        /// <param name="duongDan">Đường dẫn tệp PDF đích, không được rỗng.</param>
+        /// <exception cref="ArgumentException">Đường dẫn rỗng hoặc không hợp lệ.</exception>
+        /// <exception cref="IOException">Không thể ghi dữ liệu PDF vào tệp.</exception>
+        /// <exception cref="UnauthorizedAccessException">Không có quyền ghi vào đường dẫn đích.</exception>
+        /// <remarks>PDF trình bày các tổng và dòng DTO đã nhận; bộ xuất thử giảm cỡ chữ từ 10 đến 8 điểm để vừa một trang, rồi chọn bố cục rút gọn nếu báo cáo vẫn nhiều trang.</remarks>
         public void Xuat(string duongDan)
         {
             if (string.IsNullOrWhiteSpace(duongDan))
@@ -36,6 +48,7 @@ namespace QLThuVien.GUI
             byte[] pdf = TaoPdf(10, false);
             if (DemSoTrang(pdf) > 1)
             {
+                // Thu nhỏ bảng theo từng nửa điểm trước khi chuyển sang bố cục rút gọn nhiều trang.
                 for (decimal size = 9.5m; size >= 8m; size -= 0.5m)
                 {
                     byte[] thu = TaoPdf((float)size, false);

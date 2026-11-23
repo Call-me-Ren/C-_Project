@@ -6,8 +6,15 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.DAO
 {
+    /// <summary>Lớp DAO truy vấn giao dịch thu-chi và dữ liệu nguồn cho các bảng thống kê theo quý.</summary>
     public class ThongKeDAO
     {
+        /// <summary>Lấy giao dịch thu tiền phạt đã thanh toán và chi phí nhập sách trong khoảng ngày.</summary>
+        /// <param name="tuNgay">Ngày bắt đầu; được tính gồm cả ngày này.</param>
+        /// <param name="denNgay">Ngày kết thúc; được tính gồm cả ngày này.</param>
+        /// <returns>Danh sách giao dịch thu và chi; rỗng nếu khoảng thời gian không có giao dịch.</returns>
+        /// <exception cref="SqlException">Truy vấn hoặc ánh xạ dữ liệu cơ sở dữ liệu thất bại.</exception>
+        /// <remarks>Khoản thu chỉ gồm phiếu phạt đã thanh toán; khoản chi gồm phiếu nhập sách. Truy vấn dùng khoảng nửa mở từ ngày bắt đầu đến đầu ngày kế tiếp ngày kết thúc.</remarks>
         public List<ThongKeGiaoDichDTO> LayGiaoDichThuChi(DateTime tuNgay, DateTime denNgay)
         {
             string query = @"SELECT N'Thu' AS Loai, N'Thu tiền phạt' AS DienGiai, pp.MaPhieuPhat AS MaGiaoDich, pp.NgayLap AS Ngay,
@@ -41,6 +48,12 @@ namespace QLThuVien.DAO
             return result;
         }
 
+        /// <summary>Lấy các phiếu phạt theo ngày lập để tổng hợp theo nhân viên, độc giả và quý.</summary>
+        /// <param name="tuNgay">Ngày bắt đầu; được tính gồm cả ngày này.</param>
+        /// <param name="denNgay">Ngày kết thúc; được tính gồm cả ngày này.</param>
+        /// <returns>Danh sách phiếu nằm trong khoảng ngày; rỗng nếu không có phiếu.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
+        /// <remarks>Kết quả giữ cả trạng thái chưa thanh toán vì bảng quỹ tổng hợp tiền theo phiếu lập trong kỳ.</remarks>
         public List<ThongKePhieuPhatDTO> LayPhieuPhat(DateTime tuNgay, DateTime denNgay)
         {
             string query = @"SELECT MaPhieuPhat, MaDocGia, MaNV, NgayLap, TrangThai, TongTienPhat
@@ -63,6 +76,11 @@ namespace QLThuVien.DAO
             return result;
         }
 
+        /// <summary>Lấy các phiếu nhập theo ngày nhập để tổng hợp chi phí theo nhân viên và quý.</summary>
+        /// <param name="tuNgay">Ngày bắt đầu; được tính gồm cả ngày này.</param>
+        /// <param name="denNgay">Ngày kết thúc; được tính gồm cả ngày này.</param>
+        /// <returns>Danh sách phiếu nhập trong khoảng ngày; rỗng nếu không có phiếu.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<ThongKePhieuNhapDTO> LayPhieuNhap(DateTime tuNgay, DateTime denNgay)
         {
             string query = @"SELECT MaPN, MaNV, NgayNhap, TongTien
@@ -83,6 +101,9 @@ namespace QLThuVien.DAO
             return result;
         }
 
+        /// <summary>Lấy mã và tên các đầu sách dùng làm dòng trong bảng thống kê theo quý.</summary>
+        /// <returns>Danh sách đầu sách theo mã; rỗng nếu danh mục chưa có dữ liệu.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<ThongKeDauSachQuyDTO> LayDanhSachDauSach()
         {
             string query = "SELECT MaDauSach, TenSach AS TenDauSach FROM DauSach ORDER BY MaDauSach";
@@ -99,6 +120,11 @@ namespace QLThuVien.DAO
             return result;
         }
 
+        /// <summary>Lấy thành tiền từng dòng nhập sách trong khoảng ngày để phân nhóm theo đầu sách.</summary>
+        /// <param name="tuNgay">Ngày bắt đầu; được tính gồm cả ngày này.</param>
+        /// <param name="denNgay">Ngày kết thúc; được tính gồm cả ngày này.</param>
+        /// <returns>Các dòng nhập gồm mã đầu sách, ngày nhập và thành tiền VNĐ.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<ThongKeNhapDauSachDTO> LayTienNhapTheoDauSach(DateTime tuNgay, DateTime denNgay)
         {
             string query = @"SELECT ct.MaDauSach, pn.NgayNhap, ct.ThanhTien
@@ -119,6 +145,11 @@ namespace QLThuVien.DAO
             return result;
         }
 
+        /// <summary>Lấy ngày mượn và mã đầu sách của từng cuốn đã được ghi vào phiếu mượn trong khoảng ngày.</summary>
+        /// <param name="tuNgay">Ngày bắt đầu; được tính gồm cả ngày này.</param>
+        /// <param name="denNgay">Ngày kết thúc; được tính gồm cả ngày này.</param>
+        /// <returns>Các lượt mượn theo đầu sách; rỗng nếu không có lượt trong kỳ.</returns>
+        /// <exception cref="SqlException">Truy vấn cơ sở dữ liệu thất bại.</exception>
         public List<ThongKeLuotMuonDauSachDTO> LayLuotMuonTheoDauSach(DateTime tuNgay, DateTime denNgay)
         {
             string query = @"SELECT s.MaDauSach, pm.NgayMuon

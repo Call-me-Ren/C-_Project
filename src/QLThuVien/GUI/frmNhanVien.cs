@@ -6,6 +6,7 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.GUI
 {
+    /// <summary>Biểu mẫu GUI quản lý danh sách nhân viên, chuyển thao tác kiểm tra và lưu cho <see cref="NhanVienBUS"/>.</summary>
     public partial class frmNhanVien : Form
     {
         private readonly NhanVienBUS bus = new NhanVienBUS();
@@ -13,6 +14,7 @@ namespace QLThuVien.GUI
         private string tenHopLe = string.Empty;
         private bool dangGanTen;
 
+        /// <summary>Khởi tạo biểu mẫu và gắn sự kiện kiểm soát nhập họ tên.</summary>
         public frmNhanVien()
         {
             InitializeComponent();
@@ -22,6 +24,9 @@ namespace QLThuVien.GUI
             txtTenNV.Leave += (_, _) => ChuanHoaO(txtTenNV, ref tenHopLe);
         }
 
+        /// <summary>Nạp chức vụ, đọc danh sách nhân viên và đặt biểu mẫu về trạng thái nhập mới.</summary>
+        /// <param name="sender">Đối tượng phát sinh sự kiện nạp biểu mẫu.</param>
+        /// <param name="e">Thông tin sự kiện nạp biểu mẫu.</param>
         private void frmNhanVien_Load(object sender, EventArgs e)
         {
             try
@@ -43,6 +48,9 @@ namespace QLThuVien.GUI
             dgvNhanVien.DataSource = list;
         }
 
+        /// <summary>Đưa nhân viên được chọn trên bảng vào các ô thông tin để xem hoặc sửa.</summary>
+        /// <param name="sender">Bảng nhân viên phát sinh thao tác chọn dòng.</param>
+        /// <param name="e">Vị trí dòng được chọn; dòng tiêu đề bị bỏ qua.</param>
         private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvNhanVien.Rows.Count) return;
@@ -55,6 +63,10 @@ namespace QLThuVien.GUI
             txtMaNV.ReadOnly = true;
         }
 
+        /// <summary>Lấy thông tin trên biểu mẫu, nhờ BUS kiểm tra và thêm nhân viên mới.</summary>
+        /// <param name="sender">Nút thêm nhân viên.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Sau khi thêm thành công, danh sách được nạp lại để nhận mã do BUS sinh và biểu mẫu trở về trạng thái nhập mới.</remarks>
         private void btnThem_Click(object sender, EventArgs e)
         {
             try
@@ -75,6 +87,10 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Gửi thông tin nhân viên đang chọn sang BUS để kiểm tra và cập nhật.</summary>
+        /// <param name="sender">Nút sửa nhân viên.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Mã nhân viên phải được chọn trước; sau khi cập nhật thành công, bảng được nạp lại từ BUS.</remarks>
         private void btnSua_Click(object sender, EventArgs e)
         {
             try
@@ -98,6 +114,10 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Yêu cầu xác nhận rồi nhờ BUS xóa nhân viên đang chọn.</summary>
+        /// <param name="sender">Nút xóa nhân viên.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
+        /// <remarks>Thao tác dừng nếu người dùng chọn Không; BUS từ chối xóa nhân viên đang được giao dịch tham chiếu.</remarks>
         private void btnXoa_Click(object sender, EventArgs e)
         {
             try
@@ -117,6 +137,9 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Đọc mới danh sách nhân viên và xóa nội dung tìm kiếm hiện tại.</summary>
+        /// <param name="sender">Nút làm mới danh sách.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             try
@@ -150,11 +173,17 @@ namespace QLThuVien.GUI
             cboChucVu.SelectedIndex = selected == null ? -1 : cboChucVu.Items.IndexOf(selected);
         }
 
+        /// <summary>Tìm nhân viên theo từ khóa nhập trên biểu mẫu và hiển thị kết quả BUS trả về.</summary>
+        /// <param name="sender">Nút tìm kiếm.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
             HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
         }
 
+        /// <summary>Xóa từ khóa và nạp lại toàn bộ danh sách nhân viên từ BUS.</summary>
+        /// <param name="sender">Nút hiện tất cả.</param>
+        /// <param name="e">Thông tin sự kiện nhấn nút.</param>
         private void btnTatCa_Click(object sender, EventArgs e)
         {
             try
@@ -168,6 +197,9 @@ namespace QLThuVien.GUI
             }
         }
 
+        /// <summary>Kích hoạt tìm kiếm khi người dùng nhấn Enter trong ô từ khóa.</summary>
+        /// <param name="sender">Ô tìm kiếm phát sinh sự kiện bàn phím.</param>
+        /// <param name="e">Phím vừa nhấn; chỉ phím Enter được xử lý.</param>
         private void txtTimKiem_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode != Keys.Enter) return;

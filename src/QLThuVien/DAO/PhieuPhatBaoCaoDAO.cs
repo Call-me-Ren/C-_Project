@@ -5,8 +5,14 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.DAO
 {
+    /// <summary>Lớp DAO đọc dữ liệu đầu phiếu và các vi phạm để lớp BUS lập mô hình xuất phiếu phạt.</summary>
     public class PhieuPhatBaoCaoDAO
     {
+        /// <summary>Lấy thông tin phiếu phạt, độc giả, nhân viên và toàn bộ vi phạm theo mã phiếu.</summary>
+        /// <param name="maPhieuPhat">Mã phiếu phạt cần lập báo cáo, tối đa 20 ký tự.</param>
+        /// <returns>Mô hình phiếu kèm chi tiết theo mã dòng; <see langword="null"/> nếu không tìm thấy đầu phiếu.</returns>
+        /// <exception cref="SqlException">Một trong các truy vấn lấy đầu phiếu hoặc chi tiết thất bại.</exception>
+        /// <remarks>DAO đọc đầu phiếu trước; khi có đầu phiếu mới truy vấn và ghép các dòng vi phạm theo thứ tự mã dòng.</remarks>
         public PhieuPhatBaoCaoDTO? LayTheoMa(string maPhieuPhat)
         {
             string queryPhieu = @"SELECT pp.MaPhieuPhat, pp.NgayLap, pp.MaDocGia,

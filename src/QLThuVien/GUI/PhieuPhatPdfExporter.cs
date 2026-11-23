@@ -10,17 +10,27 @@ using QLThuVien.DTO;
 
 namespace QLThuVien.GUI
 {
+    /// <summary>Lớp GUI dựng và ghi phiếu phạt PDF từ mô hình do lớp BUS cung cấp.</summary>
     public sealed class PhieuPhatPdfExporter
     {
         private readonly PhieuPhatBaoCaoDTO phieu;
         private float fontSize;
         private float tableFontSize;
 
+        /// <summary>Khởi tạo bộ xuất PDF từ dữ liệu đầu phiếu và các vi phạm đã đọc.</summary>
+        /// <param name="phieu">Mô hình phiếu phạt cần xuất, không được <see langword="null"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="phieu"/> là <see langword="null"/>.</exception>
         public PhieuPhatPdfExporter(PhieuPhatBaoCaoDTO phieu)
         {
             this.phieu = phieu ?? throw new ArgumentNullException(nameof(phieu));
         }
 
+        /// <summary>Dựng phiếu phạt khổ ngang A4 và ghi nội dung PDF vào đường dẫn đã chọn.</summary>
+        /// <param name="duongDan">Đường dẫn tệp PDF đích, không được rỗng.</param>
+        /// <exception cref="ArgumentException">Đường dẫn rỗng hoặc không hợp lệ.</exception>
+        /// <exception cref="IOException">Không thể ghi dữ liệu PDF vào tệp.</exception>
+        /// <exception cref="UnauthorizedAccessException">Không có quyền ghi vào đường dẫn đích.</exception>
+        /// <remarks>PDF lấy số tiền và chi tiết từ DTO đã đọc, không tự tính lại tiền phạt. Bộ xuất thử cỡ chữ từ 10 đến 8 điểm để vừa một trang; nếu vẫn còn nhiều trang, dùng bố cục rút gọn trước khi ghi tệp.</remarks>
         public void Xuat(string duongDan)
         {
             if (string.IsNullOrWhiteSpace(duongDan))
@@ -31,6 +41,7 @@ namespace QLThuVien.GUI
             byte[] pdf = TaoPdf(10, false);
             if (DemSoTrang(pdf) > 1)
             {
+                // Giảm cỡ chữ từng bước để giữ nguyên bảng và chữ ký trên cùng trang khi còn đủ chỗ.
                 for (decimal size = 9.5m; size >= 8m; size -= 0.5m)
                 {
                     byte[] thu = TaoPdf((float)size, false);
