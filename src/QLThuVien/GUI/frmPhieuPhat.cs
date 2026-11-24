@@ -15,7 +15,15 @@ namespace QLThuVien.GUI
         private readonly PhieuPhatBaoCaoBUS busBaoCao = new PhieuPhatBaoCaoBUS();
         private List<LookupOptionDTO> danhSachPhieuMuon = new List<LookupOptionDTO>();
         private string maPhieuDangChon = string.Empty;
+        private int? maCTPPDangChon;
         private bool dangNapDuLieu;
+        private bool dangNapChiTiet;
+
+        // Dữ liệu gợi ý khi mở nhanh từ màn hình Trả sách
+        private string? pendingMaDocGia;
+        private string? pendingMaPhieuMuon;
+        private string? pendingMaSach;
+        private string? pendingMaQD;
 
         public frmPhieuPhat()
         {
@@ -34,6 +42,28 @@ namespace QLThuVien.GUI
             btnLamMoi.Click += btnLamMoi_Click;
             btnTimKiem.Click += btnTimKiem_Click;
             btnTatCa.Click += btnTatCa_Click;
+
+            // Sự kiện vùng Detail (Main - Sub trên cùng 1 Form)
+            cboSachDetail.SelectedValueChanged += (_, _) => CapNhatTienDuKien();
+            cboQuyDinhDetail.SelectedValueChanged += (_, _) => CapNhatTienDuKien();
+            dgvChiTiet.CellClick += dgvChiTiet_CellClick;
+            btnThemViPham.Click += btnThemViPham_Click;
+            btnSuaViPham.Click += btnSuaViPham_Click;
+            btnXoaViPham.Click += btnXoaViPham_Click;
+            btnLamMoiViPham.Click += (_, _) => LamMoiVungChiTiet(giuDanhSach: true);
+        }
+
+        public void ChuanBiLapPhieuNhanh(string maDocGia, string maPhieuMuon, string maSach, string? goiYMaQD = null)
+        {
+            pendingMaDocGia = maDocGia;
+            pendingMaPhieuMuon = maPhieuMuon;
+            pendingMaSach = maSach;
+            pendingMaQD = goiYMaQD;
+
+            if (IsHandleCreated)
+            {
+                ApDungDuLieuLapNhanh();
+            }
         }
 
         private void frmPhieuPhat_Load(object? sender, EventArgs e)
@@ -52,15 +82,36 @@ namespace QLThuVien.GUI
                     .Select(nv => new LookupOptionDTO(nv.MaNV, $"{nv.MaNV} - {nv.HoTen}"))
                     .ToList();
 
+                cboQuyDinhDetail.DisplayMember = nameof(LookupOptionDTO.HienThi);
+                cboQuyDinhDetail.ValueMember = nameof(LookupOptionDTO.Ma);
+                cboQuyDinhDetail.DataSource = busPhieu.LayDanhSachQuyDinh()
+                    .Select(qd => new LookupOptionDTO(qd.MaQD, $"{qd.MaQD} - {qd.TenQD}"))
+                    .ToList();
+
                 HienThiDanhSach(busPhieu.DocDS());
                 dangNapDuLieu = false;
                 LamMoiForm();
+                ApDungDuLieuLapNhanh();
             }
             catch (Exception ex)
             {
                 dangNapDuLieu = false;
                 HienThiLoi(ex);
             }
+        }
+
+        private void ApDungDuLieuLapNhanh()
+        {
+            if (string.IsNullOrWhiteSpace(pendingMaDocGia)) return;
+
+            dangNapDuLieu = true;
+            cboDocGia.SelectedValue = pendingMaDocGia;
+            NapDanhSachPhieuMuon(pendingMaDocGia, pendingMaPhieuMuon);
+            if (cboNhanVien.Items.Count > 0 && cboNhanVien.SelectedIndex < 0)
+            {
+                cboNhanVien.SelectedIndex = 0;
+            }
+            dangNapDuLieu = false;
         }
 
         private void cboDocGia_SelectedValueChanged(object? sender, EventArgs e)
@@ -136,8 +187,15 @@ namespace QLThuVien.GUI
 
         private void dgvPhieuPhat_CellClick(object? sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.RowIndex >= dgvPhieuPhat.Rows.Count) return;
-            if (dgvPhieuPhat.Rows[e.RowIndex].DataBoundItem is PhieuPhatDTO pp) NapPhieuLenForm(pp);
+            try
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvPhieuPhat.Rows.Count) return;
+                if (dgvPhieuPhat.Rows[e.RowIndex].DataBoundItem is PhieuPhatDTO pp) NapPhieuLenForm(pp);
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
         }
 
         private void NapPhieuLenForm(PhieuPhatDTO pp)
@@ -153,6 +211,180 @@ namespace QLThuVien.GUI
             txtTongTienPhat.Text = pp.TongTienPhat.ToString("N0");
             btnChiTiet.Enabled = true;
             dangNapDuLieu = false;
+
+            // Nạp ngay phần Detail (Main - Sub) của phiếu vừa chọn
+            NapVungChiTietTheoPhieu(pp);
+        }
+
+        private void NapVungChiTietTheoPhieu(PhieuPhatDTO pp)
+        {
+            dangNapChiTiet = true;
+            maCTPPDangChon = null;
+            grpChiTiet.Text = $"2. Chi tiết vi phạm của Phiếu phạt: {pp.MaPhieuPhat} (Detail)";
+            grpChiTiet.Enabled = true;
+
+            cboSachDetail.DisplayMember = nameof(SachMuonDTO.HienThi);
+            cboSachDetail.ValueMember = nameof(SachMuonDTO.MaSach);
+            cboSachDetail.DataSource = busPhieu.LaySachTheoPhieuMuon(pp.MaPhieuMuon ?? string.Empty);
+
+            if (cboSachDetail.Items.Count > 0) cboSachDetail.SelectedIndex = 0;
+            if (cboQuyDinhDetail.Items.Count > 0) cboQuyDinhDetail.SelectedIndex = 0;
+            txtGhiChuDetail.Clear();
+
+            dgvChiTiet.DataSource = null;
+            dgvChiTiet.DataSource = busPhieu.LayChiTietTheoPhieu(pp.MaPhieuPhat);
+            dgvChiTiet.ClearSelection();
+            dangNapChiTiet = false;
+            CapNhatTienDuKien();
+        }
+
+        private void LamMoiVungChiTiet(bool giuDanhSach)
+        {
+            maCTPPDangChon = null;
+            if (cboSachDetail.Items.Count > 0) cboSachDetail.SelectedIndex = 0;
+            if (cboQuyDinhDetail.Items.Count > 0) cboQuyDinhDetail.SelectedIndex = 0;
+            txtGhiChuDetail.Clear();
+            dgvChiTiet.ClearSelection();
+            if (!giuDanhSach)
+            {
+                grpChiTiet.Text = "2. Chi tiết vi phạm của Phiếu phạt đang chọn (Detail)";
+                cboSachDetail.DataSource = null;
+                dgvChiTiet.DataSource = null;
+                grpChiTiet.Enabled = false;
+            }
+            CapNhatTienDuKien();
+        }
+
+        private void dgvChiTiet_CellClick(object? sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvChiTiet.Rows.Count) return;
+                if (dgvChiTiet.Rows[e.RowIndex].DataBoundItem is not ChiTietPhieuPhatDTO ct) return;
+
+                maCTPPDangChon = ct.MaCTPP;
+                cboSachDetail.SelectedValue = ct.MaSach;
+                cboQuyDinhDetail.SelectedValue = ct.MaQD;
+                txtGhiChuDetail.Text = ct.GhiChu ?? string.Empty;
+                CapNhatTienDuKien();
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
+        }
+
+        private void CapNhatTienDuKien()
+        {
+            if (dangNapChiTiet || string.IsNullOrWhiteSpace(maPhieuDangChon) ||
+                cboSachDetail.SelectedValue == null || cboQuyDinhDetail.SelectedValue == null)
+            {
+                txtSoNgayTreDetail.Clear();
+                txtDonGiaDetail.Clear();
+                txtTienPhatDetail.Clear();
+                return;
+            }
+
+            try
+            {
+                string maSach = cboSachDetail.SelectedValue.ToString() ?? string.Empty;
+                string maQD = cboQuyDinhDetail.SelectedValue.ToString() ?? string.Empty;
+                ChiTietPhieuPhatDTO ct = busPhieu.TinhChiTietPhat(maPhieuDangChon, maQD, maSach, txtGhiChuDetail.Text);
+                txtSoNgayTreDetail.Text = ct.SoNgayTre?.ToString() ?? string.Empty;
+                txtDonGiaDetail.Text = ct.DonGia.ToString("N0");
+                txtTienPhatDetail.Text = ct.TienPhat.ToString("N0");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                txtSoNgayTreDetail.Clear();
+                txtDonGiaDetail.Clear();
+                txtTienPhatDetail.Clear();
+            }
+        }
+
+        private void btnThemViPham_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(maPhieuDangChon))
+                    throw new BusinessRuleException("Vui lòng chọn 1 phiếu phạt ở bảng trên trước khi thêm vi phạm.");
+                string maSach = cboSachDetail.SelectedValue?.ToString() ?? string.Empty;
+                string maQD = cboQuyDinhDetail.SelectedValue?.ToString() ?? string.Empty;
+                ChiTietPhieuPhatDTO ct = busPhieu.TinhChiTietPhat(maPhieuDangChon, maQD, maSach, txtGhiChuDetail.Text);
+                if (!busPhieu.ThemChiTiet(ct)) throw new InvalidOperationException("Không thể thêm vi phạm.");
+                DongBoSauThayDoiChiTiet(maPhieuDangChon);
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
+        }
+
+        private void btnSuaViPham_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(maPhieuDangChon) || !maCTPPDangChon.HasValue)
+                    throw new BusinessRuleException("Hãy chọn vi phạm cần sửa ở bảng dưới.");
+                string maSach = cboSachDetail.SelectedValue?.ToString() ?? string.Empty;
+                string maQD = cboQuyDinhDetail.SelectedValue?.ToString() ?? string.Empty;
+                ChiTietPhieuPhatDTO ct = busPhieu.TinhChiTietPhat(maPhieuDangChon, maQD, maSach, txtGhiChuDetail.Text);
+                if (!busPhieu.SuaChiTiet(maCTPPDangChon.Value, ct)) throw new InvalidOperationException("Không thể sửa vi phạm.");
+                DongBoSauThayDoiChiTiet(maPhieuDangChon);
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
+        }
+
+        private void btnXoaViPham_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(maPhieuDangChon) || !maCTPPDangChon.HasValue)
+                {
+                    MessageBox.Show("Hãy chọn vi phạm cần xóa ở bảng dưới.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                if (MessageBox.Show("Xóa vi phạm đang chọn?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                    return;
+                if (!busPhieu.XoaChiTiet(maCTPPDangChon.Value)) throw new InvalidOperationException("Không thể xóa vi phạm.");
+                DongBoSauThayDoiChiTiet(maPhieuDangChon);
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
+        }
+
+        private void DongBoSauThayDoiChiTiet(string maPhieu)
+        {
+            HienThiDanhSach(busPhieu.DocDS());
+            ChonDongPhieuPhat(maPhieu);
+        }
+
+        private void ChonDongPhieuPhat(string maPhieu)
+        {
+            PhieuPhatDTO? phieuMoi = busPhieu.LayDanhSach().FirstOrDefault(item =>
+                string.Equals(item.MaPhieuPhat, maPhieu, StringComparison.OrdinalIgnoreCase));
+            if (phieuMoi == null)
+            {
+                LamMoiForm();
+                return;
+            }
+
+            foreach (DataGridViewRow row in dgvPhieuPhat.Rows)
+            {
+                if (row.DataBoundItem is PhieuPhatDTO rowPhieu &&
+                    string.Equals(rowPhieu.MaPhieuPhat, maPhieu, StringComparison.OrdinalIgnoreCase))
+                {
+                    row.Selected = true;
+                    NapPhieuLenForm(phieuMoi);
+                    break;
+                }
+            }
         }
 
         private void btnThemPhieu_Click(object? sender, EventArgs e)
@@ -161,7 +393,24 @@ namespace QLThuVien.GUI
             {
                 PhieuPhatDTO pp = TaoPhieuTuForm();
                 if (!busPhieu.ThemPhieu(pp)) throw new InvalidOperationException("Không thể thêm phiếu phạt.");
-                TaiLaiVaLamMoi();
+
+                string maVuaTao = pp.MaPhieuPhat;
+                HienThiDanhSach(busPhieu.DocDS());
+                ChonDongPhieuPhat(maVuaTao);
+
+                if (!string.IsNullOrWhiteSpace(pendingMaSach))
+                {
+                    cboSachDetail.SelectedValue = pendingMaSach;
+                    if (!string.IsNullOrWhiteSpace(pendingMaQD))
+                    {
+                        cboQuyDinhDetail.SelectedValue = pendingMaQD;
+                    }
+                    pendingMaDocGia = null;
+                    pendingMaPhieuMuon = null;
+                    pendingMaSach = null;
+                    pendingMaQD = null;
+                    CapNhatTienDuKien();
+                }
             }
             catch (Exception ex)
             {
@@ -214,39 +463,26 @@ namespace QLThuVien.GUI
 
         private void btnChiTiet_Click(object? sender, EventArgs e)
         {
-            PhieuPhatDTO? pp = busPhieu.LayDanhSach().FirstOrDefault(item =>
-                string.Equals(item.MaPhieuPhat, maPhieuDangChon, StringComparison.OrdinalIgnoreCase));
-            if (pp == null)
+            try
             {
-                MessageBox.Show("Hãy chọn phiếu phạt cần mở chi tiết.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            using (frmChiTietPhieuPhat formChiTiet = new frmChiTietPhieuPhat(pp))
-            {
-                formChiTiet.ShowDialog(this);
-            }
-
-            string maCanChon = maPhieuDangChon;
-            HienThiDanhSach(busPhieu.DocDS());
-            PhieuPhatDTO? phieuMoi = busPhieu.LayDanhSach().FirstOrDefault(item =>
-                string.Equals(item.MaPhieuPhat, maCanChon, StringComparison.OrdinalIgnoreCase));
-            if (phieuMoi != null)
-            {
-                foreach (DataGridViewRow row in dgvPhieuPhat.Rows)
+                PhieuPhatDTO? pp = busPhieu.LayDanhSach().FirstOrDefault(item =>
+                    string.Equals(item.MaPhieuPhat, maPhieuDangChon, StringComparison.OrdinalIgnoreCase));
+                if (pp == null)
                 {
-                    if (row.DataBoundItem is PhieuPhatDTO rowPhieu &&
-                        string.Equals(rowPhieu.MaPhieuPhat, maCanChon, StringComparison.OrdinalIgnoreCase))
-                    {
-                        row.Selected = true;
-                        NapPhieuLenForm(phieuMoi);
-                        break;
-                    }
+                    MessageBox.Show("Hãy chọn phiếu phạt cần mở chi tiết.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+
+                using (frmChiTietPhieuPhat formChiTiet = new frmChiTietPhieuPhat(pp))
+                {
+                    formChiTiet.ShowDialog(this);
+                }
+
+                DongBoSauThayDoiChiTiet(maPhieuDangChon);
             }
-            else
+            catch (Exception ex)
             {
-                LamMoiForm();
+                HienThiLoi(ex);
             }
         }
 
@@ -287,13 +523,27 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object? sender, EventArgs e)
         {
-            HienThiDanhSach(busPhieu.TimKiemPhieu(txtTimKiem.Text));
+            try
+            {
+                HienThiDanhSach(busPhieu.TimKiemPhieu(txtTimKiem.Text));
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
         }
 
         private void btnTatCa_Click(object? sender, EventArgs e)
         {
-            txtTimKiem.Clear();
-            HienThiDanhSach(busPhieu.LayDanhSach(reload: true));
+            try
+            {
+                txtTimKiem.Clear();
+                HienThiDanhSach(busPhieu.LayDanhSach(reload: true));
+            }
+            catch (Exception ex)
+            {
+                HienThiLoi(ex);
+            }
         }
 
         private void txtTimKiem_KeyDown(object? sender, KeyEventArgs e)
@@ -336,6 +586,7 @@ namespace QLThuVien.GUI
             txtTimKiem.Clear();
             dgvPhieuPhat.ClearSelection();
             btnChiTiet.Enabled = false;
+            LamMoiVungChiTiet(giuDanhSach: false);
             dangNapDuLieu = false;
         }
 

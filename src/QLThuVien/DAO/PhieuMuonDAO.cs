@@ -83,7 +83,20 @@ namespace QLThuVien.DAO
             return MyConnection.ExecuteNonQuery(query, parameters) > 0;
         }
 
-        // 3. XÓA PHIẾU MƯỢN
+        // 3. GIA HẠN HẠN TRẢ PHIẾU MƯỢN (UPDATE HanTra)
+        public bool GiaHanPhieuMuon(string maPM, DateTime hanTraMoi)
+        {
+            string query = "UPDATE PhieuMuon SET HanTra = @HanTraMoi WHERE MaPM = @MaPM";
+            SqlParameter[] parameters = new SqlParameter[]
+            {
+                new SqlParameter("@MaPM", SqlDbType.VarChar, 20) { Value = maPM },
+                new SqlParameter("@HanTraMoi", SqlDbType.Date) { Value = hanTraMoi.Date }
+            };
+
+            return MyConnection.ExecuteNonQuery(query, parameters) > 0;
+        }
+
+        // 4. XÓA PHIẾU MƯỢN
         public bool XoaPhieuMuon(string maPM)
         {
             string query = "DELETE FROM PhieuMuon WHERE MaPM = @MaPM";

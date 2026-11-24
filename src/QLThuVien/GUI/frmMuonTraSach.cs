@@ -267,22 +267,77 @@ namespace QLThuVien.GUI
                 if (result != DialogResult.Yes) return;
 
                 DateTime ngayTra = DateTime.Today;
-                string tinhTrangTra = "Đã trả";
+                string tinhTrangTra = cboTinhTrangTra.SelectedItem?.ToString() ?? "Tốt";
 
-                // Gọi BUS xử lý trả sách: cộng lại SLConLai, trừ SLChoMuon, kiểm tra quá hạn
+                // Gọi BUS xử lý trả sách: cập nhật tồn kho (hoặc giảm tổng SL nếu Mất), kiểm tra quá hạn
                 if (pmBUS.TraSach(maPMDangChon, maSach, ngayTra, tinhTrangTra, out int soNgayTre, out string message))
                 {
-                    MessageBoxIcon icon = soNgayTre > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information;
-                    MessageBox.Show(message, "Kết quả trả sách", MessageBoxButtons.OK, icon);
+                    bool canPhat = soNgayTre > 0 ||
+                                   string.Equals(tinhTrangTra, "Hư hỏng", StringComparison.OrdinalIgnoreCase) ||
+                                   string.Equals(tinhTrangTra, "Mất", StringComparison.OrdinalIgnoreCase);
 
-                    // Làm mới giao diện
-                    NapBangChiTiet(maPMDangChon);
+                    // Làm mới giao diện trước khi chuyển hướng
+                    string maPMVuaTra = maPMDangChon;
+                    PhieuMuonDTO? pmHienTai = pmBUS.TimTheoMa(maPMVuaTra);
+                    NapBangChiTiet(maPMVuaTra);
                     NapComboBoxSachCoSan();
                     HienThiDanhSachPhieuMuon(pmBUS.dsPhieuMuon_arr);
+
+                    if (canPhat && pmHienTai != null)
+                    {
+                        DialogResult lapPhat = MessageBox.Show(
+                            message + "\n\nBạn có muốn mở nhanh sang màn hình Lập Phiếu Phạt cho cuốn sách này không?",
+                            "Cảnh báo vi phạm / Lập phiếu phạt",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning
+                        );
+
+                        if (lapPhat == DialogResult.Yes && ParentForm is frmMain mainForm)
+                        {
+                            string goiYMaQD = string.Equals(tinhTrangTra, "Mất", StringComparison.OrdinalIgnoreCase)
+                                ? "QD03"
+                                : string.Equals(tinhTrangTra, "Hư hỏng", StringComparison.OrdinalIgnoreCase)
+                                    ? "QD02"
+                                    : "QD01";
+                            mainForm.MoPhieuPhatNhanh(pmHienTai.MaDocGia, maPMVuaTra, maSach, goiYMaQD);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show(message, "Kết quả trả sách", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                 }
                 else
                 {
                     MessageBox.Show(message, "Lỗi trả sách", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
+
+        // 12B. GIA HẠN PHIẾU MƯỢN SÁCH
+        private void btnGiaHan_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(maPMDangChon))
+                {
+                    MessageBox.Show("Vui lòng chọn 1 phiếu mượn ở bảng trên để gia hạn!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (pmBUS.GiaHanPhieuMuon(maPMDangChon, out DateTime hanTraMoi, out string message))
+                {
+                    dtpHanTra.Value = hanTraMoi;
+                    HienThiDanhSachPhieuMuon(pmBUS.dsPhieuMuon_arr);
+                    MessageBox.Show(message, "Gia hạn thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show(message, "Không thể gia hạn", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
@@ -355,6 +410,7 @@ namespace QLThuVien.GUI
             lblTieuDeChiTiet.Text = "DANH SÁCH CUỐN SÁCH CỦA PHIẾU ĐANG CHỌN";
             dgvChiTietMuon.DataSource = null;
             txtTinhTrang.Text = "Tốt";
+            if (cboTinhTrangTra.Items.Count > 0) cboTinhTrangTra.SelectedIndex = 0;
 
             txtMaPM.Focus();
         }

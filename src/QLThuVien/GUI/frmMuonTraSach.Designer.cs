@@ -35,6 +35,7 @@ namespace QLThuVien.GUI
             btnLamMoiPM = new Button();
             btnXoaPM = new Button();
             btnThemPM = new Button();
+            btnGiaHan = new Button();
             btnXuatPdf = new Button();
             grpTimKiem = new GroupBox();
             btnTatCa = new Button();
@@ -49,6 +50,8 @@ namespace QLThuVien.GUI
             colTrangThai = new DataGridViewTextBoxColumn();
             grpChiTiet = new GroupBox();
             btnTraSach = new Button();
+            cboTinhTrangTra = new ComboBox();
+            lblTinhTrangTra = new Label();
             btnThemSach = new Button();
             txtTinhTrang = new TextBox();
             lblTinhTrang = new Label();
@@ -231,6 +234,7 @@ namespace QLThuVien.GUI
             // grpChucNangPM
             // 
             grpChucNangPM.Controls.Add(btnXuatPdf);
+            grpChucNangPM.Controls.Add(btnGiaHan);
             grpChucNangPM.Controls.Add(btnLamMoiPM);
             grpChucNangPM.Controls.Add(btnXoaPM);
             grpChucNangPM.Controls.Add(btnThemPM);
@@ -247,13 +251,26 @@ namespace QLThuVien.GUI
             btnXuatPdf.BackColor = Color.FromArgb(231, 76, 60);
             btnXuatPdf.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnXuatPdf.ForeColor = Color.White;
-            btnXuatPdf.Location = new Point(290, 35);
+            btnXuatPdf.Location = new Point(292, 60);
             btnXuatPdf.Name = "btnXuatPdf";
-            btnXuatPdf.Size = new Size(95, 38);
-            btnXuatPdf.TabIndex = 3;
-            btnXuatPdf.Text = "📄 Xuất PDF";
+            btnXuatPdf.Size = new Size(92, 34);
+            btnXuatPdf.TabIndex = 4;
+            btnXuatPdf.Text = "📄 PDF";
             btnXuatPdf.UseVisualStyleBackColor = false;
             btnXuatPdf.Click += btnXuatPdf_Click;
+            // 
+            // btnGiaHan
+            // 
+            btnGiaHan.BackColor = Color.FromArgb(243, 156, 18);
+            btnGiaHan.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnGiaHan.ForeColor = Color.White;
+            btnGiaHan.Location = new Point(292, 22);
+            btnGiaHan.Name = "btnGiaHan";
+            btnGiaHan.Size = new Size(92, 34);
+            btnGiaHan.TabIndex = 3;
+            btnGiaHan.Text = "⏳ Gia hạn";
+            btnGiaHan.UseVisualStyleBackColor = false;
+            btnGiaHan.Click += btnGiaHan_Click;
             // 
             // btnLamMoiPM
             // 
@@ -404,6 +421,8 @@ namespace QLThuVien.GUI
             // grpChiTiet
             // 
             grpChiTiet.Controls.Add(btnTraSach);
+            grpChiTiet.Controls.Add(cboTinhTrangTra);
+            grpChiTiet.Controls.Add(lblTinhTrangTra);
             grpChiTiet.Controls.Add(btnThemSach);
             grpChiTiet.Controls.Add(txtTinhTrang);
             grpChiTiet.Controls.Add(lblTinhTrang);
@@ -423,34 +442,55 @@ namespace QLThuVien.GUI
             btnTraSach.BackColor = Color.FromArgb(46, 204, 113);
             btnTraSach.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnTraSach.ForeColor = Color.White;
-            btnTraSach.Location = new Point(925, 48);
+            btnTraSach.Location = new Point(940, 48);
             btnTraSach.Name = "btnTraSach";
-            btnTraSach.Size = new Size(135, 34);
-            btnTraSach.TabIndex = 6;
+            btnTraSach.Size = new Size(122, 34);
+            btnTraSach.TabIndex = 8;
             btnTraSach.Text = "✓ TRẢ SÁCH";
             btnTraSach.UseVisualStyleBackColor = false;
             btnTraSach.Click += btnTraSach_Click;
+            // 
+            // cboTinhTrangTra
+            // 
+            cboTinhTrangTra.DropDownStyle = ComboBoxStyle.DropDownList;
+            cboTinhTrangTra.Font = new Font("Segoe UI", 9.5F);
+            cboTinhTrangTra.FormattingEnabled = true;
+            cboTinhTrangTra.Items.AddRange(new object[] { "Tốt", "Hư hỏng", "Mất" });
+            cboTinhTrangTra.Location = new Point(822, 53);
+            cboTinhTrangTra.Name = "cboTinhTrangTra";
+            cboTinhTrangTra.Size = new Size(110, 25);
+            cboTinhTrangTra.TabIndex = 7;
+            // 
+            // lblTinhTrangTra
+            // 
+            lblTinhTrangTra.AutoSize = true;
+            lblTinhTrangTra.Font = new Font("Segoe UI", 9.5F);
+            lblTinhTrangTra.Location = new Point(748, 56);
+            lblTinhTrangTra.Name = "lblTinhTrangTra";
+            lblTinhTrangTra.Size = new Size(70, 17);
+            lblTinhTrangTra.TabIndex = 6;
+            lblTinhTrangTra.Text = "TT trả:";
             // 
             // btnThemSach
             // 
             btnThemSach.BackColor = Color.FromArgb(52, 152, 219);
             btnThemSach.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnThemSach.ForeColor = Color.White;
-            btnThemSach.Location = new Point(775, 48);
+            btnThemSach.Location = new Point(605, 48);
             btnThemSach.Name = "btnThemSach";
-            btnThemSach.Size = new Size(140, 34);
+            btnThemSach.Size = new Size(135, 34);
             btnThemSach.TabIndex = 5;
-            btnThemSach.Text = "+ Thêm mượn sách";
+            btnThemSach.Text = "+ Thêm mượn";
             btnThemSach.UseVisualStyleBackColor = false;
             btnThemSach.Click += btnThemSach_Click;
             // 
             // txtTinhTrang
             // 
             txtTinhTrang.Font = new Font("Segoe UI", 9.5F);
-            txtTinhTrang.Location = new Point(480, 53);
+            txtTinhTrang.Location = new Point(468, 53);
             txtTinhTrang.Name = "txtTinhTrang";
-            txtTinhTrang.PlaceholderText = "Tình trạng sách lúc mượn (VD: Tốt, Mới 100%)...";
-            txtTinhTrang.Size = new Size(275, 24);
+            txtTinhTrang.PlaceholderText = "TT mượn...";
+            txtTinhTrang.Size = new Size(125, 24);
             txtTinhTrang.TabIndex = 4;
             txtTinhTrang.Text = "Tốt";
             // 
@@ -458,7 +498,7 @@ namespace QLThuVien.GUI
             // 
             lblTinhTrang.AutoSize = true;
             lblTinhTrang.Font = new Font("Segoe UI", 9.5F);
-            lblTinhTrang.Location = new Point(405, 56);
+            lblTinhTrang.Location = new Point(392, 56);
             lblTinhTrang.Name = "lblTinhTrang";
             lblTinhTrang.Size = new Size(71, 17);
             lblTinhTrang.TabIndex = 3;
@@ -469,9 +509,9 @@ namespace QLThuVien.GUI
             cboSach.DropDownStyle = ComboBoxStyle.DropDownList;
             cboSach.Font = new Font("Segoe UI", 9.5F);
             cboSach.FormattingEnabled = true;
-            cboSach.Location = new Point(95, 53);
+            cboSach.Location = new Point(92, 53);
             cboSach.Name = "cboSach";
-            cboSach.Size = new Size(295, 25);
+            cboSach.Size = new Size(290, 25);
             cboSach.TabIndex = 2;
             // 
             // lblSach
@@ -604,6 +644,7 @@ namespace QLThuVien.GUI
         private Button btnThemPM;
         private Button btnXoaPM;
         private Button btnLamMoiPM;
+        private Button btnGiaHan;
         private Button btnXuatPdf;
         private GroupBox grpTimKiem;
         private TextBox txtTimKiem;
@@ -623,6 +664,8 @@ namespace QLThuVien.GUI
         private Label lblTinhTrang;
         private TextBox txtTinhTrang;
         private Button btnThemSach;
+        private Label lblTinhTrangTra;
+        private ComboBox cboTinhTrangTra;
         private Button btnTraSach;
         private DataGridView dgvChiTietMuon;
         private DataGridViewTextBoxColumn colMaSach;

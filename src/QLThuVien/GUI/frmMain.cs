@@ -56,6 +56,13 @@ namespace QLThuVien.GUI
             }
         }
 
+        public void MoPhieuPhatNhanh(string maDocGia, string maPhieuMuon, string maSach, string? goiYMaQD = null)
+        {
+            frmPhieuPhat formPhat = new frmPhieuPhat();
+            formPhat.ChuanBiLapPhieuNhanh(maDocGia, maPhieuMuon, maSach, goiYMaQD);
+            OpenChildForm(formPhat, "⚖️  Xử lý phiếu phạt");
+        }
+
         private void btnThoat_Click(object? sender, EventArgs e)
         {
             DialogResult result = MessageBox.Show(

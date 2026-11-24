@@ -189,7 +189,7 @@ namespace QLThuVien.BUS
             return result;
         }
 
-        // 8. NGHIỆP VỤ TRẢ SÁCH (HOÀN TRẢ TỒN KHO + KIỂM TRA QUÁ HẠN)
+        // 8. NGHIỆP VỤ TRẢ SÁCH (HOÀN TRẢ TỒN KHO / BÁO HỎNG / BÁO MẤT + KIỂM TRA QUÁ HẠN)
         public bool TraSach(string maPM, string maSach, DateTime ngayThucTra, string? tinhTrang, out int soNgayTre, out string message)
         {
             soNgayTre = 0;
@@ -202,6 +202,10 @@ namespace QLThuVien.BUS
                 return false;
             }
 
+            string tinhTrangChuan = string.IsNullOrWhiteSpace(tinhTrang) ? "Tốt" : tinhTrang.Trim();
+            bool biMat = string.Equals(tinhTrangChuan, "Mất", StringComparison.OrdinalIgnoreCase);
+            bool biHuHong = string.Equals(tinhTrangChuan, "Hư hỏng", StringComparison.OrdinalIgnoreCase);
+
             // Kiểm tra trễ hạn: NgayThucTra > HanTra
             if (ngayThucTra.Date > pm.HanTra.Date)
             {
@@ -209,11 +213,11 @@ namespace QLThuVien.BUS
             }
 
             // Ghi nhận trả sách xuống CSDL
-            bool result = ctDAO.CapNhatTraSach(maPM, maSach, ngayThucTra, tinhTrang);
+            bool result = ctDAO.CapNhatTraSach(maPM, maSach, ngayThucTra, tinhTrangChuan);
             if (result)
             {
-                // CẬP NHẬT TỒN KHO: Tăng SLConLai lên 1, giảm SLChoMuon đi 1 ở DauSach
-                ctDAO.CapNhatTonKhoKhiTra(maSach);
+                // CẬP NHẬT TỒN KHO & TRẠNG THÁI CUỐN SÁCH
+                ctDAO.CapNhatTonKhoKhiTra(maSach, tinhTrangChuan);
 
                 // Cập nhật số sách chưa trả ở RAM
                 if (pm.SoSachChuaTra > 0)
@@ -221,7 +225,19 @@ namespace QLThuVien.BUS
                     pm.SoSachChuaTra--;
                 }
 
-                if (soNgayTre > 0)
+                if (biMat)
+                {
+                    message = $"Đã ghi nhận MẤT cuốn sách '{maSach}' (Đã giảm tổng số lượng đầu sách đi 1)." +
+                              (soNgayTre > 0 ? $"\nĐồng thời trễ hạn {soNgayTre} ngày." : string.Empty) +
+                              "\nVui lòng lập Phiếu phạt bồi thường mất sách!";
+                }
+                else if (biHuHong)
+                {
+                    message = $"Đã ghi nhận trả sách '{maSach}' với tình trạng HƯ HỎNG." +
+                              (soNgayTre > 0 ? $"\nĐồng thời trễ hạn {soNgayTre} ngày." : string.Empty) +
+                              "\nVui lòng lập Phiếu phạt tương ứng!";
+                }
+                else if (soNgayTre > 0)
                 {
                     message = $"Trả sách thành công!\nCẢNH BÁO: Cuốn sách này đã TRỄ HẠN {soNgayTre} ngày (Hạn trả: {pm.HanTra:dd/MM/yyyy}).\nVui lòng kiểm tra và lập Phiếu phạt tương ứng!";
                 }
@@ -233,6 +249,55 @@ namespace QLThuVien.BUS
             else
             {
                 message = "Cập nhật trạng thái trả sách thất bại!";
+            }
+
+            return result;
+        }
+
+        // 8B. NGHIỆP VỤ GIA HẠN PHIẾU MƯỢN (Dựa theo SO_NGAY_MUON_TOI_DA trong ThamSo, tối đa 1 lần gia hạn)
+        public bool GiaHanPhieuMuon(string maPM, out DateTime hanTraMoi, out string message)
+        {
+            hanTraMoi = DateTime.Today;
+            message = string.Empty;
+
+            PhieuMuonDTO? pm = TimTheoMa(maPM);
+            if (pm == null)
+            {
+                message = "Không tìm thấy phiếu mượn cần gia hạn!";
+                return false;
+            }
+
+            if (pm.SoSachChuaTra <= 0)
+            {
+                message = "Phiếu mượn này đã trả đủ sách, không thể gia hạn!";
+                return false;
+            }
+
+            if (DateTime.Today > pm.HanTra.Date)
+            {
+                message = $"Phiếu mượn '{maPM}' đã quá hạn trả ({pm.HanTra:dd/MM/yyyy}), không thể gia hạn. Vui lòng trả sách và lập phiếu phạt!";
+                return false;
+            }
+
+            int soNgayMuonToiDa = LaySoNgayMuonToiDa();
+            DateTime hanTraToiDa = pm.NgayMuon.Date.AddDays(soNgayMuonToiDa * 2);
+            hanTraMoi = pm.HanTra.Date.AddDays(soNgayMuonToiDa);
+
+            if (hanTraMoi > hanTraToiDa)
+            {
+                message = $"Phiếu mượn '{maPM}' đã đạt giới hạn gia hạn tối đa (tối đa {soNgayMuonToiDa * 2} ngày kể từ ngày mượn)!";
+                return false;
+            }
+
+            bool result = pmDAO.GiaHanPhieuMuon(maPM, hanTraMoi);
+            if (result)
+            {
+                pm.HanTra = hanTraMoi;
+                message = $"Gia hạn phiếu mượn '{maPM}' thành công! Hạn trả mới: {hanTraMoi:dd/MM/yyyy} (+{soNgayMuonToiDa} ngày).";
+            }
+            else
+            {
+                message = "Cập nhật hạn trả mới vào CSDL thất bại!";
             }
 
             return result;
