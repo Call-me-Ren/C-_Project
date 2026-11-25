@@ -24,7 +24,7 @@ namespace QLThuVien.Web.Data
 
     public class TraCuuSachService
     {
-        private const string DefaultFallbackConnectionString = @"Server=.;Database=QLThuVien;Integrated Security=True;TrustServerCertificate=True;";
+        private const string DefaultFallbackConnectionString = @"Server=localhost,1434;Database=QLThuVien;User Id=sa;Password=987654321SSaa;TrustServerCertificate=True;";
         private readonly string connectionString;
 
         public TraCuuSachService(IConfiguration configuration)

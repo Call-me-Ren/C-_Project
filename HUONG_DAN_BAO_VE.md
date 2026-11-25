@@ -45,57 +45,149 @@ Tài liệu này bám sát **Mục VII — Quy trình chấm đồ án & Gói đ
 
 ---
 
-## PHẦN 2: HƯỚNG DẪN CHỌN & ÔN TẬP 3 GÓI ĐIỂM CÁ NHÂN (BƯỚC 2)
+## PHẦN 2: ÔN TẬP GÓI ĐIỂM CÁ NHÂN — GÓI 3 (GÓI 50% ĐIỂM ĐỒ ÁN)
 
-### Gói 1 (100% điểm) — Phải tự gõ được 1–2 hàm (gồm 1 hàm Thống kê + 1 hàm đơn giản)
-**1. Hàm Thống kê theo năm/quý mẫu (`ThongKeBUS.cs`):**
+> **Mục tiêu Gói 3 (50% điểm):** Cover được **3 đối tượng** thuộc tầng **`BUS` và `DAO`** (bỏ `GUI`, không cần hàm Thống kê); cụ thể là viết/giải thích được các hàm **Đọc danh sách, Thêm, Sửa, Xóa, Tìm kiếm** của `BUS` và `DAO`.
+
+### 1. Chọn sẵn 3 đối tượng dễ nhất, sạch nhất để ôn & gõ tay
+1. **`TheLoai`** (`TheLoaiDAO.cs` + `TheLoaiBUS.cs`) — ít cột nhất (`MaTL`, `TenTL`).
+2. **`NhaXuatBan`** (`NXBDAO.cs` + `NXBBUS.cs`) — 3 cột (`MaNXB`, `TenNXB`, `DiaChi`).
+3. **`TacGia`** (`TacGiaDAO.cs` + `TacGiaBUS.cs`) — 5 cột (`MaTG`, `HoLot`, `TenTG`, `NgaySinh`, `SDT`).
+*(Cả 3 đối tượng này đều có cấu trúc `DAO` và `BUS` giống hệt nhau, chỉ cần học thuộc khuôn mẫu của `TheLoai` là suy ra được cả 3!)*
+
+---
+
+### 2. Code mẫu chuẩn tầng `DAO` (Viết bằng `MyConnection` + `SqlParameter[]`)
 ```csharp
-public List<ThongKeDocGiaQuyDTO> LayThongKeDocGiaTheoQuy(int nam)
+// 1. ĐỌC DANH SÁCH (SELECT)
+public List<TheLoaiDTO> DocDSTL()
 {
-    DateTime tuNgay = new DateTime(nam, 1, 1);
-    DateTime denNgay = new DateTime(nam, 12, 31);
-    List<ThongKePhieuPhatDTO> phieuPhat = dao.LayPhieuPhat(tuNgay, denNgay);
-
-    return busDocGia.DocDSDocGia().Cast<DocGiaDTO>()
-        .Select(dg =>
+    List<TheLoaiDTO> dsTL = new List<TheLoaiDTO>();
+    string query = "SELECT * FROM TheLoai";
+    using (SqlDataReader reader = MyConnection.ExecuteReader(query))
+    {
+        while (reader.Read())
         {
-            var ds = phieuPhat.Where(x => x.MaDocGia.Equals(dg.MaDG, StringComparison.OrdinalIgnoreCase)).ToList();
-            return new ThongKeDocGiaQuyDTO
+            dsTL.Add(new TheLoaiDTO
             {
-                MaDocGia = dg.MaDG,
-                TenDocGia = dg.HoTen,
-                TienPhatQ1 = ds.Where(x => (x.NgayLap.Month - 1) / 3 + 1 == 1).Sum(x => x.TongTienPhat),
-                TienPhatQ2 = ds.Where(x => (x.NgayLap.Month - 1) / 3 + 1 == 2).Sum(x => x.TongTienPhat),
-                TienPhatQ3 = ds.Where(x => (x.NgayLap.Month - 1) / 3 + 1 == 3).Sum(x => x.TongTienPhat),
-                TienPhatQ4 = ds.Where(x => (x.NgayLap.Month - 1) / 3 + 1 == 4).Sum(x => x.TongTienPhat),
-                TongCong = ds.Sum(x => x.TongTienPhat)
-            };
-        }).ToList();
+                MaTL = reader["MaTL"].ToString(),
+                TenTL = reader["TenTL"].ToString()
+            });
+        }
+    }
+    return dsTL;
+}
+
+// 2. THÊM (INSERT)
+public void Them(TheLoaiDTO tl)
+{
+    const string query = "INSERT INTO TheLoai (MaTL, TenTL) VALUES (@MaTL, @TenTL)";
+    SqlParameter[] parameters =
+    {
+        new SqlParameter("@MaTL", SqlDbType.VarChar) { Value = tl.MaTL },
+        new SqlParameter("@TenTL", SqlDbType.NVarChar) { Value = tl.TenTL }
+    };
+    MyConnection.ExecuteNonQuery(query, parameters);
+}
+
+// 3. SỬA (UPDATE)
+public void Sua(TheLoaiDTO tl)
+{
+    const string query = "UPDATE TheLoai SET TenTL = @TenTL WHERE MaTL = @MaTL";
+    SqlParameter[] parameters =
+    {
+        new SqlParameter("@TenTL", SqlDbType.NVarChar) { Value = tl.TenTL },
+        new SqlParameter("@MaTL", SqlDbType.VarChar) { Value = tl.MaTL }
+    };
+    if (MyConnection.ExecuteNonQuery(query, parameters) == 0)
+        throw new InvalidOperationException("Không tìm thấy thể loại cần cập nhật.");
+}
+
+// 4. XÓA (DELETE) - Bắt lỗi khóa ngoại SQL Error 547
+public void Xoa(string maTL)
+{
+    try
+    {
+        const string query = "DELETE FROM TheLoai WHERE MaTL = @MaTL";
+        SqlParameter[] parameters = { new SqlParameter("@MaTL", SqlDbType.VarChar) { Value = maTL } };
+        if (MyConnection.ExecuteNonQuery(query, parameters) == 0)
+            throw new InvalidOperationException("Không tìm thấy thể loại cần xóa.");
+    }
+    catch (SqlException ex) when (ex.Number == 547)
+    {
+        throw new InvalidOperationException("Không thể xóa vì đang được dùng trong Đầu sách.", ex);
+    }
 }
 ```
-**2. Hàm đơn giản mẫu (Tìm kiếm trên `ArrayList` trong `BUS`):**
+
+---
+
+### 3. Code mẫu chuẩn tầng `BUS` (`ArrayList`, kiểm tra trùng mã, Thêm/Sửa/Xóa, Tìm kiếm)
 ```csharp
-public ArrayList TimKiem(string tuKhoa)
+private readonly ArrayList danhSachTheLoai = new ArrayList();
+
+// 1. Đọc danh sách từ DAO và nạp vào ArrayList trên RAM
+public List<TheLoaiDTO> DocDSTL()
 {
-    ArrayList ketQua = new ArrayList();
-    string kw = (tuKhoa ?? "").Trim().ToLower();
-    foreach (DocGiaDTO dg in dsDocGia_arr)
+    TheLoaiDAO dao = new TheLoaiDAO();
+    List<TheLoaiDTO> ds = dao.DocDSTL();
+    danhSachTheLoai.Clear();
+    danhSachTheLoai.AddRange(ds);
+    return ds;
+}
+
+// 2. Kiểm tra trùng mã (Duyệt trên ArrayList, KHÔNG query SQL)
+public bool KiemTraTrungMa(string maTL)
+{
+    foreach (TheLoaiDTO item in danhSachTheLoai)
     {
-        if (dg.MaDG.ToLower().Contains(kw) || dg.HoTen.ToLower().Contains(kw))
-            ketQua.Add(dg);
+        if (item.MaTL.Equals(maTL.Trim(), StringComparison.OrdinalIgnoreCase))
+            return true;
+    }
+    return false;
+}
+
+// 3. Thêm (Kiểm tra rỗng + trùng mã -> Gọi DAO -> Nạp lại RAM)
+public void Them(TheLoaiDTO tl)
+{
+    if (string.IsNullOrWhiteSpace(tl.MaTL) || string.IsNullOrWhiteSpace(tl.TenTL))
+        throw new ArgumentException("Mã và tên thể loại không được để trống.");
+    if (KiemTraTrungMa(tl.MaTL))
+        throw new InvalidOperationException($"Mã thể loại '{tl.MaTL}' đã tồn tại.");
+    new TheLoaiDAO().Them(tl);
+    DocDSTL();
+}
+
+// 4. Sửa & Xóa
+public void Sua(TheLoaiDTO tl)
+{
+    if (string.IsNullOrWhiteSpace(tl.MaTL) || string.IsNullOrWhiteSpace(tl.TenTL))
+        throw new ArgumentException("Mã và tên thể loại không được để trống.");
+    new TheLoaiDAO().Sua(tl);
+    DocDSTL();
+}
+
+public void Xoa(string maTL)
+{
+    new TheLoaiDAO().Xoa(maTL);
+    DocDSTL();
+}
+
+// 5. Tìm kiếm trên ArrayList (KHÔNG chạy SELECT xuống CSDL)
+public List<TheLoaiDTO> timKiem(string maTheLoai, string tenTheLoai)
+{
+    List<TheLoaiDTO> ketQua = new List<TheLoaiDTO>();
+    foreach (TheLoaiDTO tl in danhSachTheLoai)
+    {
+        if ((!string.IsNullOrEmpty(maTheLoai) && tl.MaTL.Contains(maTheLoai, StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrEmpty(tenTheLoai) && tl.TenTL.Contains(tenTheLoai, StringComparison.OrdinalIgnoreCase)))
+        {
+            ketQua.Add(tl);
+        }
     }
     return ketQua;
 }
 ```
-
-### Gói 2 (70% điểm) — Nắm chắc 3 tầng `GUI - BUS - DAO` của Phiếu mượn / Phiếu phạt, Phiếu nhập & Thống kê
-- **Phiếu nhập (`PhieuNhapBUS.cs` / `PhieuNhapDAO.cs` / `frmPhieuNhap.cs`):** Công thức `ThanhTien = SoLuong * DonGia`, `TongTien = SUM(ThanhTien)`, tự động sinh cuốn sách `Sach` và tăng `DauSach.SoLuong`, `DauSach.SLConLai`.
-- **Phiếu mượn (`PhieuMuonBUS.cs` / `PhieuMuonDAO.cs` / `frmMuonTraSach.cs`):** Kiểm tra `SO_SACH_MUON_TOI_DA` từ `ThamSo`, trừ `SLConLai` / tăng `SLChoMuon` khi mượn, hoàn trả khi trả sách (hoặc trừ `SoLuong` nếu báo mất).
-- **Phiếu phạt (`PhieuPhatBUS.cs` / `PhieuPhatDAO.cs` / `frmPhieuPhat.cs`):** Công thức tính phạt `QD01` (ngày trễ $\times$ mức phạt), `QD02` (cố định), `QD03` (giá bìa $\times$ hệ số).
-
-### Gói 3 (50% điểm) — Cover 3 đối tượng tầng `BUS` và `DAO` (Thêm, Sửa, Xóa, Tìm kiếm)
-- Chọn 3 đối tượng danh mục chuẩn sạch: `TheLoai`, `TacGia`, `NhaXuatBan` (hoặc `NhanVien`, `NhaCungCap`, `LoaiDocGia`).
-- Nắm vững: `MyConnection.ExecuteQuery` / `ExecuteNonQuery` + `SqlParameter[]` trong `DAO`; kiểm tra rỗng + kiểm tra trùng mã trên `ArrayList` + chặn xóa khóa ngoại trong `BUS`.
 
 ---
 

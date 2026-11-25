@@ -10,12 +10,12 @@ namespace QLThuVien.DAO
     /// </summary>
     public class MyConnection
     {
-        // Chuỗi kết nối tới SQL Server:
-        // - Server: . (hoặc localhost)
+        // Chuỗi kết nối tới SQL Server (ưu tiên biến môi trường QLTHUVIEN_CONNECTION_STRING nếu có):
+        // - Server: localhost,1434 (SQL Server Docker sql-csharp)
         // - Database: QLThuVien
-        // - Integrated Security=True (Windows Authentication)
         // - TrustServerCertificate=True: Tránh lỗi chứng chỉ bảo mật trên môi trường local
-        private static string connectionString = @"Server=.;Database=QLThuVien;Integrated Security=True;TrustServerCertificate=True;";
+        private static string connectionString = Environment.GetEnvironmentVariable("QLTHUVIEN_CONNECTION_STRING")
+            ?? @"Server=localhost,1434;Database=QLThuVien;User Id=sa;Password=987654321SSaa;TrustServerCertificate=True;";
 
         /// <summary>
         /// Cho phép thay đổi chuỗi kết nối nếu tên Server của bạn khác (ví dụ: .\SQLEXPRESS)
