@@ -145,6 +145,7 @@ namespace QLThuVien.GUI
             this.lblNCC.Location = new System.Drawing.Point(185, 12);
             this.lblNCC.Text = "Nhà CC:";
             this.cboNCC.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboNCC.DropDownWidth = 320;
             this.cboNCC.Location = new System.Drawing.Point(245, 9);
             this.cboNCC.Width = 190;
 
@@ -185,54 +186,57 @@ namespace QLThuVien.GUI
             this.pnlBookInputs.Controls.Add(this.txtThanhTien);
             this.pnlBookInputs.Controls.Add(this.btnThemSach);
             this.pnlBookInputs.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlBookInputs.Height = 45;
+            this.pnlBookInputs.Height = 84;
 
             this.lblDauSach.AutoSize = true;
-            this.lblDauSach.Location = new System.Drawing.Point(15, 12);
+            this.lblDauSach.Location = new System.Drawing.Point(15, 13);
             this.lblDauSach.Text = "Đầu sách:";
             this.cboDauSach.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboDauSach.Location = new System.Drawing.Point(85, 9);
-            this.cboDauSach.Width = 190;
+            this.cboDauSach.DropDownWidth = 420;
+            this.cboDauSach.Location = new System.Drawing.Point(92, 10);
+            this.cboDauSach.Width = 360;
             this.cboDauSach.SelectedIndexChanged += new System.EventHandler(this.CboDauSach_SelectedIndexChanged);
 
             this.btnChonDauSach.BackColor = System.Drawing.Color.FromArgb(52, 152, 219);
             this.btnChonDauSach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnChonDauSach.ForeColor = System.Drawing.Color.White;
-            this.btnChonDauSach.Location = new System.Drawing.Point(280, 8);
-            this.btnChonDauSach.Size = new System.Drawing.Size(35, 27);
+            this.btnChonDauSach.Location = new System.Drawing.Point(458, 9);
+            this.btnChonDauSach.Size = new System.Drawing.Size(36, 27);
             this.btnChonDauSach.Text = "...";
             this.btnChonDauSach.UseVisualStyleBackColor = false;
             this.btnChonDauSach.Click += new System.EventHandler(this.BtnChonDauSach_Click);
 
             this.lblDonGia.AutoSize = true;
-            this.lblDonGia.Location = new System.Drawing.Point(325, 12);
+            this.lblDonGia.Location = new System.Drawing.Point(15, 49);
             this.lblDonGia.Text = "Đơn giá:";
-            this.txtDonGia.Location = new System.Drawing.Point(385, 9);
+            this.txtDonGia.Location = new System.Drawing.Point(92, 46);
             this.txtDonGia.ReadOnly = true;
-            this.txtDonGia.Width = 85;
+            this.txtDonGia.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtDonGia.Width = 130;
 
             this.lblSoLuong.AutoSize = true;
-            this.lblSoLuong.Location = new System.Drawing.Point(480, 12);
+            this.lblSoLuong.Location = new System.Drawing.Point(235, 49);
             this.lblSoLuong.Text = "SL:";
-            this.numSoLuong.Location = new System.Drawing.Point(510, 10);
+            this.numSoLuong.Location = new System.Drawing.Point(265, 46);
             this.numSoLuong.Minimum = 1;
             this.numSoLuong.Maximum = 1000;
             this.numSoLuong.Value = 1;
-            this.numSoLuong.Width = 55;
+            this.numSoLuong.Width = 65;
             this.numSoLuong.ValueChanged += new System.EventHandler(this.NumSoLuong_ValueChanged);
 
             this.lblThanhTien.AutoSize = true;
-            this.lblThanhTien.Location = new System.Drawing.Point(575, 12);
+            this.lblThanhTien.Location = new System.Drawing.Point(345, 49);
             this.lblThanhTien.Text = "Thành tiền:";
-            this.txtThanhTien.Location = new System.Drawing.Point(650, 9);
+            this.txtThanhTien.Location = new System.Drawing.Point(432, 46);
             this.txtThanhTien.ReadOnly = true;
-            this.txtThanhTien.Width = 105;
+            this.txtThanhTien.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.txtThanhTien.Width = 155;
 
             this.btnThemSach.BackColor = System.Drawing.Color.FromArgb(46, 204, 113);
             this.btnThemSach.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnThemSach.ForeColor = System.Drawing.Color.White;
-            this.btnThemSach.Location = new System.Drawing.Point(770, 7);
-            this.btnThemSach.Size = new System.Drawing.Size(110, 30);
+            this.btnThemSach.Location = new System.Drawing.Point(600, 44);
+            this.btnThemSach.Size = new System.Drawing.Size(125, 30);
             this.btnThemSach.Text = "➕ Thêm dòng";
             this.btnThemSach.Click += new System.EventHandler(this.BtnThemSach_Click);
 
@@ -263,32 +267,35 @@ namespace QLThuVien.GUI
             this.lblTongTien.AutoSize = true;
             this.lblTongTien.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
             this.lblTongTien.ForeColor = System.Drawing.Color.FromArgb(192, 57, 43);
-            this.lblTongTien.Location = new System.Drawing.Point(220, 12);
+            this.lblTongTien.Location = new System.Drawing.Point(260, 12);
             this.lblTongTien.Text = "0 VNĐ";
 
+            this.btnLuuPhieu.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnLuuPhieu.BackColor = System.Drawing.Color.FromArgb(41, 128, 185);
             this.btnLuuPhieu.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLuuPhieu.ForeColor = System.Drawing.Color.White;
             this.btnLuuPhieu.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLuuPhieu.Location = new System.Drawing.Point(480, 10);
-            this.btnLuuPhieu.Size = new System.Drawing.Size(140, 32);
+            this.btnLuuPhieu.Location = new System.Drawing.Point(490, 10);
+            this.btnLuuPhieu.Size = new System.Drawing.Size(130, 32);
             this.btnLuuPhieu.Text = "💾 LƯU PHIẾU";
             this.btnLuuPhieu.Click += new System.EventHandler(this.BtnLuuPhieu_Click);
 
+            this.btnXuatPDF.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnXuatPDF.BackColor = System.Drawing.Color.FromArgb(39, 174, 96);
             this.btnXuatPDF.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnXuatPDF.ForeColor = System.Drawing.Color.White;
             this.btnXuatPDF.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnXuatPDF.Location = new System.Drawing.Point(630, 10);
-            this.btnXuatPDF.Size = new System.Drawing.Size(130, 32);
+            this.btnXuatPDF.Location = new System.Drawing.Point(628, 10);
+            this.btnXuatPDF.Size = new System.Drawing.Size(120, 32);
             this.btnXuatPDF.Text = "🖨️ Xuất PDF";
             this.btnXuatPDF.Click += new System.EventHandler(this.BtnXuatPDF_Click);
 
+            this.btnHuy.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnHuy.BackColor = System.Drawing.Color.FromArgb(149, 165, 166);
             this.btnHuy.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnHuy.ForeColor = System.Drawing.Color.White;
-            this.btnHuy.Location = new System.Drawing.Point(770, 10);
-            this.btnHuy.Size = new System.Drawing.Size(90, 32);
+            this.btnHuy.Location = new System.Drawing.Point(756, 10);
+            this.btnHuy.Size = new System.Drawing.Size(102, 32);
             this.btnHuy.Text = "🔄 Làm mới";
             this.btnHuy.Click += new System.EventHandler(this.BtnHuy_Click);
 
