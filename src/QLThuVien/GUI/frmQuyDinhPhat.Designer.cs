@@ -80,6 +80,7 @@ namespace QLThuVien.GUI
             //
             // grpThongTin
             //
+            grpThongTin.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             grpThongTin.Controls.Add(numMucPhat);
             grpThongTin.Controls.Add(lblMucPhat);
             grpThongTin.Controls.Add(cboDonViTinh);
@@ -95,7 +96,7 @@ namespace QLThuVien.GUI
             grpThongTin.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             grpThongTin.Location = new Point(12, 56);
             grpThongTin.Name = "grpThongTin";
-            grpThongTin.Size = new Size(580, 150);
+            grpThongTin.Size = new Size(592, 150);
             grpThongTin.TabIndex = 1;
             grpThongTin.TabStop = false;
             grpThongTin.Text = "Thông tin quy định phạt";
@@ -220,25 +221,27 @@ namespace QLThuVien.GUI
             //
             // grpChucNang
             //
+            grpChucNang.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             grpChucNang.Controls.Add(btnLamMoi);
             grpChucNang.Controls.Add(btnXoa);
             grpChucNang.Controls.Add(btnSua);
             grpChucNang.Controls.Add(btnThem);
             grpChucNang.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            grpChucNang.Location = new Point(602, 56);
+            grpChucNang.Location = new Point(614, 56);
             grpChucNang.Name = "grpChucNang";
-            grpChucNang.Size = new Size(306, 150);
+            grpChucNang.Size = new Size(294, 150);
             grpChucNang.TabIndex = 2;
             grpChucNang.TabStop = false;
-            grpChucNang.Text = string.Empty;
+            grpChucNang.Text = "Chức năng";
             //
             // btnLamMoi
             //
             btnLamMoi.BackColor = Color.FromArgb(236, 240, 241);
+            btnLamMoi.FlatStyle = FlatStyle.Flat;
             btnLamMoi.Font = new Font("Segoe UI", 9.5F);
-            btnLamMoi.Location = new Point(155, 85);
+            btnLamMoi.Location = new Point(153, 88);
             btnLamMoi.Name = "btnLamMoi";
-            btnLamMoi.Size = new Size(135, 35);
+            btnLamMoi.Size = new Size(125, 36);
             btnLamMoi.TabIndex = 3;
             btnLamMoi.Text = "Làm mới";
             btnLamMoi.UseVisualStyleBackColor = false;
@@ -247,11 +250,12 @@ namespace QLThuVien.GUI
             // btnXoa
             //
             btnXoa.BackColor = Color.FromArgb(231, 76, 60);
+            btnXoa.FlatStyle = FlatStyle.Flat;
             btnXoa.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnXoa.ForeColor = Color.White;
-            btnXoa.Location = new Point(15, 85);
+            btnXoa.Location = new Point(16, 88);
             btnXoa.Name = "btnXoa";
-            btnXoa.Size = new Size(130, 35);
+            btnXoa.Size = new Size(125, 36);
             btnXoa.TabIndex = 2;
             btnXoa.Text = "Xóa";
             btnXoa.UseVisualStyleBackColor = false;
@@ -260,11 +264,12 @@ namespace QLThuVien.GUI
             // btnSua
             //
             btnSua.BackColor = Color.FromArgb(243, 156, 18);
+            btnSua.FlatStyle = FlatStyle.Flat;
             btnSua.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnSua.ForeColor = Color.White;
-            btnSua.Location = new Point(155, 32);
+            btnSua.Location = new Point(153, 36);
             btnSua.Name = "btnSua";
-            btnSua.Size = new Size(135, 35);
+            btnSua.Size = new Size(125, 36);
             btnSua.TabIndex = 1;
             btnSua.Text = "Sửa";
             btnSua.UseVisualStyleBackColor = false;
@@ -273,11 +278,12 @@ namespace QLThuVien.GUI
             // btnThem
             //
             btnThem.BackColor = Color.FromArgb(46, 204, 113);
+            btnThem.FlatStyle = FlatStyle.Flat;
             btnThem.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnThem.ForeColor = Color.White;
-            btnThem.Location = new Point(15, 32);
+            btnThem.Location = new Point(16, 36);
             btnThem.Name = "btnThem";
-            btnThem.Size = new Size(130, 35);
+            btnThem.Size = new Size(125, 36);
             btnThem.TabIndex = 0;
             btnThem.Text = "Thêm";
             btnThem.UseVisualStyleBackColor = false;
@@ -285,6 +291,7 @@ namespace QLThuVien.GUI
             //
             // grpTimKiem
             //
+            grpTimKiem.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             grpTimKiem.Controls.Add(btnTatCa);
             grpTimKiem.Controls.Add(btnTimKiem);
             grpTimKiem.Controls.Add(txtTimKiem);
@@ -298,11 +305,13 @@ namespace QLThuVien.GUI
             //
             // btnTatCa
             //
+            btnTatCa.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnTatCa.BackColor = Color.FromArgb(236, 240, 241);
+            btnTatCa.FlatStyle = FlatStyle.Flat;
             btnTatCa.Font = new Font("Segoe UI", 9.5F);
-            btnTatCa.Location = new Point(780, 20);
+            btnTatCa.Location = new Point(780, 19);
             btnTatCa.Name = "btnTatCa";
-            btnTatCa.Size = new Size(100, 28);
+            btnTatCa.Size = new Size(100, 30);
             btnTatCa.TabIndex = 2;
             btnTatCa.Text = "Tất cả";
             btnTatCa.UseVisualStyleBackColor = false;
@@ -310,12 +319,14 @@ namespace QLThuVien.GUI
             //
             // btnTimKiem
             //
+            btnTimKiem.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             btnTimKiem.BackColor = Color.FromArgb(52, 152, 219);
+            btnTimKiem.FlatStyle = FlatStyle.Flat;
             btnTimKiem.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnTimKiem.ForeColor = Color.White;
-            btnTimKiem.Location = new Point(660, 20);
+            btnTimKiem.Location = new Point(662, 19);
             btnTimKiem.Name = "btnTimKiem";
-            btnTimKiem.Size = new Size(110, 28);
+            btnTimKiem.Size = new Size(108, 30);
             btnTimKiem.TabIndex = 1;
             btnTimKiem.Text = "Tìm";
             btnTimKiem.UseVisualStyleBackColor = false;
@@ -323,11 +334,12 @@ namespace QLThuVien.GUI
             //
             // txtTimKiem
             //
+            txtTimKiem.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtTimKiem.Font = new Font("Segoe UI", 9.5F);
             txtTimKiem.Location = new Point(15, 22);
             txtTimKiem.Name = "txtTimKiem";
             txtTimKiem.PlaceholderText = "Tìm theo mã, tên hoặc loại phạt";
-            txtTimKiem.Size = new Size(630, 24);
+            txtTimKiem.Size = new Size(635, 24);
             txtTimKiem.TabIndex = 0;
             txtTimKiem.KeyDown += txtTimKiem_KeyDown;
             //
@@ -335,6 +347,7 @@ namespace QLThuVien.GUI
             //
             dgvQuyDinhPhat.AllowUserToAddRows = false;
             dgvQuyDinhPhat.AllowUserToDeleteRows = false;
+            dgvQuyDinhPhat.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvQuyDinhPhat.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvQuyDinhPhat.BackgroundColor = Color.White;
             dgvQuyDinhPhat.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -410,8 +423,9 @@ namespace QLThuVien.GUI
             Controls.Add(grpThongTin);
             Controls.Add(pnlHeader);
             Font = new Font("Segoe UI", 9.5F);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
-            MaximizeBox = false;
+            FormBorderStyle = FormBorderStyle.Sizable;
+            MinimumSize = new Size(880, 540);
+            MaximizeBox = true;
             Name = "frmQuyDinhPhat";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Quản lý Quy định phạt";

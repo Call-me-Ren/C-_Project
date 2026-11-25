@@ -55,6 +55,21 @@ namespace QLThuVien.BUS
             return maNCC;
         }
 
+        public string TaoMaNCCTiepTheo()
+        {
+            int max = 0;
+            foreach (NhaCungCapDTO item in GetAll(forceReload: true))
+            {
+                string ma = (item.MaNCC ?? string.Empty).Trim();
+                if (ma.StartsWith("NCC", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(ma.Substring(3), out int so) && so > max)
+                {
+                    max = so;
+                }
+            }
+            return $"NCC{(max + 1):D2}";
+        }
+
         public bool KiemTraTrungMa(string maNCC)
         {
             GetAll();
@@ -69,7 +84,7 @@ namespace QLThuVien.BUS
         public (bool Success, string Message) Them(NhaCungCapDTO ncc)
         {
             if (string.IsNullOrWhiteSpace(ncc.MaNCC))
-                return (false, "Mã nhà cung cấp không được để trống!");
+                ncc.MaNCC = TaoMaNCCTiepTheo();
 
             if (ncc.MaNCC.Trim().Length > 20)
                 return (false, "Mã nhà cung cấp không được vượt quá 20 ký tự!");

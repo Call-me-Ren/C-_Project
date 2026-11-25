@@ -9,12 +9,24 @@ namespace QLThuVien.GUI
     public partial class frmNhaCungCap : Form
     {
         private readonly NhaCungCapBUS _nccBUS;
+        private bool dangChonDong = false;
 
         public frmNhaCungCap()
         {
             InitializeComponent();
             _nccBUS = new NhaCungCapBUS();
             LoadData();
+            DatTrangThaiThemMoi();
+        }
+
+        private void DatTrangThaiThemMoi()
+        {
+            dangChonDong = false;
+            txtMaNCC.Text = _nccBUS.TaoMaNCCTiepTheo();
+            txtMaNCC.ReadOnly = true;
+            txtMaNCC.BackColor = System.Drawing.Color.FromArgb(238, 242, 246);
+            txtTenNCC.Clear();
+            txtTenNCC.Focus();
         }
 
         private void LoadData()
@@ -40,9 +52,11 @@ namespace QLThuVien.GUI
             {
                 if (e.RowIndex >= 0 && dgvNCC.Rows[e.RowIndex].DataBoundItem is NhaCungCapDTO ncc)
                 {
+                    dangChonDong = true;
                     txtMaNCC.Text = ncc.MaNCC;
                     txtTenNCC.Text = ncc.TenNCC;
                     txtMaNCC.ReadOnly = true;
+                    txtMaNCC.BackColor = System.Drawing.Color.FromArgb(238, 242, 246);
                 }
             }
             catch (Exception ex)
@@ -77,7 +91,7 @@ namespace QLThuVien.GUI
         {
             try
             {
-                if (!txtMaNCC.ReadOnly)
+                if (!dangChonDong)
                 {
                     MessageBox.Show("Vui lòng chọn Nhà cung cấp từ danh sách để sửa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -135,12 +149,9 @@ namespace QLThuVien.GUI
 
         private void BtnLamMoi_Click(object? sender, EventArgs e)
         {
-            txtMaNCC.Text = "";
-            txtTenNCC.Text = "";
             txtTimKiem.Text = "";
-            txtMaNCC.ReadOnly = false;
-            txtMaNCC.Focus();
             LoadData();
+            DatTrangThaiThemMoi();
         }
 
         private void TxtTimKiem_TextChanged(object? sender, EventArgs e)
