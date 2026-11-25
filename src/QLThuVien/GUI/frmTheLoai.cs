@@ -46,7 +46,7 @@ namespace QLThuVien.GUI
                 if (dgvTheLoai.CurrentRow != null && dgvTheLoai.CurrentRow.DataBoundItem is TheLoaiDTO tl)
                 {
                     txtMaTL.Text = tl.MaTL;
-                    txtMaTL.ReadOnly = true;
+                    txtMaTL.ReadOnly = false;
                     txtMaTL.BackColor = Color.FromArgb(238, 242, 246);
                     txtTenTL.Text = tl.TenTL;
                 }

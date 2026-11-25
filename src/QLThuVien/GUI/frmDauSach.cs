@@ -245,7 +245,7 @@ namespace QLThuVien.GUI
         {
             if (ds == null) return;
 
-            txtMaDauSach.ReadOnly = true;
+            txtMaDauSach.ReadOnly = false;
             txtMaDauSach.BackColor = Color.FromArgb(238, 242, 246);
             txtMaDauSach.Text = ds.MaDauSach;
 

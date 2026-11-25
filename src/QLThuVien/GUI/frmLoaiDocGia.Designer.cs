@@ -222,6 +222,7 @@ namespace QLThuVien.GUI
             // 
             dgvLoaiDocGia.AllowUserToAddRows = false;
             dgvLoaiDocGia.AllowUserToDeleteRows = false;
+            dgvLoaiDocGia.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvLoaiDocGia.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvLoaiDocGia.BackgroundColor = Color.White;
             dgvLoaiDocGia.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;

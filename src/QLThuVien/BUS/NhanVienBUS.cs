@@ -14,7 +14,7 @@ namespace QLThuVien.BUS
     public class NhanVienBUS
     {
         private static readonly Regex MaNhanVienPattern = new(@"^NV(\d+)$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
-        private static readonly string[] ChucVuMacDinh = { "Thủ thư chính", "Thủ thư", "Quản lý kho" };
+        private static readonly string[] ChucVuMacDinh = { "Thủ thư chính", "Thủ thư", "Quản lý kho","Sếp" };
         private readonly NhanVienDAO dao = new NhanVienDAO();
         public ArrayList dsNhanVien_arr = new ArrayList();
 
@@ -100,6 +100,17 @@ namespace QLThuVien.BUS
         public bool Them(NhanVienDTO nv)
         {
             if (nv == null) throw new ArgumentNullException(nameof(nv));
+            if (!string.IsNullOrWhiteSpace(nv.MaNV))
+            {
+                KiemTraHopLe(nv, isThemMoi: true);
+                string maNhap = nv.MaNV.Trim().ToUpperInvariant();
+                NhanVienDTO normNhap = ChuanHoaDuLieu(nv, maNhap);
+                if (!dao.Them(normNhap)) return false;
+                nv.MaNV = maNhap;
+                dsNhanVien_arr.Add(normNhap);
+                return true;
+            }
+
             NhanVienDTO normalized = ChuanHoaDuLieu(nv, string.Empty);
             KiemTraThongTin(normalized);
 

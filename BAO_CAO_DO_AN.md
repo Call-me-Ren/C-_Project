@@ -211,7 +211,7 @@ Bảng cấu hình độc lập: [ThamSo] (Lưu giới hạn mượn, số ngày
 - **b. Mô tả màn hình giao diện và các thành phần:**
   - `frmPhieuNhap`:
     - **Khung trái (Master - Danh sách Phiếu nhập):** Thanh tìm kiếm `txtTimKiem`, thông tin phiếu (`txtMaPN`, `dtpNgayNhap`, `txtMaNCC` kèm nút `...` chọn Nhà cung cấp, `txtMaNV` kèm nút `...` chọn Nhân viên, `txtTongTien` ReadOnly), các nút `Tạo phiếu mới`, `Lưu phiếu nhập`, `Xuất PDF`, `Hủy thao tác` và bảng `dgvPhieuNhap`.
-    - **Khung phải (Detail - Chi tiết các đầu sách trong phiếu):** Chọn đầu sách (`txtMaDauSach` kèm nút `...` chọn Đầu sách), `txtDonGia`, `numSoLuong`, `txtThanhTien` ReadOnly, các nút `Thêm dòng`, `Sửa dòng`, `Xóa dòng` và bảng `dgvChiTietPhieuNhap`.
+    - **Khung dưới (Detail - Chi tiết các đầu sách trong phiếu & Lập phiếu mới):** Chọn đầu sách (`cboDauSach` kèm nút `...`), `txtDonGia` ReadOnly, `numSoLuong`, `txtThanhTien` ReadOnly, nút `➕ Thêm dòng`, và thanh tác vụ dưới cùng gồm nhãn `TỔNG TIỀN PHIẾU NHẬP`, nút `🔍 Xem chi tiết` (mở cửa sổ Popup xem bảng chi tiết phiếu nhập), `💾 LƯU PHIẾU`, `🖨️ Xuất PDF`, `🔄 Làm mới`.
 - **c. Thuyết minh công thức tính toán:**
   1. **Thành tiền của từng dòng chi tiết nhập đầu sách $i$:**
      $$\text{ThanhTien}_i = \text{SoLuong}_i \times \text{DonGia}_i$$

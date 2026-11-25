@@ -126,12 +126,12 @@ namespace QLThuVien.GUI
             btnTaiLai.Click += btnTaiLai_Click;
             pnlTimKiem.Controls.Add(btnTaiLai);
 
-            btnXuatExcel = new Button { Text = "Xuất Excel (.xlsx)", Location = new Point(855, 5), Size = new Size(145, 30), BackColor = Color.FromArgb(22, 163, 74), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+            btnXuatExcel = new Button { Text = "Xuất Excel (.xlsx)", Location = new Point(805, 5), Size = new Size(138, 30), BackColor = Color.FromArgb(22, 163, 74), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
             btnXuatExcel.FlatAppearance.BorderSize = 0;
             btnXuatExcel.Click += btnXuatExcel_Click;
             pnlTimKiem.Controls.Add(btnXuatExcel);
 
-            btnNhapExcel = new Button { Text = "Nhập Excel (.xlsx)", Location = new Point(1005, 5), Size = new Size(145, 30), BackColor = Color.FromArgb(37, 99, 235), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
+            btnNhapExcel = new Button { Text = "Nhập Excel (.xlsx)", Location = new Point(950, 5), Size = new Size(138, 30), BackColor = Color.FromArgb(37, 99, 235), ForeColor = Color.White, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
             btnNhapExcel.FlatAppearance.BorderSize = 0;
             btnNhapExcel.Click += btnNhapExcel_Click;
             pnlTimKiem.Controls.Add(btnNhapExcel);
@@ -144,6 +144,7 @@ namespace QLThuVien.GUI
             // DataGridView Đầu Sách
             dgvDauSach = new DataGridView
             {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(10, 190),
                 Size = new Size(1160, 310),
                 ReadOnly = true,
@@ -182,6 +183,7 @@ namespace QLThuVien.GUI
             // DataGridView Cuốn Sách
             dgvSach = new DataGridView
             {
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(10, 538),
                 Size = new Size(1160, 205),
                 ReadOnly = true,

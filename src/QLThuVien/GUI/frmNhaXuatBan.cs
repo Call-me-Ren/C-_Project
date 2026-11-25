@@ -9,6 +9,7 @@ namespace QLThuVien.GUI
     public partial class frmNhaXuatBan : Form
     {
         private readonly NXBBUS nxbBUS = new NXBBUS();
+        private bool isBinding = false;
 
 
         public frmNhaXuatBan()
@@ -23,6 +24,7 @@ namespace QLThuVien.GUI
             try
             {
                 TaiDuLieu(nxbBUS.DocDSNXB());
+                LamMoi();
             }
             catch (Exception ex)
             {
@@ -32,22 +34,26 @@ namespace QLThuVien.GUI
 
         private void TaiDuLieu(List<NXBDTO> ds)
         {
+            isBinding = true;
             dgvNXB.DataSource = null;
             dgvNXB.DataSource = ds;
             DatTieuDe("MaNXB", "Mã NXB");
             DatTieuDe("TenNXB", "Tên NXB");
             DatTieuDe("DiaChi", "Địa chỉ");
             lblThongTin.Text = "Số NXB: " + ds.Count;
+            dgvNXB.ClearSelection();
+            isBinding = false;
         }
 
         private void dgvNXB_SelectionChanged(object sender, EventArgs e)
         {
             try
             {
+                if (isBinding) return;
                 if (dgvNXB.CurrentRow != null && dgvNXB.CurrentRow.DataBoundItem is NXBDTO nxb)
                 {
                     txtMaNXB.Text = nxb.MaNXB;
-                    txtMaNXB.ReadOnly = true;
+                    txtMaNXB.ReadOnly = false;
                     txtMaNXB.BackColor = Color.FromArgb(238, 242, 246);
                     txtTenNXB.Text = nxb.TenNXB;
                     txtDiaChi.Text = nxb.DiaChi;
@@ -158,8 +164,13 @@ namespace QLThuVien.GUI
 
         private void LamMoi()
         {
-            txtMaNXB.Clear(); txtTenNXB.Clear(); txtDiaChi.Clear(); txtMaNXB.Focus();
-            txtMaNXB.ReadOnly = false; txtMaNXB.BackColor = SystemColors.Window;
+            dgvNXB.ClearSelection();
+            txtMaNXB.Text = nxbBUS.TaoMaNXBTiepTheo();
+            txtMaNXB.ReadOnly = false;
+            txtMaNXB.BackColor = Color.FromArgb(238, 242, 246);
+            txtTenNXB.Clear();
+            txtDiaChi.Clear();
+            txtTenNXB.Focus();
         }
 
         private void DatTieuDe(string tenCot, string tieuDe)

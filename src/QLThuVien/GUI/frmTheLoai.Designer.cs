@@ -69,6 +69,7 @@ namespace QLThuVien.GUI
             // DATAGRIDVIEW
             dgvTheLoai = new DataGridView
             {
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(10, 135),
                 Size = new Size(1060, 505),
                 ReadOnly = true,

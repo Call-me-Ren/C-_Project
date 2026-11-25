@@ -205,7 +205,7 @@ namespace QLThuVien.GUI
             txtMaQD.Location = new Point(95, 30);
             txtMaQD.MaxLength = 20;
             txtMaQD.Name = "txtMaQD";
-            txtMaQD.ReadOnly = true;
+            txtMaQD.ReadOnly = false;
             txtMaQD.Size = new Size(185, 24);
             txtMaQD.TabIndex = 1;
             //

@@ -109,7 +109,7 @@
                             <th>Thể loại</th>
                             <th class="text-end">Đơn giá</th>
                             <th class="text-center">Tồn / Tổng</th>
-                            <th class="text-end">Thao tác</th>
+                            <th class="text-end text-nowrap" style="width: 135px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,7 +122,7 @@
                                 <td>@item.TenTheLoai</td>
                                 <td class="text-end">@item.DonGia.ToString("N0") đ</td>
                                 <td class="text-center">@item.SLConLai / @item.SoLuong</td>
-                                <td class="text-end">
+                                <td class="text-end text-nowrap">
                                     <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ChonSua(item.MaDauSach)">Sửa</button>
                                     <button class="btn btn-sm btn-outline-danger" @onclick="() => Xoa(item.MaDauSach)">Xóa</button>
                                 </td>

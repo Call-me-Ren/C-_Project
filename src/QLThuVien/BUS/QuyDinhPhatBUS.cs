@@ -80,6 +80,17 @@ namespace QLThuVien.BUS
         public bool Them(QuyDinhPhatDTO qd)
         {
             if (qd == null) throw new ArgumentNullException(nameof(qd));
+            if (!string.IsNullOrWhiteSpace(qd.MaQD))
+            {
+                KiemTraHopLe(qd, isThemMoi: true);
+                string maNhap = qd.MaQD.Trim().ToUpperInvariant();
+                QuyDinhPhatDTO normNhap = ChuanHoaDuLieu(qd, maNhap);
+                if (!dao.Them(normNhap)) return false;
+                qd.MaQD = maNhap;
+                dsQuyDinh_arr.Add(normNhap);
+                return true;
+            }
+
             KiemTraThongTin(qd, isThemMoi: true);
             QuyDinhPhatDTO normalized = ChuanHoaDuLieu(qd, string.Empty);
             for (int attempt = 0; attempt < 10; attempt++)

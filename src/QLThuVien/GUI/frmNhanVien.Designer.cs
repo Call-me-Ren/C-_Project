@@ -153,7 +153,7 @@ namespace QLThuVien.GUI
             txtMaNV.Location = new Point(104, 35);
             txtMaNV.MaxLength = 20;
             txtMaNV.Name = "txtMaNV";
-            txtMaNV.ReadOnly = true;
+            txtMaNV.ReadOnly = false;
             txtMaNV.Size = new Size(155, 24);
             txtMaNV.TabIndex = 1;
             //
@@ -238,6 +238,7 @@ namespace QLThuVien.GUI
             grpTimKiem.Controls.Add(btnTimKiem);
             grpTimKiem.Controls.Add(txtTimKiem);
             grpTimKiem.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            grpTimKiem.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             grpTimKiem.Location = new Point(12, 192);
             grpTimKiem.Name = "grpTimKiem";
             grpTimKiem.Size = new Size(860, 60);
@@ -284,6 +285,7 @@ namespace QLThuVien.GUI
             //
             dgvNhanVien.AllowUserToAddRows = false;
             dgvNhanVien.AllowUserToDeleteRows = false;
+            dgvNhanVien.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvNhanVien.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvNhanVien.BackgroundColor = Color.White;
             dgvNhanVien.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;

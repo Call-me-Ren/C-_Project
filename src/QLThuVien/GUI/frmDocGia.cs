@@ -101,7 +101,7 @@ namespace QLThuVien.GUI
                 }
 
                 // Khóa ô Mã độc giả khi chọn sửa/xem
-                txtMaDG.ReadOnly = true;
+                txtMaDG.ReadOnly = false;
             }
             catch (Exception ex)
             {

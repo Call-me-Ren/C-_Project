@@ -356,5 +356,72 @@ namespace QLThuVien.GUI
                 MessageBox.Show("Lỗi khi tìm kiếm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void BtnXemChiTietPopup_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                List<ChiTietPhieuNhapDTO> danhSachHienTai;
+                string tieuDe;
+
+                if (dgvPhieuNhap.CurrentRow?.DataBoundItem is PhieuNhapDTO pn && _dsDangNhap.Count == 0)
+                {
+                    danhSachHienTai = _phieuNhapBUS.LayChiTietTheoMaPN(pn.MaPN);
+                    tieuDe = $"Chi tiết Phiếu nhập: {pn.MaPN} (Tổng: {pn.TongTien:N0} VNĐ)";
+                }
+                else
+                {
+                    danhSachHienTai = new List<ChiTietPhieuNhapDTO>(_dsDangNhap);
+                    decimal tong = _phieuNhapBUS.TinhTongTien(danhSachHienTai);
+                    tieuDe = $"Chi tiết Phiếu nhập đang lập (Tổng: {tong:N0} VNĐ)";
+                }
+
+                using Form popup = new Form
+                {
+                    Text = tieuDe,
+                    Size = new System.Drawing.Size(780, 440),
+                    StartPosition = FormStartPosition.CenterParent,
+                    MinimizeBox = false
+                };
+
+                DataGridView grid = new DataGridView
+                {
+                    Dock = DockStyle.Fill,
+                    ReadOnly = true,
+                    AllowUserToAddRows = false,
+                    AllowUserToDeleteRows = false,
+                    RowHeadersVisible = false,
+                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                    BackgroundColor = System.Drawing.Color.White,
+                    DataSource = danhSachHienTai
+                };
+
+                popup.Controls.Add(grid);
+                popup.Shown += (_, _) =>
+                {
+                    if (grid.Columns["MaPN"] is DataGridViewColumn cMaPN) cMaPN.Visible = false;
+                    if (grid.Columns["MaDauSach"] is DataGridViewColumn cMaDS) cMaDS.HeaderText = "Mã Đầu Sách";
+                    if (grid.Columns["TenSach"] is DataGridViewColumn cTen) cTen.HeaderText = "Tên Đầu Sách";
+                    if (grid.Columns["DonGia"] is DataGridViewColumn cDonGia)
+                    {
+                        cDonGia.HeaderText = "Đơn Giá (VNĐ)";
+                        cDonGia.DefaultCellStyle.Format = "N0";
+                    }
+                    if (grid.Columns["SoLuong"] is DataGridViewColumn cSL) cSL.HeaderText = "Số Lượng";
+                    if (grid.Columns["ThanhTien"] is DataGridViewColumn cTT)
+                    {
+                        cTT.HeaderText = "Thành Tiền (VNĐ)";
+                        cTT.DefaultCellStyle.Format = "N0";
+                    }
+                };
+
+                popup.ShowDialog(this);
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
+        }
     }
 }

@@ -77,7 +77,7 @@ namespace QLThuVien.GUI
             // scMain
             this.scMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scMain.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            this.scMain.SplitterDistance = 240;
+            this.scMain.SplitterDistance = 175;
 
             // --- PANEL 1: MASTER (DANH SÁCH PHIẾU NHẬP) ---
             this.scMain.Panel1.Controls.Add(this.gbPhieuNhap);
@@ -115,11 +115,31 @@ namespace QLThuVien.GUI
             // --- PANEL 2: DETAIL (CHI TIẾT PHIẾU NHẬP & LẬP PHIẾU MỚI) ---
             this.scMain.Panel2.Controls.Add(this.gbLapPhieu);
 
-            // gbLapPhieu
-            this.gbLapPhieu.Controls.Add(this.dgvChiTiet);
-            this.gbLapPhieu.Controls.Add(this.pnlBottom);
-            this.gbLapPhieu.Controls.Add(this.pnlBookInputs);
-            this.gbLapPhieu.Controls.Add(this.pnlTopInputs);
+            // gbLapPhieu (Dùng TableLayoutPanel 4 hàng để dgvChiTiet luôn chiếm trọn 100% phần giữa)
+            System.Windows.Forms.TableLayoutPanel tlpDetail = new System.Windows.Forms.TableLayoutPanel
+            {
+                Dock = System.Windows.Forms.DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 4
+            };
+            tlpDetail.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 44F));
+            tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 84F));
+            tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 0F));
+            tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
+            this.dgvChiTiet.Visible = false;
+
+            this.pnlTopInputs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlBookInputs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvChiTiet.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Fill;
+
+            tlpDetail.Controls.Add(this.pnlTopInputs, 0, 0);
+            tlpDetail.Controls.Add(this.pnlBookInputs, 0, 1);
+            tlpDetail.Controls.Add(this.dgvChiTiet, 0, 2);
+            tlpDetail.Controls.Add(this.pnlBottom, 0, 3);
+
+            this.gbLapPhieu.Controls.Add(tlpDetail);
             this.gbLapPhieu.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gbLapPhieu.Text = "2. Chi tiết Sách nhập (Detail) & Lập phiếu mới";
 
@@ -253,11 +273,36 @@ namespace QLThuVien.GUI
             // pnlBottom
             this.pnlBottom.Controls.Add(this.lblTongTienText);
             this.pnlBottom.Controls.Add(this.lblTongTien);
-            this.pnlBottom.Controls.Add(this.btnXuatPDF);
-            this.pnlBottom.Controls.Add(this.btnLuuPhieu);
-            this.pnlBottom.Controls.Add(this.btnHuy);
+            System.Windows.Forms.FlowLayoutPanel pnlBottomButtons = new System.Windows.Forms.FlowLayoutPanel
+            {
+                Dock = System.Windows.Forms.DockStyle.Right,
+                AutoSize = true,
+                FlowDirection = System.Windows.Forms.FlowDirection.LeftToRight,
+                WrapContents = false,
+                Padding = new System.Windows.Forms.Padding(0, 8, 12, 8)
+            };
+            System.Windows.Forms.Button btnXemChiTietPopup = new System.Windows.Forms.Button
+            {
+                BackColor = System.Drawing.Color.FromArgb(142, 68, 173),
+                FlatStyle = System.Windows.Forms.FlatStyle.Flat,
+                ForeColor = System.Drawing.Color.White,
+                Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold),
+                Size = new System.Drawing.Size(125, 32),
+                Text = "🔍 Xem chi tiết",
+                Margin = new System.Windows.Forms.Padding(0, 0, 8, 0)
+            };
+            btnXemChiTietPopup.Click += new System.EventHandler(this.BtnXemChiTietPopup_Click);
+
+            this.btnLuuPhieu.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnXuatPDF.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
+            this.btnHuy.Margin = new System.Windows.Forms.Padding(0);
+            pnlBottomButtons.Controls.Add(btnXemChiTietPopup);
+            pnlBottomButtons.Controls.Add(this.btnLuuPhieu);
+            pnlBottomButtons.Controls.Add(this.btnXuatPDF);
+            pnlBottomButtons.Controls.Add(this.btnHuy);
+            this.pnlBottom.Controls.Add(pnlBottomButtons);
             this.pnlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBottom.Height = 50;
+            this.pnlBottom.Height = 52;
 
             this.lblTongTienText.AutoSize = true;
             this.lblTongTienText.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);

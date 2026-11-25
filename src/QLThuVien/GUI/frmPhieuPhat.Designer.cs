@@ -135,7 +135,7 @@ namespace QLThuVien.GUI
             lblMaPhieu.Text = "Mã phiếu:";
             txtMaPhieuPhat.Location = new Point(105, 23);
             txtMaPhieuPhat.Size = new Size(165, 23);
-            txtMaPhieuPhat.ReadOnly = true;
+            txtMaPhieuPhat.ReadOnly = false;
             txtMaPhieuPhat.TabStop = false;
 
             lblNgayLap.AutoSize = true;

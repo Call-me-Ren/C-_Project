@@ -101,7 +101,7 @@ namespace QLThuVien.GUI
                 if (dgvSach.CurrentRow != null && dgvSach.CurrentRow.DataBoundItem is SachDTO s)
                 {
                     txtMaSach.Text = s.MaSach;
-                    txtMaSach.ReadOnly = true;
+                    txtMaSach.ReadOnly = false;
                     txtMaDauSach.Text = s.MaDauSach;
                     txtTinhTrang.Text = s.TinhTrang;
                     txtViTri.Text = s.ViTri;

@@ -49,7 +49,7 @@ namespace QLThuVien.GUI
                 if (dgvTacGia.CurrentRow != null && dgvTacGia.CurrentRow.DataBoundItem is TacGiaDTO tg)
                 {
                     txtMaTG.Text = tg.MaTG;
-                    txtMaTG.ReadOnly = true;
+                    txtMaTG.ReadOnly = false;
                     txtMaTG.BackColor = Color.FromArgb(238, 242, 246);
                     txtHoLot.Text = tg.HoLot;
                     txtTenTG.Text = tg.TenTG;

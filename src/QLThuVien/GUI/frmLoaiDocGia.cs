@@ -60,7 +60,7 @@ namespace QLThuVien.GUI
                 txtTenLDG.Text = row.Cells["colTenLDG"].Value?.ToString() ?? string.Empty;
 
                 // Khóa ô Mã khi đang chọn sửa/xem (Khóa chính không được sửa)
-                txtMaLDG.ReadOnly = true;
+                txtMaLDG.ReadOnly = false;
             }
             catch (Exception ex)
             {

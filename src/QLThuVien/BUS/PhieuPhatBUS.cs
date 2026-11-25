@@ -344,7 +344,10 @@ namespace QLThuVien.BUS
         {
             EnsureLoaded();
             if (pp == null) throw new ArgumentNullException(nameof(pp), "Dữ liệu phiếu phạt không được null.");
-            pp.MaPhieuPhat = TaoMaPhieuTiepTheo();
+            if (string.IsNullOrWhiteSpace(pp.MaPhieuPhat))
+            {
+                pp.MaPhieuPhat = TaoMaPhieuTiepTheo();
+            }
             KiemTraHopLePhieuPhat(pp, isThemMoi: true);
 
             PhieuPhatDTO normalized = new PhieuPhatDTO(

@@ -39,13 +39,17 @@ namespace QLThuVien.GUI
             txtDiaChi = new TextBox { Location = new Point(600, 27), Size = new Size(250, 25), Font = fn };
             grp.Controls.Add(txtDiaChi);
 
-            btnThem = new Button { Text = "Thêm", Location = new Point(870, 25), Size = new Size(80, 30), Font = fn, BackColor = Color.FromArgb(46, 204, 113), ForeColor = Color.White };
-            btnSua = new Button { Text = "Sửa", Location = new Point(955, 25), Size = new Size(80, 30), Font = fn, BackColor = Color.FromArgb(52, 152, 219), ForeColor = Color.White };
+            btnThem = new Button { Text = "Thêm", Location = new Point(440, 5), Size = new Size(80, 30), Font = fn, BackColor = Color.FromArgb(46, 204, 113), ForeColor = Color.White };
+            btnSua = new Button { Text = "Sửa", Location = new Point(620, 5), Size = new Size(80, 30), Font = fn, BackColor = Color.FromArgb(52, 152, 219), ForeColor = Color.White };
+            btnTaiLai = new Button { Text = "Hiện tất cả", Location = new Point(860, 25), Size = new Size(95, 30), Font = fn, BackColor = Color.FromArgb(149, 165, 166), ForeColor = Color.White };
+            btnLamMoi = new Button { Text = "Làm mới", Location = new Point(962, 25), Size = new Size(88, 30), Font = fn, BackColor = Color.FromArgb(149, 165, 166), ForeColor = Color.White };
 
             btnThem.Click += btnThem_Click;
             btnSua.Click += btnSua_Click;
+            btnTaiLai.Click += btnTaiLai_Click;
+            btnLamMoi.Click += (s, ev) => LamMoi();
 
-            grp.Controls.AddRange(new Control[] { btnThem, btnSua });
+            grp.Controls.AddRange(new Control[] { btnTaiLai, btnLamMoi });
             Controls.Add(grp);
 
             // TÌM KIẾM
@@ -58,25 +62,22 @@ namespace QLThuVien.GUI
             btnTimKiem.Click += btnTimKiem_Click;
             pnl.Controls.Add(btnTimKiem);
 
-            btnTaiLai = new Button { Text = "Hiện tất cả", Location = new Point(440, 5), Size = new Size(110, 30), BackColor = Color.FromArgb(149, 165, 166), ForeColor = Color.White };
-            btnTaiLai.Click += btnTaiLai_Click;
-            pnl.Controls.Add(btnTaiLai);
+            pnl.Controls.Add(btnThem);
 
-            btnXoa = new Button { Text = "Xóa", Location = new Point(560, 5), Size = new Size(80, 30), BackColor = Color.FromArgb(231, 76, 60), ForeColor = Color.White };
+            btnXoa = new Button { Text = "Xóa", Location = new Point(530, 5), Size = new Size(80, 30), BackColor = Color.FromArgb(231, 76, 60), ForeColor = Color.White };
             btnXoa.Click += btnXoa_Click;
             pnl.Controls.Add(btnXoa);
 
-            btnLamMoi = new Button { Text = "Làm mới", Location = new Point(650, 5), Size = new Size(100, 30), BackColor = Color.FromArgb(149, 165, 166), ForeColor = Color.White };
-            btnLamMoi.Click += (s, ev) => LamMoi();
-            pnl.Controls.Add(btnLamMoi);
+            pnl.Controls.Add(btnSua);
 
-            lblThongTin = new Label { Location = new Point(770, 10), AutoSize = true, ForeColor = Color.DarkBlue, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
+            lblThongTin = new Label { Location = new Point(720, 10), AutoSize = true, ForeColor = Color.DarkBlue, Font = new Font("Segoe UI", 10F, FontStyle.Bold) };
             pnl.Controls.Add(lblThongTin);
             Controls.Add(pnl);
 
             // DATAGRIDVIEW
             dgvNXB = new DataGridView
             {
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(10, 135),
                 Size = new Size(1060, 505),
                 ReadOnly = true,

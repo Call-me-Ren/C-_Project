@@ -114,6 +114,7 @@ namespace QLThuVien.GUI
             // DataGridView
             dgvSach = new DataGridView
             {
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Location = new Point(10, 165),
                 Size = new Size(1060, 475),
                 ReadOnly = true,

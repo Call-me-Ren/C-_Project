@@ -23,7 +23,7 @@ namespace QLThuVien.GUI
         {
             dangChonDong = false;
             txtMaNCC.Text = _nccBUS.TaoMaNCCTiepTheo();
-            txtMaNCC.ReadOnly = true;
+            txtMaNCC.ReadOnly = false;
             txtMaNCC.BackColor = System.Drawing.Color.FromArgb(238, 242, 246);
             txtTenNCC.Clear();
             txtTenNCC.Focus();
@@ -55,7 +55,7 @@ namespace QLThuVien.GUI
                     dangChonDong = true;
                     txtMaNCC.Text = ncc.MaNCC;
                     txtTenNCC.Text = ncc.TenNCC;
-                    txtMaNCC.ReadOnly = true;
+                    txtMaNCC.ReadOnly = false;
                     txtMaNCC.BackColor = System.Drawing.Color.FromArgb(238, 242, 246);
                 }
             }

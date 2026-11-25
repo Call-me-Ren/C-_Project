@@ -310,6 +310,7 @@ namespace QLThuVien.GUI
             grpTimKiem.Controls.Add(btnTatCa);
             grpTimKiem.Controls.Add(btnTimKiem);
             grpTimKiem.Controls.Add(txtTimKiem);
+            grpTimKiem.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             grpTimKiem.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             grpTimKiem.Location = new Point(12, 167);
             grpTimKiem.Name = "grpTimKiem";
@@ -354,6 +355,7 @@ namespace QLThuVien.GUI
             // 
             dgvPhieuMuon.AllowUserToAddRows = false;
             dgvPhieuMuon.AllowUserToDeleteRows = false;
+            dgvPhieuMuon.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             dgvPhieuMuon.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvPhieuMuon.BackgroundColor = Color.White;
             dgvPhieuMuon.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -429,6 +431,7 @@ namespace QLThuVien.GUI
             grpChiTiet.Controls.Add(cboSach);
             grpChiTiet.Controls.Add(lblSach);
             grpChiTiet.Controls.Add(lblTieuDeChiTiet);
+            grpChiTiet.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             grpChiTiet.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             grpChiTiet.Location = new Point(12, 404);
             grpChiTiet.Name = "grpChiTiet";
@@ -539,6 +542,7 @@ namespace QLThuVien.GUI
             // 
             dgvChiTietMuon.AllowUserToAddRows = false;
             dgvChiTietMuon.AllowUserToDeleteRows = false;
+            dgvChiTietMuon.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvChiTietMuon.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvChiTietMuon.BackgroundColor = Color.White;
             dgvChiTietMuon.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;

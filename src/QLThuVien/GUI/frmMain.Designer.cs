@@ -133,7 +133,7 @@ namespace QLThuVien.GUI
         private void ThemVaoMenu(Control control)
         {
             pnlMenuContainer.Controls.Add(control);
-            control.SendToBack();
+            control.BringToFront();
         }
     }
 }

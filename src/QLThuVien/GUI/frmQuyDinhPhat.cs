@@ -54,7 +54,7 @@ namespace QLThuVien.GUI
                     numMucPhat.Value = Math.Max(numMucPhat.Minimum, Math.Min(numMucPhat.Maximum, mucPhat));
                 else
                     numMucPhat.Value = 0;
-                txtMaQD.ReadOnly = true;
+                txtMaQD.ReadOnly = false;
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace QLThuVien.GUI
         {
             try
             {
-                QuyDinhPhatDTO qd = TaoQuyDinhTuForm(string.Empty);
+                QuyDinhPhatDTO qd = TaoQuyDinhTuForm(txtMaQD.Text);
                 if (!bus.Them(qd)) throw new InvalidOperationException();
                 HienThiDanhSach(bus.LayDanhSach(reload: true));
                 LamMoiForm();
@@ -129,7 +129,7 @@ namespace QLThuVien.GUI
         private void LamMoiForm()
         {
             txtMaQD.Text = bus.TaoMaQuyDinhTiepTheo();
-            txtMaQD.ReadOnly = true;
+            txtMaQD.ReadOnly = false;
             txtTenQD.Clear();
             NapLuaChon(cboLoaiPhat, QuyDinhPhatBUS.DanhSachLoaiPhat, null);
             NapLuaChon(cboCachTinh, QuyDinhPhatBUS.DanhSachCachTinh, null);

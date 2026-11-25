@@ -94,7 +94,7 @@ namespace QLThuVien.GUI
 
             // txtMaTS
             this.txtMaTS.Location = new System.Drawing.Point(15, 55);
-            this.txtMaTS.ReadOnly = true;
+            this.txtMaTS.ReadOnly = false;
             this.txtMaTS.Width = 280;
 
             // lblTenTS

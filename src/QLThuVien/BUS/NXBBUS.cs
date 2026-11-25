@@ -32,6 +32,21 @@ namespace QLThuVien.BUS
             return danhSachNXB;
         }
 
+        public string TaoMaNXBTiepTheo()
+        {
+            int max = 0;
+            foreach (NXBDTO item in LayDanhSachTrongBoNho())
+            {
+                string ma = (item.MaNXB ?? string.Empty).Trim();
+                if (ma.StartsWith("NXB", StringComparison.OrdinalIgnoreCase) &&
+                    int.TryParse(ma.Substring(3), out int so) && so > max)
+                {
+                    max = so;
+                }
+            }
+            return $"NXB{(max + 1):D2}";
+        }
+
         // 2. Kiểm tra trùng Mã NXB (duyệt trên ArrayList trong RAM)
         public bool KiemTraTrungMa(string maNXB)
         {

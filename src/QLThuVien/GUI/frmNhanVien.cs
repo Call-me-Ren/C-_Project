@@ -54,7 +54,7 @@ namespace QLThuVien.GUI
                 GanTen(txtTenNV, row.Cells["colTenNV"].Value?.ToString() ?? string.Empty, ref tenHopLe);
                 string? chucVu = row.Cells["colChucVu"].Value?.ToString();
                 NapDanhSachChucVu(chucVu);
-                txtMaNV.ReadOnly = true;
+                txtMaNV.ReadOnly = false;
             }
             catch (Exception ex)
             {
@@ -67,7 +67,7 @@ namespace QLThuVien.GUI
             try
             {
                 NhanVienDTO nv = new NhanVienDTO(
-                    string.Empty,
+                    txtMaNV.Text,
                     txtHoLot.Text,
                     txtTenNV.Text,
                     cboChucVu.SelectedItem?.ToString());
@@ -140,7 +140,7 @@ namespace QLThuVien.GUI
         private void LamMoiForm()
         {
             txtMaNV.Text = bus.TaoMaNhanVienTiepTheo();
-            txtMaNV.ReadOnly = true;
+            txtMaNV.ReadOnly = false;
             GanTen(txtHoLot, string.Empty, ref hoLotHopLe);
             GanTen(txtTenNV, string.Empty, ref tenHopLe);
             NapDanhSachChucVu(null);

@@ -360,6 +360,7 @@ namespace QLThuVien.GUI
             // 
             dgvDocGia.AllowUserToAddRows = false;
             dgvDocGia.AllowUserToDeleteRows = false;
+            dgvDocGia.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dgvDocGia.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvDocGia.BackgroundColor = Color.White;
             dgvDocGia.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;

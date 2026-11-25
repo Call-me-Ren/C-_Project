@@ -128,7 +128,7 @@ namespace QLThuVien.GUI
                 maPMDangChon = row.Cells["colMaPM"].Value?.ToString() ?? string.Empty;
 
                 txtMaPM.Text = maPMDangChon;
-                txtMaPM.ReadOnly = true;
+                txtMaPM.ReadOnly = false;
 
                 if (row.DataBoundItem is PhieuMuonDTO pm)
                 {
