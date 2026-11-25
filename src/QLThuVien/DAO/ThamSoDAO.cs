@@ -97,6 +97,19 @@ namespace QLThuVien.DAO
             };
 
             int rows = MyConnection.ExecuteNonQuery(query, parameters);
+
+            // Đồng bộ 2 chiều với bảng QuyDinhPhat (QD01 - Phạt trễ hạn trả sách)
+            if (rows > 0 && string.Equals(maTS.Trim(), "TIEN_PHAT_MOI_NGAY", StringComparison.OrdinalIgnoreCase) &&
+                decimal.TryParse(giaTriMoi.Trim(), out decimal mucPhatMoi) && mucPhatMoi >= 0)
+            {
+                string sqlSyncQD = "UPDATE QuyDinhPhat SET MucPhat = @MucPhat WHERE MaQD = 'QD01'";
+                SqlParameter[] syncParams =
+                {
+                    new SqlParameter("@MucPhat", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = mucPhatMoi }
+                };
+                MyConnection.ExecuteNonQuery(sqlSyncQD, syncParams);
+            }
+
             return rows > 0;
         }
     }

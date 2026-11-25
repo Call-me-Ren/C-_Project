@@ -32,8 +32,8 @@ namespace QLThuVien.GUI
             try
             {
                 DateTime today = DateTime.Today;
-                dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
-                dtpDenNgay.Value = today;
+                dtpTuNgay.Value = new DateTime(today.Year, 1, 1);
+                dtpDenNgay.Value = new DateTime(today.Year, 12, 31);
                 NapThongKe();
                 NapThongKeQuy();
             }
@@ -60,8 +60,8 @@ namespace QLThuVien.GUI
             try
             {
                 DateTime today = DateTime.Today;
-                dtpTuNgay.Value = new DateTime(today.Year, today.Month, 1);
-                dtpDenNgay.Value = today;
+                dtpTuNgay.Value = new DateTime(today.Year, 1, 1);
+                dtpDenNgay.Value = new DateTime(today.Year, 12, 31);
                 NapThongKe();
             }
             catch (Exception ex)

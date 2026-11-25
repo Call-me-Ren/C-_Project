@@ -69,7 +69,20 @@ namespace QLThuVien.DAO
                 new SqlParameter("@MucPhat", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = qd.MucPhat }
             };
 
-            return MyConnection.ExecuteNonQuery(query, parameters) > 0;
+            bool updated = MyConnection.ExecuteNonQuery(query, parameters) > 0;
+
+            // Đồng bộ 2 chiều với bảng ThamSo khi cập nhật QD01 (Phạt trễ hạn mỗi ngày)
+            if (updated && string.Equals(qd.MaQD?.Trim(), "QD01", StringComparison.OrdinalIgnoreCase))
+            {
+                string sqlSyncTS = "UPDATE ThamSo SET GiaTri = @GiaTri WHERE MaTS = 'TIEN_PHAT_MOI_NGAY'";
+                SqlParameter[] syncParams =
+                {
+                    new SqlParameter("@GiaTri", SqlDbType.NVarChar, 100) { Value = decimal.Truncate(qd.MucPhat).ToString() }
+                };
+                MyConnection.ExecuteNonQuery(sqlSyncTS, syncParams);
+            }
+
+            return updated;
         }
 
         public bool Sua(QuyDinhPhatDTO qd)
@@ -87,7 +100,20 @@ namespace QLThuVien.DAO
                 new SqlParameter("@MucPhat", SqlDbType.Decimal) { Precision = 18, Scale = 2, Value = qd.MucPhat }
             };
 
-            return MyConnection.ExecuteNonQuery(query, parameters) > 0;
+            bool updated = MyConnection.ExecuteNonQuery(query, parameters) > 0;
+
+            // Đồng bộ 2 chiều với bảng ThamSo khi cập nhật QD01 (Phạt trễ hạn mỗi ngày)
+            if (updated && string.Equals(qd.MaQD?.Trim(), "QD01", StringComparison.OrdinalIgnoreCase))
+            {
+                string sqlSyncTS = "UPDATE ThamSo SET GiaTri = @GiaTri WHERE MaTS = 'TIEN_PHAT_MOI_NGAY'";
+                SqlParameter[] syncParams =
+                {
+                    new SqlParameter("@GiaTri", SqlDbType.NVarChar, 100) { Value = decimal.Truncate(qd.MucPhat).ToString() }
+                };
+                MyConnection.ExecuteNonQuery(sqlSyncTS, syncParams);
+            }
+
+            return updated;
         }
 
         public bool Xoa(string maQD)

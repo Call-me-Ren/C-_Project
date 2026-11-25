@@ -92,7 +92,14 @@ namespace QLThuVien.GUI
 
         private void dtpNgayMuon_ValueChanged(object sender, EventArgs e)
         {
-            CapNhatHanTraMacDinh();
+            try
+            {
+                CapNhatHanTraMacDinh();
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         // 7. HIỂN THỊ DANH SÁCH BẢNG MASTER (PHIẾU MƯỢN)

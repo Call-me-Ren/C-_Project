@@ -35,16 +35,23 @@ namespace QLThuVien.GUI
 
         private void btnChonDauSach_Click(object sender, EventArgs e)
         {
-            FormSharedData.SelectedMaDauSach = null;
-            using (frmChonDauSachPopup popup = new frmChonDauSachPopup())
+            try
             {
-                if (popup.ShowDialog(this) == DialogResult.OK)
+                FormSharedData.SelectedMaDauSach = null;
+                using (frmChonDauSachPopup popup = new frmChonDauSachPopup())
                 {
-                    if (!string.IsNullOrEmpty(FormSharedData.SelectedMaDauSach))
+                    if (popup.ShowDialog(this) == DialogResult.OK)
                     {
-                        txtMaDauSach.Text = FormSharedData.SelectedMaDauSach;
+                        if (!string.IsNullOrEmpty(FormSharedData.SelectedMaDauSach))
+                        {
+                            txtMaDauSach.Text = FormSharedData.SelectedMaDauSach;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
             }
         }
 
@@ -87,17 +94,24 @@ namespace QLThuVien.GUI
 
         private void dgvSach_SelectionChanged(object sender, EventArgs e)
         {
-            if (isBinding) return;
-
-            if (dgvSach.CurrentRow != null && dgvSach.CurrentRow.DataBoundItem is SachDTO s)
+            try
             {
-                txtMaSach.Text = s.MaSach;
-                txtMaSach.ReadOnly = true;
-                txtMaDauSach.Text = s.MaDauSach;
-                txtTinhTrang.Text = s.TinhTrang;
-                txtViTri.Text = s.ViTri;
+                if (isBinding) return;
 
-                CapNhatTrangThaiNut(s);
+                if (dgvSach.CurrentRow != null && dgvSach.CurrentRow.DataBoundItem is SachDTO s)
+                {
+                    txtMaSach.Text = s.MaSach;
+                    txtMaSach.ReadOnly = true;
+                    txtMaDauSach.Text = s.MaDauSach;
+                    txtTinhTrang.Text = s.TinhTrang;
+                    txtViTri.Text = s.ViTri;
+
+                    CapNhatTrangThaiNut(s);
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
             }
         }
 

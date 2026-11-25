@@ -1,0 +1,150 @@
+@page "/dat-muon-sach"
+@using QLThuVien.Web.Data
+@rendermode InteractiveServer
+@inject TraCuuSachService SachService
+@inject ThuVienWebService WebService
+
+<PageTitle>Đặt mượn sách - Thư viện SGU</PageTitle>
+
+<div class="container py-4">
+    <h2 class="fw-bold text-primary mb-1">📝 ĐẶT MƯỢN SÁCH TRỰC TUYẾN</h2>
+    <p class="text-muted mb-4">Độc giả gửi yêu cầu mượn sách — Thủ thư sẽ xác nhận duyệt và cấp Phiếu mượn</p>
+
+    @if (!string.IsNullOrEmpty(thongBao))
+    {
+        <div class="alert @(laLoi ? "alert-danger" : "alert-success") alert-dismissible fade show">
+            @thongBao
+            <button type="button" class="btn-close" @onclick="() => thongBao = string.Empty"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white fw-bold">Phiếu đăng ký đặt mượn</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Độc giả</label>
+                        <select class="form-select" @bind="maDocGia">
+                            @foreach (var dg in dsDocGia)
+                            {
+                                <option value="@dg.Ma">@dg.Ten</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Đầu sách còn sẵn</label>
+                        <select class="form-select" @bind="maDauSach">
+                            @foreach (var s in dsSachCon)
+                            {
+                                <option value="@s.MaDauSach">@s.MaDauSach - @s.TenSach (Còn @s.SLConLai cuốn)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Ghi chú nhận sách</label>
+                        <textarea class="form-control" rows="2" @bind="ghiChu" placeholder="VD: Nhận sách vào chiều thứ 5..."></textarea>
+                    </div>
+                    <button class="btn btn-primary w-100 fw-semibold" @onclick="GuiYeuCau">
+                        📨 Gửi yêu cầu đặt mượn
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white fw-bold">Danh sách yêu cầu đã gửi</div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Mã YC</th>
+                                <th>Độc giả</th>
+                                <th>Sách yêu cầu</th>
+                                <th>Trạng thái</th>
+                                <th>Phiếu mượn</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (dsYeuCau.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">Chưa có yêu cầu đặt mượn nào.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var yc in dsYeuCau)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@yc.MaYeuCau</span></td>
+                                        <td>@yc.MaDocGia - @yc.TenDocGia</td>
+                                        <td>@yc.TenSach</td>
+                                        <td>
+                                            @if (yc.TrangThai == "Đã duyệt")
+                                            {
+                                                <span class="badge bg-success">@yc.TrangThai</span>
+                                            }
+                                            else if (yc.TrangThai == "Đã từ chối")
+                                            {
+                                                <span class="badge bg-danger">@yc.TrangThai</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">@yc.TrangThai</span>
+                                            }
+                                        </td>
+                                        <td>@(string.IsNullOrEmpty(yc.MaPMDaTao) ? "-" : yc.MaPMDaTao)</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<LookupItemWeb> dsDocGia = new();
+    private List<DauSachTraCuu> dsSachCon = new();
+    private List<YeuCauMuonWeb> dsYeuCau = new();
+    private string maDocGia = string.Empty;
+    private string maDauSach = string.Empty;
+    private string ghiChu = string.Empty;
+    private string thongBao = string.Empty;
+    private bool laLoi = false;
+
+    protected override void OnInitialized() => TaiDuLieu();
+
+    private void TaiDuLieu()
+    {
+        try
+        {
+            dsDocGia = WebService.LayDanhMuc("DocGia");
+            dsSachCon = SachService.LayDanhSachDauSach().Where(x => x.ConSach).ToList();
+            dsYeuCau = WebService.LayDanhSachYeuCauMuon();
+            if (string.IsNullOrEmpty(maDocGia)) maDocGia = dsDocGia.FirstOrDefault()?.Ma ?? string.Empty;
+            if (string.IsNullOrEmpty(maDauSach)) maDauSach = dsSachCon.FirstOrDefault()?.MaDauSach ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            laLoi = true;
+            thongBao = "Lỗi tải dữ liệu: " + ex.Message;
+        }
+    }
+
+    private void GuiYeuCau()
+    {
+        var res = WebService.GuiYeuCauMuon(maDocGia, maDauSach, ghiChu);
+        laLoi = !res.ok;
+        thongBao = res.message;
+        if (res.ok)
+        {
+            ghiChu = string.Empty;
+            TaiDuLieu();
+        }
+    }
+}

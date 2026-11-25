@@ -51,13 +51,11 @@ namespace QLThuVien.GUI
             Label fromLabel = new Label { AutoSize = true, Location = new Point(18, 34), Text = "Từ ngày:" };
             dtpTuNgay.Format = DateTimePickerFormat.Custom;
             dtpTuNgay.CustomFormat = "dd/MM/yyyy";
-            dtpTuNgay.MaxDate = DateTime.Today;
             dtpTuNgay.Location = new Point(82, 30);
             dtpTuNgay.Size = new Size(140, 25);
             Label toLabel = new Label { AutoSize = true, Location = new Point(250, 34), Text = "Đến ngày:" };
             dtpDenNgay.Format = DateTimePickerFormat.Custom;
             dtpDenNgay.CustomFormat = "dd/MM/yyyy";
-            dtpDenNgay.MaxDate = DateTime.Today;
             dtpDenNgay.Location = new Point(322, 30);
             dtpDenNgay.Size = new Size(140, 25);
             btnThongKe.Location = new Point(485, 27);

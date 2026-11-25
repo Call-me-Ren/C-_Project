@@ -10,12 +10,14 @@ namespace QLThuVien.DAO
     {
         public List<ThongKeGiaoDichDTO> LayGiaoDichThuChi(DateTime tuNgay, DateTime denNgay)
         {
-            string query = @"SELECT N'Thu' AS Loai, N'Thu tiền phạt' AS DienGiai, pp.MaPhieuPhat AS MaGiaoDich, pp.NgayLap AS Ngay,
+            string query = @"SELECT N'Thu' AS Loai,
+                                    CONCAT(N'Thu tiền phạt (', COALESCE(pp.TrangThai, N'Đã lập'), N')') AS DienGiai,
+                                    pp.MaPhieuPhat AS MaGiaoDich, pp.NgayLap AS Ngay,
                                     pp.MaNV, CONCAT(pp.MaDocGia, N' - ', COALESCE(dg.HoLot + N' ', N''), dg.TenDG) AS DoiTuong,
                                     pp.TongTienPhat AS SoTien
                              FROM PhieuPhat pp
                              INNER JOIN DocGia dg ON dg.MaDG = pp.MaDocGia
-                             WHERE pp.TrangThai = N'Đã thanh toán' AND pp.NgayLap >= @TuNgay AND pp.NgayLap < @DenNgay
+                             WHERE pp.NgayLap >= @TuNgay AND pp.NgayLap < @DenNgay
                              UNION ALL
                               SELECT N'Chi', N'Nhập sách', pn.MaPN, pn.NgayNhap, pn.MaNV,
                                     CONCAT(pn.MaNCC, N' - ', ncc.TenNCC), pn.TongTien

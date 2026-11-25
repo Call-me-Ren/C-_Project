@@ -1,0 +1,143 @@
+@page "/duyet-muon-sach"
+@using QLThuVien.Web.Data
+@rendermode InteractiveServer
+@inject ThuVienWebService WebService
+
+<PageTitle>Admin Duyệt mượn sách - Thư viện SGU</PageTitle>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">✅ XÁC NHẬN & DUYỆT YÊU CẦU MƯỢN (ADMIN)</h2>
+            <p class="text-muted mb-0">Khi duyệt, hệ thống tự động lập Phiếu mượn trong SQL Server và trừ tồn kho Đầu sách</p>
+        </div>
+        <button class="btn btn-outline-primary" @onclick="TaiDuLieu">🔄 Tải lại</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(thongBao))
+    {
+        <div class="alert @(laLoi ? "alert-danger" : "alert-success") alert-dismissible fade show">
+            @thongBao
+            <button type="button" class="btn-close" @onclick="() => thongBao = string.Empty"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body d-flex align-items-center gap-3">
+            <label class="fw-semibold mb-0">Thủ thư duyệt phiếu:</label>
+            <select class="form-select w-auto" @bind="maNhanVien">
+                @foreach (var nv in dsNhanVien)
+                {
+                    <option value="@nv.Ma">@nv.Ten</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã YC</th>
+                        <th>Ngày gửi</th>
+                        <th>Độc giả</th>
+                        <th>Đầu sách</th>
+                        <th>Ghi chú</th>
+                        <th>Trạng thái</th>
+                        <th>Mã PM</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (dsYeuCau.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">Hiện chưa có yêu cầu đặt mượn nào cần xử lý.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var yc in dsYeuCau)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@yc.MaYeuCau</span></td>
+                                <td>@yc.NgayYeuCau.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@yc.MaDocGia - @yc.TenDocGia</td>
+                                <td class="fw-semibold text-primary">@yc.TenSach</td>
+                                <td>@yc.GhiChu</td>
+                                <td>
+                                    @if (yc.TrangThai == "Đã duyệt")
+                                    {
+                                        <span class="badge bg-success">@yc.TrangThai</span>
+                                    }
+                                    else if (yc.TrangThai == "Đã từ chối")
+                                    {
+                                        <span class="badge bg-danger">@yc.TrangThai</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning text-dark">@yc.TrangThai</span>
+                                    }
+                                </td>
+                                <td>@(string.IsNullOrEmpty(yc.MaPMDaTao) ? "-" : yc.MaPMDaTao)</td>
+                                <td class="text-end">
+                                    @if (yc.TrangThai == "Chờ duyệt")
+                                    {
+                                        <button class="btn btn-sm btn-success me-1" @onclick="() => Duyet(yc.MaYeuCau)">✓ Duyệt</button>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => TuChoi(yc.MaYeuCau)">✕ Từ chối</button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Đã xử lý</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<YeuCauMuonWeb> dsYeuCau = new();
+    private List<LookupItemWeb> dsNhanVien = new();
+    private string maNhanVien = string.Empty;
+    private string thongBao = string.Empty;
+    private bool laLoi = false;
+
+    protected override void OnInitialized() => TaiDuLieu();
+
+    private void TaiDuLieu()
+    {
+        try
+        {
+            dsNhanVien = WebService.LayDanhMuc("NhanVien");
+            if (string.IsNullOrEmpty(maNhanVien)) maNhanVien = dsNhanVien.FirstOrDefault()?.Ma ?? string.Empty;
+            dsYeuCau = WebService.LayDanhSachYeuCauMuon();
+        }
+        catch (Exception ex)
+        {
+            laLoi = true;
+            thongBao = "Lỗi tải dữ liệu: " + ex.Message;
+        }
+    }
+
+    private void Duyet(string maYC)
+    {
+        var res = WebService.DuyetYeuCauMuon(maYC, maNhanVien);
+        laLoi = !res.ok;
+        thongBao = res.message;
+        TaiDuLieu();
+    }
+
+    private void TuChoi(string maYC)
+    {
+        var res = WebService.TuChoiYeuCauMuon(maYC);
+        laLoi = !res.ok;
+        thongBao = res.message;
+        TaiDuLieu();
+    }
+}

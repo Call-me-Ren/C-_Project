@@ -44,23 +44,30 @@ namespace QLThuVien.GUI
 
         private void dgvTacGia_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvTacGia.CurrentRow != null && dgvTacGia.CurrentRow.DataBoundItem is TacGiaDTO tg)
+            try
             {
-                txtMaTG.Text = tg.MaTG;
-                txtMaTG.ReadOnly = true;
-                txtMaTG.BackColor = Color.FromArgb(238, 242, 246);
-                txtHoLot.Text = tg.HoLot;
-                txtTenTG.Text = tg.TenTG;
-                txtSDT.Text = tg.SDT;
-                if (tg.NgaySinh.HasValue)
+                if (dgvTacGia.CurrentRow != null && dgvTacGia.CurrentRow.DataBoundItem is TacGiaDTO tg)
                 {
-                    chkNgaySinh.Checked = true;
-                    dtpNgaySinh.Value = tg.NgaySinh.Value;
+                    txtMaTG.Text = tg.MaTG;
+                    txtMaTG.ReadOnly = true;
+                    txtMaTG.BackColor = Color.FromArgb(238, 242, 246);
+                    txtHoLot.Text = tg.HoLot;
+                    txtTenTG.Text = tg.TenTG;
+                    txtSDT.Text = tg.SDT;
+                    if (tg.NgaySinh.HasValue)
+                    {
+                        chkNgaySinh.Checked = true;
+                        dtpNgaySinh.Value = tg.NgaySinh.Value;
+                    }
+                    else
+                    {
+                        chkNgaySinh.Checked = false;
+                    }
                 }
-                else
-                {
-                    chkNgaySinh.Checked = false;
-                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
             }
         }
 

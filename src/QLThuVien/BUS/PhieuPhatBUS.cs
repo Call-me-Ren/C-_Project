@@ -16,6 +16,7 @@ namespace QLThuVien.BUS
         private readonly ChiTietPhieuPhatDAO daoChiTiet = new ChiTietPhieuPhatDAO();
         private readonly NhanVienBUS busNhanVien = new NhanVienBUS();
         private readonly QuyDinhPhatBUS busQuyDinh = new QuyDinhPhatBUS();
+        private readonly ThamSoBUS busThamSo = new ThamSoBUS();
         private bool danhSachDaDoc;
 
         public ArrayList dsPhieuPhat_arr = new ArrayList();
@@ -310,14 +311,17 @@ namespace QLThuVien.BUS
                     throw new BusinessRuleException("Ngày lập không được trước ngày thực trả.");
                 DateTime ngayTinhPhat = sachMuon.NgayThucTra?.Date ?? pp.NgayLap.Date;
                 soNgayTre = TinhSoNgayTre(sachMuon.HanTra, ngayTinhPhat);
-                donGia = qd.MucPhat;
+                donGia = LayMucPhatTreHan(qd);
             }
             else if (loaiPhat == LoaiPhat.CoDinh)
             {
                 donGia = qd.MucPhat;
             }
 
-            decimal tienPhat = TinhTienPhat(qd, soNgayTre ?? 0, giaSach);
+            QuyDinhPhatDTO qdTinhToan = loaiPhat == LoaiPhat.TreHan
+                ? new QuyDinhPhatDTO(qd.MaQD, qd.TenQD, qd.LoaiPhat, qd.CachTinh, qd.DonViTinh, donGia)
+                : qd;
+            decimal tienPhat = TinhTienPhat(qdTinhToan, soNgayTre ?? 0, giaSach);
             string ghiChuMacDinh = loaiPhat switch
             {
                 LoaiPhat.TreHan => soNgayTre > 0 ? $"Trả trễ {soNgayTre} ngày" : "Trả đúng hạn",
@@ -574,6 +578,19 @@ namespace QLThuVien.BUS
         private QuyDinhPhatDTO? TimQuyDinh(string maQD)
         {
             return busQuyDinh.LayDanhSach().FirstOrDefault(qd => Same(qd.MaQD, maQD));
+        }
+
+        private decimal LayMucPhatTreHan(QuyDinhPhatDTO qd)
+        {
+            if (Same(qd.MaQD, "QD01"))
+            {
+                string val = busThamSo.LayGiaTriTheoMa("TIEN_PHAT_MOI_NGAY", string.Empty);
+                if (decimal.TryParse(val, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal mucThamSo) && mucThamSo >= 0)
+                {
+                    return mucThamSo;
+                }
+            }
+            return qd.MucPhat;
         }
 
         private static LoaiPhat LoaiQuyDinh(QuyDinhPhatDTO qd)

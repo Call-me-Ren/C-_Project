@@ -42,13 +42,20 @@ namespace QLThuVien.GUI
 
         private void dgvNXB_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvNXB.CurrentRow != null && dgvNXB.CurrentRow.DataBoundItem is NXBDTO nxb)
+            try
             {
-                txtMaNXB.Text = nxb.MaNXB;
-                txtMaNXB.ReadOnly = true;
-                txtMaNXB.BackColor = Color.FromArgb(238, 242, 246);
-                txtTenNXB.Text = nxb.TenNXB;
-                txtDiaChi.Text = nxb.DiaChi;
+                if (dgvNXB.CurrentRow != null && dgvNXB.CurrentRow.DataBoundItem is NXBDTO nxb)
+                {
+                    txtMaNXB.Text = nxb.MaNXB;
+                    txtMaNXB.ReadOnly = true;
+                    txtMaNXB.BackColor = Color.FromArgb(238, 242, 246);
+                    txtTenNXB.Text = nxb.TenNXB;
+                    txtDiaChi.Text = nxb.DiaChi;
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
             }
         }
 

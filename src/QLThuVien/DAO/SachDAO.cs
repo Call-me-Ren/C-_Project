@@ -38,22 +38,20 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string trangThaiVal = (ds.TrangThai == "Đã cho mượn" || ds.TrangThai == "1" || ds.TrangThai == "True") ? "1" : "0";
-                string query = @"INSERT INTO Sach (MaSach, MaDauSach, TrangThai, TinhTrang, ViTri) 
-                                 VALUES (@MaSach, @MaDauSach, @TrangThai, @TinhTrang, @ViTri)";
+                bool trangThaiVal = (ds.TrangThai == "Đã cho mượn" || ds.TrangThai == "1" || ds.TrangThai == "True");
+                const string query = @"INSERT INTO Sach (MaSach, MaDauSach, TrangThai, TinhTrang, ViTri) 
+                                       VALUES (@MaSach, @MaDauSach, @TrangThai, @TinhTrang, @ViTri)";
 
-                using (SqlConnection conn = MyConnection.GetConnection())
+                SqlParameter[] parameters =
                 {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaSach", ds.MaSach);
-                    cmd.Parameters.AddWithValue("@MaDauSach", ds.MaDauSach);
-                    cmd.Parameters.AddWithValue("@TrangThai", trangThaiVal);
-                    cmd.Parameters.AddWithValue("@TinhTrang", (object)ds.TinhTrang ?? "");
-                    cmd.Parameters.AddWithValue("@ViTri", (object)ds.ViTri ?? "");
+                    new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = ds.MaSach },
+                    new SqlParameter("@MaDauSach", SqlDbType.VarChar, 20) { Value = ds.MaDauSach },
+                    new SqlParameter("@TrangThai", SqlDbType.Bit) { Value = trangThaiVal },
+                    new SqlParameter("@TinhTrang", SqlDbType.NVarChar, 50) { Value = (object)ds.TinhTrang ?? "" },
+                    new SqlParameter("@ViTri", SqlDbType.NVarChar, 100) { Value = (object)ds.ViTri ?? "" }
+                };
 
-                    return cmd.ExecuteNonQuery() > 0;
-                }
+                return MyConnection.ExecuteNonQuery(query, parameters) > 0;
             }
             catch (SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
             {
@@ -70,23 +68,21 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string trangThaiVal = (ds.TrangThai == "Đã cho mượn" || ds.TrangThai == "1" || ds.TrangThai == "True") ? "1" : "0";
-                string query = @"UPDATE Sach 
-                                 SET MaDauSach = @MaDauSach, TrangThai = @TrangThai, TinhTrang = @TinhTrang, ViTri = @ViTri 
-                                 WHERE MaSach = @MaSach";
+                bool trangThaiVal = (ds.TrangThai == "Đã cho mượn" || ds.TrangThai == "1" || ds.TrangThai == "True");
+                const string query = @"UPDATE Sach 
+                                       SET MaDauSach = @MaDauSach, TrangThai = @TrangThai, TinhTrang = @TinhTrang, ViTri = @ViTri 
+                                       WHERE MaSach = @MaSach";
 
-                using (SqlConnection conn = MyConnection.GetConnection())
+                SqlParameter[] parameters =
                 {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaSach", ds.MaSach);
-                    cmd.Parameters.AddWithValue("@MaDauSach", ds.MaDauSach);
-                    cmd.Parameters.AddWithValue("@TrangThai", trangThaiVal);
-                    cmd.Parameters.AddWithValue("@TinhTrang", (object)ds.TinhTrang ?? "");
-                    cmd.Parameters.AddWithValue("@ViTri", (object)ds.ViTri ?? "");
+                    new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = ds.MaSach },
+                    new SqlParameter("@MaDauSach", SqlDbType.VarChar, 20) { Value = ds.MaDauSach },
+                    new SqlParameter("@TrangThai", SqlDbType.Bit) { Value = trangThaiVal },
+                    new SqlParameter("@TinhTrang", SqlDbType.NVarChar, 50) { Value = (object)ds.TinhTrang ?? "" },
+                    new SqlParameter("@ViTri", SqlDbType.NVarChar, 100) { Value = (object)ds.ViTri ?? "" }
+                };
 
-                    return cmd.ExecuteNonQuery() > 0;
-                }
+                return MyConnection.ExecuteNonQuery(query, parameters) > 0;
             }
             catch
             {
@@ -99,16 +95,13 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "DELETE FROM Sach WHERE MaSach = @MaSach";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "DELETE FROM Sach WHERE MaSach = @MaSach";
+                SqlParameter[] parameters =
                 {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaSach", maSach);
+                    new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = maSach }
+                };
 
-                    return cmd.ExecuteNonQuery() > 0;
-                }
+                return MyConnection.ExecuteNonQuery(query, parameters) > 0;
             }
             catch (SqlException ex) when (ex.Number == 547)
             {
@@ -123,17 +116,14 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "UPDATE Sach SET TrangThai = @TrangThai WHERE MaSach = @MaSach";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "UPDATE Sach SET TrangThai = @TrangThai WHERE MaSach = @MaSach";
+                SqlParameter[] parameters =
                 {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@TrangThai", trangThai ? "1" : "0");
-                    cmd.Parameters.AddWithValue("@MaSach", maSach);
+                    new SqlParameter("@TrangThai", SqlDbType.Bit) { Value = trangThai },
+                    new SqlParameter("@MaSach", SqlDbType.VarChar, 20) { Value = maSach }
+                };
 
-                    return cmd.ExecuteNonQuery() > 0;
-                }
+                return MyConnection.ExecuteNonQuery(query, parameters) > 0;
             }
             catch
             {

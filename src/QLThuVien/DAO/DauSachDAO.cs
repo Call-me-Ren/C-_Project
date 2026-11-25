@@ -92,15 +92,12 @@ namespace QLThuVien.DAO
         {
             try
             {
-                string query = "DELETE FROM DauSach WHERE MaDauSach = @MaDauSach";
-
-                using (SqlConnection conn = MyConnection.GetConnection())
+                const string query = "DELETE FROM DauSach WHERE MaDauSach = @MaDauSach";
+                SqlParameter[] parameters =
                 {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@MaDauSach", maDauSach);
-                    cmd.ExecuteNonQuery();
-                }
+                    new SqlParameter("@MaDauSach", SqlDbType.VarChar, 20) { Value = maDauSach }
+                };
+                MyConnection.ExecuteNonQuery(query, parameters);
             }
             catch (SqlException ex) when (ex.Number == 547)
             {
@@ -111,37 +108,34 @@ namespace QLThuVien.DAO
         // 5. Đọc 1 Đầu sách theo Mã
         public DauSachDTO DocTheoMa(string maDauSach)
         {
-            string query = "SELECT * FROM DauSach WHERE MaDauSach = @MaDauSach";
-            using (SqlConnection conn = MyConnection.GetConnection())
+            const string query = "SELECT * FROM DauSach WHERE MaDauSach = @MaDauSach";
+            SqlParameter[] parameters =
             {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@MaDauSach", maDauSach);
+                new SqlParameter("@MaDauSach", SqlDbType.VarChar, 20) { Value = maDauSach }
+            };
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+            DataTable dt = MyConnection.ExecuteQuery(query, parameters);
+            if (dt.Rows.Count > 0)
+            {
+                DataRow row = dt.Rows[0];
+                return new DauSachDTO
                 {
-                    if (reader.Read())
-                    {
-                        return new DauSachDTO
-                        {
-                            MaDauSach = reader["MaDauSach"].ToString(),
-                            TenSach = reader["TenSach"].ToString(),
-                            NamXB = reader["NamXB"] != DBNull.Value ? Convert.ToInt32(reader["NamXB"]) : null,
-                            SoLuong = Convert.ToInt32(reader["SoLuong"]),
-                            SLChoMuon = Convert.ToInt32(reader["SLChoMuon"]),
-                            SLConLai = Convert.ToInt32(reader["SLConLai"]),
-                            DonGia = Convert.ToDecimal(reader["DonGia"]),
-                            MaTG = reader["MaTG"].ToString(),
-                            MaTL = reader["MaTL"].ToString(),
-                            MaNXB = reader["MaNXB"].ToString()
-                        };
-                    }
-                }
+                    MaDauSach = row["MaDauSach"].ToString(),
+                    TenSach = row["TenSach"].ToString(),
+                    NamXB = row["NamXB"] != DBNull.Value ? Convert.ToInt32(row["NamXB"]) : null,
+                    SoLuong = Convert.ToInt32(row["SoLuong"]),
+                    SLChoMuon = Convert.ToInt32(row["SLChoMuon"]),
+                    SLConLai = Convert.ToInt32(row["SLConLai"]),
+                    DonGia = Convert.ToDecimal(row["DonGia"]),
+                    MaTG = row["MaTG"].ToString(),
+                    MaTL = row["MaTL"].ToString(),
+                    MaNXB = row["MaNXB"].ToString()
+                };
             }
             return null;
         }
 
-        // 6. Tính toán & Đồng bộ lại số lượng từ bảng Sach
+        // 6. Tính toán & Đồng bộ lại số lượng từ bảng Sach (loại trừ sách đã bị đánh dấu 'Mất')
         public void DongBoSoLuong(string maDauSach)
         {
             const string query = @"UPDATE ds
@@ -156,6 +150,7 @@ namespace QLThuVien.DAO
                                            SUM(CASE WHEN CAST(TrangThai AS VARCHAR) = '1' OR CAST(TrangThai AS VARCHAR) = 'True' THEN 1 ELSE 0 END) AS SoMuon
                                        FROM Sach
                                        WHERE MaDauSach = @MaDauSach
+                                         AND ISNULL(TinhTrang, N'') <> N'Mất'
                                        GROUP BY MaDauSach
                                    ) x ON ds.MaDauSach = x.MaDauSach
                                    WHERE ds.MaDauSach = @MaDauSach";

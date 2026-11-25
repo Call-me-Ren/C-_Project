@@ -279,57 +279,113 @@ namespace QLThuVien.BUS
             return dsKetQua;
         }
 
-        // 7. Tìm kiếm nâng cao
+        // 7. Tìm kiếm nâng cao (Lọc trên ArrayList trong RAM, hỗ trợ toán tử logic AND/OR/NOT và so sánh =, <>, >, >=, <, <=)
+        private static bool SoSanhGiaTri(decimal giaTriThucTe, decimal giaTriMucTieu, string toanTu)
+        {
+            return (toanTu ?? "=").Trim() switch
+            {
+                "<>" or "!=" => giaTriThucTe != giaTriMucTieu,
+                ">" => giaTriThucTe > giaTriMucTieu,
+                ">=" => giaTriThucTe >= giaTriMucTieu,
+                "<" => giaTriThucTe < giaTriMucTieu,
+                "<=" => giaTriThucTe <= giaTriMucTieu,
+                _ => giaTriThucTe == giaTriMucTieu
+            };
+        }
+
         public List<DauSachDTO> TimKiemNangCao(string maDauSach, string tenSach, int? soLuong, int? namXB, string maTG, string maTL = null)
         {
-            List<DauSachDTO> ds = new List<DauSachDTO>();
-            foreach (DauSachDTO item in LayDanhSachTrongBoNho()) ds.Add(item);
-            var ketQua = ds.AsEnumerable();
-
-            if (!string.IsNullOrWhiteSpace(maDauSach))
-            {
-                ketQua = ketQua.Where(s => !string.IsNullOrEmpty(s.MaDauSach) &&
-                                           s.MaDauSach.ToLower().Contains(maDauSach.Trim().ToLower()));
-            }
-
-            if (!string.IsNullOrWhiteSpace(tenSach))
-            {
-                ketQua = ketQua.Where(s => !string.IsNullOrEmpty(s.TenSach) &&
-                                           s.TenSach.ToLower().Contains(tenSach.Trim().ToLower()));
-            }
-
-            if (soLuong.HasValue)
-            {
-                ketQua = ketQua.Where(s => s.SoLuong == soLuong.Value);
-            }
-
-            if (namXB.HasValue)
-            {
-                ketQua = ketQua.Where(s => s.NamXB.HasValue && s.NamXB.Value == namXB.Value);
-            }
-
-            if (!string.IsNullOrWhiteSpace(maTG))
-            {
-                ketQua = ketQua.Where(s => !string.IsNullOrEmpty(s.MaTG) &&
-                                           s.MaTG.Equals(maTG.Trim(), StringComparison.OrdinalIgnoreCase));
-            }
-
-            if (!string.IsNullOrWhiteSpace(maTL))
-            {
-                ketQua = ketQua.Where(s => !string.IsNullOrEmpty(s.MaTL) &&
-                                           s.MaTL.Equals(maTL.Trim(), StringComparison.OrdinalIgnoreCase));
-            }
-
-            return ketQua.ToList();
+            return TimKiemNangCao(maDauSach, tenSach, soLuong, "=", namXB, "=", maTG, maTL, null, ">=", null, "AND");
         }
 
         public List<DauSachDTO> TimKiemNangCao(string maDauSach, string tenSach, int? soLuong, int? namXB,
             string maTG, string maTL, decimal? tuGia, decimal? denGia)
         {
-            IEnumerable<DauSachDTO> ketQua = TimKiemNangCao(maDauSach, tenSach, soLuong, namXB, maTG, maTL);
-            if (tuGia.HasValue) ketQua = ketQua.Where(s => s.DonGia >= tuGia.Value);
-            if (denGia.HasValue) ketQua = ketQua.Where(s => s.DonGia <= denGia.Value);
-            return ketQua.ToList();
+            return TimKiemNangCao(maDauSach, tenSach, soLuong, "=", namXB, "=", maTG, maTL, tuGia, ">=", denGia, "AND");
+        }
+
+        public List<DauSachDTO> TimKiemNangCao(string maDauSach, string tenSach, int? soLuong, string toanTuSoLuong,
+            int? namXB, string toanTuNamXB, string maTG, string maTL,
+            decimal? tuGia, string toanTuGia, decimal? denGia, string phepLogic = "AND")
+        {
+            List<Func<DauSachDTO, bool>> dieuKien = new List<Func<DauSachDTO, bool>>();
+
+            if (!string.IsNullOrWhiteSpace(maDauSach))
+            {
+                string kwMa = maDauSach.Trim().ToLower();
+                dieuKien.Add(s => !string.IsNullOrEmpty(s.MaDauSach) && s.MaDauSach.ToLower().Contains(kwMa));
+            }
+
+            if (!string.IsNullOrWhiteSpace(tenSach))
+            {
+                string kwTen = tenSach.Trim().ToLower();
+                dieuKien.Add(s => !string.IsNullOrEmpty(s.TenSach) && s.TenSach.ToLower().Contains(kwTen));
+            }
+
+            if (soLuong.HasValue)
+            {
+                int slTarget = soLuong.Value;
+                string opSL = toanTuSoLuong ?? "=";
+                dieuKien.Add(s => SoSanhGiaTri(s.SoLuong, slTarget, opSL));
+            }
+
+            if (namXB.HasValue)
+            {
+                int namTarget = namXB.Value;
+                string opNam = toanTuNamXB ?? "=";
+                dieuKien.Add(s => s.NamXB.HasValue && SoSanhGiaTri(s.NamXB.Value, namTarget, opNam));
+            }
+
+            if (!string.IsNullOrWhiteSpace(maTG))
+            {
+                string kwTG = maTG.Trim();
+                dieuKien.Add(s => !string.IsNullOrEmpty(s.MaTG) && s.MaTG.Equals(kwTG, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(maTL))
+            {
+                string kwTL = maTL.Trim();
+                dieuKien.Add(s => !string.IsNullOrEmpty(s.MaTL) && s.MaTL.Equals(kwTL, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (tuGia.HasValue)
+            {
+                decimal giaTarget = tuGia.Value;
+                string opGia = toanTuGia ?? ">=";
+                dieuKien.Add(s => SoSanhGiaTri(s.DonGia, giaTarget, opGia));
+            }
+
+            if (denGia.HasValue)
+            {
+                decimal maxGia = denGia.Value;
+                dieuKien.Add(s => s.DonGia <= maxGia);
+            }
+
+            List<DauSachDTO> ketQua = new List<DauSachDTO>();
+            string logic = (phepLogic ?? "AND").Trim().ToUpperInvariant();
+
+            foreach (DauSachDTO s in LayDanhSachTrongBoNho())
+            {
+                if (dieuKien.Count == 0)
+                {
+                    ketQua.Add(s);
+                    continue;
+                }
+
+                bool thoaMan = logic switch
+                {
+                    "OR" => dieuKien.Any(dk => dk(s)),
+                    "NOT" => !dieuKien.All(dk => dk(s)),
+                    _ => dieuKien.All(dk => dk(s))
+                };
+
+                if (thoaMan)
+                {
+                    ketQua.Add(s);
+                }
+            }
+
+            return ketQua;
         }
 
     }

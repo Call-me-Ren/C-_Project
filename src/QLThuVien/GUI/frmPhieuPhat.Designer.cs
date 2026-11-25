@@ -142,7 +142,6 @@ namespace QLThuVien.GUI
             lblNgayLap.Location = new Point(295, 26);
             lblNgayLap.Text = "Ngày lập:";
             dtpNgayLap.Format = DateTimePickerFormat.Short;
-            dtpNgayLap.MaxDate = DateTime.Today;
             dtpNgayLap.Location = new Point(365, 23);
             dtpNgayLap.Size = new Size(155, 23);
 

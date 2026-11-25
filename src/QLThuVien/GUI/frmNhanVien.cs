@@ -45,14 +45,21 @@ namespace QLThuVien.GUI
 
         private void dgvNhanVien_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.RowIndex >= dgvNhanVien.Rows.Count) return;
-            DataGridViewRow row = dgvNhanVien.Rows[e.RowIndex];
-            txtMaNV.Text = row.Cells["colMaNV"].Value?.ToString() ?? string.Empty;
-            GanTen(txtHoLot, row.Cells["colHoLot"].Value?.ToString() ?? string.Empty, ref hoLotHopLe);
-            GanTen(txtTenNV, row.Cells["colTenNV"].Value?.ToString() ?? string.Empty, ref tenHopLe);
-            string? chucVu = row.Cells["colChucVu"].Value?.ToString();
-            NapDanhSachChucVu(chucVu);
-            txtMaNV.ReadOnly = true;
+            try
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvNhanVien.Rows.Count) return;
+                DataGridViewRow row = dgvNhanVien.Rows[e.RowIndex];
+                txtMaNV.Text = row.Cells["colMaNV"].Value?.ToString() ?? string.Empty;
+                GanTen(txtHoLot, row.Cells["colHoLot"].Value?.ToString() ?? string.Empty, ref hoLotHopLe);
+                GanTen(txtTenNV, row.Cells["colTenNV"].Value?.ToString() ?? string.Empty, ref tenHopLe);
+                string? chucVu = row.Cells["colChucVu"].Value?.ToString();
+                NapDanhSachChucVu(chucVu);
+                txtMaNV.ReadOnly = true;
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnThem_Click(object sender, EventArgs e)
@@ -152,7 +159,14 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
+            try
+            {
+                HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnTatCa_Click(object sender, EventArgs e)

@@ -13,10 +13,11 @@
 - **Nền tảng công nghệ:**
   - **Giao diện chính:** C# Windows Forms (.NET 10) trên Visual Studio 2022 + VS Code.
   - **Hệ quản trị CSDL:** SQL Server (thao tác qua **SQL Server Management Studio - SSMS**), kết nối bằng thư viện `Microsoft.Data.SqlClient`.
-  - **Giao diện mở rộng (Điểm cộng):** Tối thiểu 1 trang Web bằng **ASP.NET Core / Blazor**.
+  - **Giao diện mở rộng (Web cá nhân):** Mỗi thành viên làm riêng **1 dự án Web ASP.NET Core / Blazor** (tối thiểu 1 trang quản lý đối tượng, làm nhiều được cộng điểm).
 - **Mốc thời gian quan trọng:**
   - **Tuần 9 + 10:** Kiểm tra giấy 10 phút trên lớp (viết tay 1–2 hàm trong đồ án của mình để chứng minh tự code và hiểu bài). Hoàn thiện toàn bộ phần mềm trong **Tuần 10**.
-  - **Tuần 11 + 12:** Bốc thăm thứ tự chấm đồ án, vấn đáp trực tiếp trên code và nộp Báo cáo Word cuối kỳ (Tháng 12/2026).
+  - **Tuần 11 (hiện tại - 25/11) & Tuần 12:** Bốc thăm thứ tự chấm đồ án, vấn đáp trực tiếp trên code (ưu tiên lo chấm đồ án trước; nếu in sẵn quyển báo cáo nộp luôn ở buổi chấm thì tốt).
+  - **Tuần 13 (Hạn chót - ngày cuối cùng của Tuần 13):** Sau khi chấm xong, nhóm về sửa lại các lỗi (nếu có) rồi nộp **Source code** và **Quyển báo cáo bản in** (làm chung, dòng cuối bìa: Tháng 12/2026).
 
 ---
 
@@ -57,7 +58,7 @@ Dưới đây là toàn bộ 16 yêu cầu từ file `C-w7-YeuCauDoAn.md`, `Vers
 | **13** | **Mẫu màn hình chính Desktop (Menu trái + Form con)** | Giao diện chính (`frmMain`) có thanh điều hướng bên trái (Left Sidebar Menu) và vùng Panel bên phải để nhúng các Form con. Màu sắc hài hòa, lịch sự, không lòe loẹt (chỉ dùng màu đỏ cho 1–2 nút cảnh báo/xóa). |
 | **14** | **Báo cáo Word cuối kỳ** | Tối đa **20 trang**, font **Times New Roman cỡ 13**, **không có trang mục lục**, đầy đủ trang bìa và 5 phần theo mẫu của cô. |
 | **15** | **Hỗ trợ lưu trữ Tiếng Việt (UTF-8 / Unicode)** | Sử dụng kiểu dữ liệu `NVARCHAR` trong SQL Server và tiền tố `N'...'` hoặc `SqlParameter` kiểu `SqlDbType.NVarChar` để không bao giờ bị lỗi font chữ tiếng Việt. |
-| **16** | **Trang Web ASP.NET Core / Blazor *(Bổ sung từ `Note.md`)*** | Làm tối thiểu 1 trang web quản lý/tra cứu đối tượng trong đồ án (chú ý cú pháp `@` trong Razor/Blazor). Làm thêm trang đặt mượn sách / admin duyệt sẽ được cộng điểm. |
+| **16** | **Trang Web ASP.NET Core / Blazor *(Cá nhân - Bổ sung từ `Note.md` & dặn dò trên lớp)*** | - **Mỗi thành viên làm 1 Web riêng** bằng **ASP.NET Core** (dùng framework **Blazor** hỗ trợ tạo dự án ASP.NET Core; lưu ý cú pháp dấu `@` trong Razor).<br>- Tối thiểu **1 trang web quản lý một đối tượng** trong đồ án (làm nhiều trang được cộng điểm; nếu bổ sung thêm trang đặt/mượn sách và trang xác nhận/duyệt của Admin sẽ được cộng điểm).<br>- **Vấn đáp Web (5 phút):** GV hỏi dòng code làm gì (không bắt code lại). Làm tốt, nghiêm túc **+1 điểm**; làm xấu **-0.5 điểm**. |
 
 ---
 
@@ -154,9 +155,10 @@ Trong quá trình phân tích chéo toàn bộ tài liệu trong `requirement_in
 
 ---
 
-## VI. YÊU CẦU BÁO CÁO WORD CUỐI KỲ (CHUẨN BỊ CHO TUẦN 11–12)
+## VI. YÊU CẦU BÁO CÁO WORD CUỐI KỲ (LÀM CHUNG — HẠN CHÓT TUẦN 13)
 
-- **Hình thức:** Tối đa **20 trang**, font **Times New Roman**, size **13**, **KHÔNG có trang mục lục**.
+- **Phân công & Thời hạn nộp:** Quyển báo cáo **làm chung cả nhóm**. Nếu in nộp luôn tại buổi chấm đồ án thì tốt (nhưng ưu tiên lo chấm đồ án trước); sau khi chấm xong về sửa lại các góp ý và nộp **bản in quyển báo cáo** cùng **source code** vào **ngày cuối cùng của Tuần 13**. *(Làm web và báo cáo tốt được **+1 điểm**)*.
+- **Hình thức:** Tối đa **20 trang**, font **Times New Roman**, size **13**, **KHÔNG có trang mục lục**. Đưa đầy đủ sơ đồ **CSDL** và các **bảng/hình chụp giao diện đẹp** vào báo cáo.
 - **Trang bìa:**
   1. Đồ án học phần Lập trình C#
   2. Tên đề tài: Phần mềm Quản lý Thư viện
@@ -168,11 +170,43 @@ Trong quá trình phân tích chéo toàn bộ tài liệu trong `requirement_in
   - **II. Thiết kế mô hình CSDL:** Chụp màn hình sơ đồ CSDL (ảnh phải rõ nét).
   - **III. Các chức năng chính:** Liệt kê 1, 2, 3..., các chức năng con a, b, c... Mỗi chức năng trình bày:
     - a. Giới thiệu chức năng.
-    - b. Chụp màn hình Form, chú thích các thành phần trên Form.
+    - b. Chụp màn hình Form (chọn các bảng/hình đẹp), chú thích các thành phần trên Form, **nút gì bấm làm gì**.
     - c. Thuyết minh công thức tính toán: thành tiền, tổng tiền, tiền phạt, số lượng tồn...
-    - d. Mỗi hàm (chức năng): xác định Đầu vào (Input), Đầu ra (Output), xử lý tính toán.
+    - d. Mỗi hàm (chức năng): xác định rõ **Đầu vào (Input)**, **Đầu ra (Output)**, xử lý tính toán.
   - **IV. Hướng dẫn cài đặt đồ án:**
     - a. Chụp màn hình cây thư mục chứa source code, thấy rõ phân lớp `GUI - BUS - DAO - DTO`.
     - b. Cách kết nối CSDL.
     - c. Cách cài đặt và link download các tool hoặc thư viện sử dụng trong đồ án.
   - **V. Sản phẩm đồ án:** Link chứa source code (GitHub/Drive) và file báo cáo đồ án (DOC/PDF).
+
+---
+
+## VII. QUY TRÌNH CHẤM ĐỒ ÁN & GÓI ĐIỂM CÁ NHÂN (DẶN DÒ TRÊN LỚP)
+
+### Bước 1: Người đại diện chạy Demo Đồ Án (Chấm điểm chung của nhóm)
+- Giáo viên vấn đáp theo danh sách yêu cầu và chấm điểm đồ án cho cả nhóm.
+- **Chuẩn bị kịch bản chạy demo:** Mỗi thành viên phải chuẩn bị sẵn kịch bản test đồ án (ví dụ: *thêm mới thì phải nhập mã chưa có, nhập mã đã có thì phải báo lỗi; tìm kiếm thì test cả trường hợp gõ không ra và gõ keyword sao cho nhìn thấy dữ liệu đẹp nhất*).
+- **Thang điểm & Quy tắc trừ điểm:**
+  - **Bắt đầu từ 12 điểm** (cứ **1 lỗi bị trừ 1 điểm**).
+  - Không có **Form Main - Sub**: **-1 điểm**.
+  - Không có **Thống kê**: **-2 điểm**.
+  - Giao diện **xấu** cũng bị trừ điểm.
+  - **Các lỗi phổ biến hay bị trừ điểm:**
+    - Bán hàng / Mượn-Trả sách quên cập nhật số lượng (`SLConLai`, `SLChoMuon`).
+    - Nhập hàng quên cập nhật số lượng (`SoLuong`, `SLConLai`).
+    - Tính tiền hóa đơn / phiếu nhập / tiền phạt không chính xác.
+    - Thiếu chức năng tìm kiếm hoặc thiếu nút hỗ trợ tìm dữ liệu (`...`).
+  - **Database lủng:** **Không chấm đồ án luôn (0 điểm)**.
+
+### Bước 2: Chọn gói điểm cá nhân
+Mỗi sinh viên tự chọn 1 trong 3 gói điểm cá nhân tương ứng với mức độ nắm code:
+1. **Gói 1 (Gói 100/100 — Lấy 100% điểm đồ án):**
+   - Phải tự gõ lại được **1–2 hàm**, trong đó có **1 hàm Thống kê** (câu mức hơi khó, ví dụ: *Thống kê theo năm* — có thể viết cách khác miễn sao đúng) và **1 hàm mức đơn giản**.
+2. **Gói 2 (Gói 70% — Lấy 70% điểm đồ án):**
+   - Nắm chắc 3 tầng `GUI`, `BUS`, `DAO` của **Hóa đơn** *(trong đề tài Thư viện là Phiếu mượn / Phiếu phạt)*, **Phiếu nhập hàng** và các **hàm Thống kê**.
+3. **Gói 3 (Gói 50% — Lấy 50% điểm đồ án):**
+   - Cover được **3 đối tượng** thuộc tầng `BUS` và `DAO` (bỏ `GUI`, không cần Thống kê); cụ thể là code được các hàm **Thêm, Xóa, Sửa, Tìm kiếm** của `BUS` và `DAO`.
+
+### Chấm Web cá nhân & Điểm cộng
+- **Web ASP.NET Core / Blazor (làm cá nhân):** Vấn đáp khoảng **5 phút** (GV hỏi dòng code làm gì, **không bắt code lại**). Làm tốt, nghiêm túc được **+1 điểm**; làm xấu bị **-0.5 điểm**.
+- **Tổng kết:** Làm Web và Báo cáo tốt được **+1 điểm**.

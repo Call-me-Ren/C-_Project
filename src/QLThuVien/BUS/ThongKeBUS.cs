@@ -16,8 +16,8 @@ namespace QLThuVien.BUS
         {
             if (tuNgay.Date > denNgay.Date)
                 throw new BusinessRuleException("Từ ngày phải trước hoặc bằng Đến ngày.");
-            if (tuNgay.Date > DateTime.Today || denNgay.Date > DateTime.Today)
-                throw new BusinessRuleException("Ngày thống kê không được ở tương lai.");
+            if (tuNgay.Year < 2000 || denNgay.Year > DateTime.Today.Year + 1)
+                throw new BusinessRuleException($"Khoảng ngày thống kê phải nằm trong giai đoạn 2000 - {DateTime.Today.Year + 1}.");
         }
 
         public ThongKeTongHopDTO LayTongHop(DateTime tuNgay, DateTime denNgay)

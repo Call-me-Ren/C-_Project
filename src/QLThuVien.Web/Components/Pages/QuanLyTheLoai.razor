@@ -1,0 +1,209 @@
+@page "/quan-ly-the-loai"
+@using QLThuVien.Web.Data
+@rendermode InteractiveServer
+@inject ThuVienWebService WebService
+
+<PageTitle>Quản lý Thể loại - Thư viện SGU</PageTitle>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-primary mb-1">📂 QUẢN LÝ THỂ LOẠI SÁCH</h2>
+            <p class="text-muted mb-0">Thêm, sửa, xóa và tìm kiếm danh mục thể loại trực tiếp trên SQL Server</p>
+        </div>
+        <span class="badge bg-primary fs-6 px-3 py-2">Tổng: @danhSach.Count thể loại</span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(thongBao))
+    {
+        <div class="alert @(laLoi ? "alert-danger" : "alert-success") alert-dismissible fade show" role="alert">
+            @thongBao
+            <button type="button" class="btn-close" @onclick="() => thongBao = string.Empty"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white fw-bold">
+                    @(dangSua ? "Cập nhật Thể loại" : "Thêm Thể loại mới")
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Mã thể loại</label>
+                        <input type="text" class="form-control" @bind="formModel.MaTL" disabled="@dangSua" placeholder="VD: TL04" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Tên thể loại</label>
+                        <input type="text" class="form-control" @bind="formModel.TenTL" placeholder="Nhập tên thể loại..." />
+                    </div>
+                    <div class="d-grid gap-2">
+                        @if (dangSua)
+                        {
+                            <button class="btn btn-warning fw-semibold" @onclick="LuuCapNhat">💾 Lưu cập nhật</button>
+                            <button class="btn btn-outline-secondary" @onclick="LamMoiForm">Hủy chọn</button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success fw-semibold" @onclick="ThemMoi">➕ Thêm thể loại</button>
+                            <button class="btn btn-outline-secondary" @onclick="LamMoiForm">Làm mới</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Tìm theo mã hoặc tên thể loại..."
+                               @bind="tuKhoa" @bind:event="oninput" @onkeyup="XuLyPhimTim" />
+                        <button class="btn btn-primary" @onclick="TaiDuLieu">Tìm kiếm</button>
+                        <button class="btn btn-outline-secondary" @onclick="XoaBoLoc">Tất cả</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 140px;">Mã thể loại</th>
+                                    <th>Tên thể loại</th>
+                                    <th class="text-end" style="width: 160px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (danhSach.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">Không tìm thấy thể loại nào.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    @foreach (var item in danhSach)
+                                    {
+                                        <tr>
+                                            <td><span class="badge bg-secondary">@item.MaTL</span></td>
+                                            <td class="fw-semibold">@item.TenTL</td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => ChonSua(item)">Sửa</button>
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => Xoa(item.MaTL)">Xóa</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<TheLoaiWebModel> danhSach = new();
+    private TheLoaiWebModel formModel = new();
+    private string tuKhoa = string.Empty;
+    private bool dangSua = false;
+    private string thongBao = string.Empty;
+    private bool laLoi = false;
+
+    protected override void OnInitialized() => TaiDuLieu();
+
+    private void TaiDuLieu()
+    {
+        try
+        {
+            danhSach = WebService.LayDanhSachTheLoai(tuKhoa);
+        }
+        catch (Exception ex)
+        {
+            DatThongBao(false, "Lỗi tải dữ liệu: " + ex.Message);
+        }
+    }
+
+    private void ThemMoi()
+    {
+        try
+        {
+            var res = WebService.ThemTheLoai(formModel);
+            DatThongBao(res.ok, res.message);
+            if (res.ok)
+            {
+                LamMoiForm();
+                TaiDuLieu();
+            }
+        }
+        catch (Exception ex)
+        {
+            DatThongBao(false, ex.Message);
+        }
+    }
+
+    private void ChonSua(TheLoaiWebModel item)
+    {
+        formModel = new TheLoaiWebModel { MaTL = item.MaTL, TenTL = item.TenTL };
+        dangSua = true;
+    }
+
+    private void LuuCapNhat()
+    {
+        try
+        {
+            var res = WebService.SuaTheLoai(formModel);
+            DatThongBao(res.ok, res.message);
+            if (res.ok)
+            {
+                LamMoiForm();
+                TaiDuLieu();
+            }
+        }
+        catch (Exception ex)
+        {
+            DatThongBao(false, ex.Message);
+        }
+    }
+
+    private void Xoa(string maTL)
+    {
+        try
+        {
+            var res = WebService.XoaTheLoai(maTL);
+            DatThongBao(res.ok, res.message);
+            if (res.ok)
+            {
+                if (dangSua && formModel.MaTL == maTL) LamMoiForm();
+                TaiDuLieu();
+            }
+        }
+        catch (Exception ex)
+        {
+            DatThongBao(false, ex.Message);
+        }
+    }
+
+    private void LamMoiForm()
+    {
+        formModel = new TheLoaiWebModel();
+        dangSua = false;
+    }
+
+    private void XoaBoLoc()
+    {
+        tuKhoa = string.Empty;
+        TaiDuLieu();
+    }
+
+    private void XuLyPhimTim(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") TaiDuLieu();
+    }
+
+    private void DatThongBao(bool ok, string msg)
+    {
+        laLoi = !ok;
+        thongBao = msg;
+    }
+}

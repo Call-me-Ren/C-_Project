@@ -8,6 +8,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped<TraCuuSachService>();
+builder.Services.AddSingleton<YeuCauMuonStore>();
+builder.Services.AddScoped<ThuVienWebService>();
 
 var app = builder.Build();
 

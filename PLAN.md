@@ -229,11 +229,11 @@ Nhân bản theo đúng khuôn mẫu chuẩn của `TheLoai` cho 7 bảng danh m
 
 ### ⚫ GIAI ĐOẠN 7: KIỂM THỬ TOÀN DIỆN, ÔN KIỂM TRA 10 PHÚT & BÁO CÁO WORD
 
-- [ ] **Bước 7.1 — Kiểm thử toàn bộ luồng nghiệp vụ:**
+- [x] **Bước 7.1 — Kiểm thử toàn bộ luồng nghiệp vụ:**
   - Chạy thử từ A $\rightarrow$ Z: Thêm danh mục $\rightarrow$ Nhập sách (tồn kho tăng) $\rightarrow$ Mượn sách (tồn kho giảm) $\rightarrow$ Trả sách trễ $\rightarrow$ Lập phiếu phạt $\rightarrow$ Xem thống kê Quý $\rightarrow$ Xuất Excel & PDF.
-- [ ] **Bước 7.2 — Ôn tập Kiểm tra giấy 10 phút (Tuần 9–10):**
+- [x] **Bước 7.2 — Ôn tập Kiểm tra giấy 10 phút (Tuần 9–10):**
   - Luyện viết tay nhanh các hàm cốt lõi trong `DAO` và `BUS`: hàm `DocDS()`, hàm `Them()` có kiểm tra trùng mã, hàm `TimKiem()` trên `ArrayList`, hàm tính `ThanhTien`/`TongTien` và cập nhật số lượng tồn kho.
-- [ ] **Bước 7.3 — Soạn Báo cáo Word cuối kỳ (Tuần 11–12):**
+- [x] **Bước 7.3 — Soạn Báo cáo Word cuối kỳ (Tuần 11–12):**
   - Chuẩn định dạng: $\le 20$ trang, font Times New Roman size 13, không mục lục, đầy đủ 5 phần I $\rightarrow$ V như trong `YEU_CAU_DO_AN.md`.
 
 ---

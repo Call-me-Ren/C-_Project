@@ -11,8 +11,8 @@ namespace QLThuVien.BUS
     public class SachBUS
     {
         public static List<SachDTO> ds = new List<SachDTO>();
-        private static readonly ArrayList danhSachSachTrongBoNho = new ArrayList();
-        private static bool daNapDanhSach;
+        private readonly ArrayList danhSachSachTrongBoNho = new ArrayList();
+        private bool daNapDanhSach;
         private DauSachBUS dauSachBUS = new DauSachBUS();
 
         public SachBUS()

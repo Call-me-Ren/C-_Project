@@ -40,19 +40,26 @@ namespace QLThuVien.GUI
 
         private void dgvQuyDinhPhat_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex < 0 || e.RowIndex >= dgvQuyDinhPhat.Rows.Count) return;
-            DataGridViewRow row = dgvQuyDinhPhat.Rows[e.RowIndex];
-            txtMaQD.Text = row.Cells["colMaQD"].Value?.ToString() ?? string.Empty;
-            txtTenQD.Text = row.Cells["colTenQD"].Value?.ToString() ?? string.Empty;
-            NapLuaChon(cboLoaiPhat, QuyDinhPhatBUS.DanhSachLoaiPhat, row.Cells["colLoaiPhat"].Value?.ToString());
-            NapLuaChon(cboCachTinh, QuyDinhPhatBUS.DanhSachCachTinh, row.Cells["colCachTinh"].Value?.ToString());
-            NapLuaChon(cboDonViTinh, QuyDinhPhatBUS.DanhSachDonViTinh, row.Cells["colDonViTinh"].Value?.ToString());
+            try
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvQuyDinhPhat.Rows.Count) return;
+                DataGridViewRow row = dgvQuyDinhPhat.Rows[e.RowIndex];
+                txtMaQD.Text = row.Cells["colMaQD"].Value?.ToString() ?? string.Empty;
+                txtTenQD.Text = row.Cells["colTenQD"].Value?.ToString() ?? string.Empty;
+                NapLuaChon(cboLoaiPhat, QuyDinhPhatBUS.DanhSachLoaiPhat, row.Cells["colLoaiPhat"].Value?.ToString());
+                NapLuaChon(cboCachTinh, QuyDinhPhatBUS.DanhSachCachTinh, row.Cells["colCachTinh"].Value?.ToString());
+                NapLuaChon(cboDonViTinh, QuyDinhPhatBUS.DanhSachDonViTinh, row.Cells["colDonViTinh"].Value?.ToString());
 
-            if (decimal.TryParse(row.Cells["colMucPhat"].Value?.ToString(), out decimal mucPhat))
-                numMucPhat.Value = Math.Max(numMucPhat.Minimum, Math.Min(numMucPhat.Maximum, mucPhat));
-            else
-                numMucPhat.Value = 0;
-            txtMaQD.ReadOnly = true;
+                if (decimal.TryParse(row.Cells["colMucPhat"].Value?.ToString(), out decimal mucPhat))
+                    numMucPhat.Value = Math.Max(numMucPhat.Minimum, Math.Min(numMucPhat.Maximum, mucPhat));
+                else
+                    numMucPhat.Value = 0;
+                txtMaQD.ReadOnly = true;
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnThem_Click(object sender, EventArgs e)
@@ -153,7 +160,14 @@ namespace QLThuVien.GUI
 
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
-            HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
+            try
+            {
+                HienThiDanhSach(bus.TimKiem(txtTimKiem.Text.Trim()));
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
+            }
         }
 
         private void btnTatCa_Click(object sender, EventArgs e)

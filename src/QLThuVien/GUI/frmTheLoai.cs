@@ -41,12 +41,19 @@ namespace QLThuVien.GUI
 
         private void dgvTheLoai_SelectionChanged(object sender, EventArgs e)
         {
-            if (dgvTheLoai.CurrentRow != null && dgvTheLoai.CurrentRow.DataBoundItem is TheLoaiDTO tl)
+            try
             {
-                txtMaTL.Text = tl.MaTL;
-                txtMaTL.ReadOnly = true;
-                txtMaTL.BackColor = Color.FromArgb(238, 242, 246);
-                txtTenTL.Text = tl.TenTL;
+                if (dgvTheLoai.CurrentRow != null && dgvTheLoai.CurrentRow.DataBoundItem is TheLoaiDTO tl)
+                {
+                    txtMaTL.Text = tl.MaTL;
+                    txtMaTL.ReadOnly = true;
+                    txtMaTL.BackColor = Color.FromArgb(238, 242, 246);
+                    txtTenTL.Text = tl.TenTL;
+                }
+            }
+            catch (Exception ex)
+            {
+                FormErrors.Show(ex);
             }
         }
 
