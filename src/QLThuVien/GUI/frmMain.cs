@@ -7,10 +7,12 @@ namespace QLThuVien.GUI
     public partial class frmMain : Form
     {
         private Form? formConDangMo;
+        private Button? nutMenuDangChon;
 
         public frmMain()
         {
             InitializeComponent();
+            ChonNutMenuTheoTag("MuonTraSach");
             OpenChildForm(new frmMuonTraSach(), "Quản lý mượn - trả sách (Main - Sub)");
         }
 
@@ -48,6 +50,7 @@ namespace QLThuVien.GUI
                     _ => throw new InvalidOperationException($"Không tìm thấy màn hình được chọn: {button.Tag}")
                 };
 
+                DatNutMenuDangChon(button);
                 OpenChildForm(formCon, button.Text);
             }
             catch (Exception ex)
@@ -84,14 +87,42 @@ namespace QLThuVien.GUI
             }
 
             formConDangMo = childForm;
-            lblTitle.Text = title;
+            lblTitle.Text = title.Trim();
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
             childForm.Dock = DockStyle.Fill;
+            AppTheme.ApplyToForm(childForm);
             pnlContent.Controls.Add(childForm);
             pnlContent.Tag = childForm;
             childForm.Show();
             childForm.BringToFront();
+        }
+
+        private void ChonNutMenuTheoTag(string maManHinh)
+        {
+            foreach (Control c in pnlMenuContainer.Controls)
+            {
+                if (c is Button btn && string.Equals(btn.Tag?.ToString(), maManHinh, StringComparison.Ordinal))
+                {
+                    DatNutMenuDangChon(btn);
+                    break;
+                }
+            }
+        }
+
+        private void DatNutMenuDangChon(Button button)
+        {
+            if (nutMenuDangChon != null)
+            {
+                nutMenuDangChon.BackColor = AppTheme.Sidebar;
+                nutMenuDangChon.ForeColor = Color.FromArgb(226, 232, 240);
+                nutMenuDangChon.Font = new Font("Segoe UI", 9.25F, FontStyle.Regular);
+            }
+
+            nutMenuDangChon = button;
+            nutMenuDangChon.BackColor = AppTheme.Primary;
+            nutMenuDangChon.ForeColor = Color.White;
+            nutMenuDangChon.Font = new Font("Segoe UI", 9.25F, FontStyle.Bold);
         }
 
         private Label TaoTieuDeNhom(string text)

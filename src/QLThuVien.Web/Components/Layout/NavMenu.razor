@@ -1,38 +1,76 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">QLThuVien.Web</a>
+    <div class="container-fluid px-2">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="">
+            <span class="brand-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                </svg>
+            </span>
+            <span class="d-flex flex-column lh-sm">
+                <span class="brand-title">QL THƯ VIỆN</span>
+                <span class="brand-sub">Cổng Web SGU</span>
+            </span>
+        </a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="Mở menu điều hướng" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
+    <nav class="nav flex-column pt-2">
+        <div class="nav-section-label">TRA CỨU &amp; ĐẶT MƯỢN</div>
+
+        <div class="nav-item">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Tra cứu Đầu sách
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                </svg>
+                <span>Tra cứu Đầu sách</span>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="quan-ly-the-loai">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Quản lý Thể loại
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="quan-ly-dau-sach">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Quản lý Đầu sách
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
+
+        <div class="nav-item">
             <NavLink class="nav-link" href="dat-muon-sach">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Đặt mượn sách
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                </svg>
+                <span>Đặt mượn sách</span>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
+
+        <div class="nav-section-label mt-3">QUẢN TRỊ THƯ VIỆN</div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link" href="quan-ly-dau-sach">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                </svg>
+                <span>Quản lý Đầu sách</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
+            <NavLink class="nav-link" href="quan-ly-the-loai">
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 7h-9" />
+                    <path d="M14 17H5" />
+                    <circle cx="17" cy="17" r="3" />
+                    <circle cx="7" cy="7" r="3" />
+                </svg>
+                <span>Quản lý Thể loại</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item">
             <NavLink class="nav-link" href="duyet-muon-sach">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Admin Duyệt mượn
+                <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+                <span>Admin Duyệt mượn</span>
             </NavLink>
         </div>
     </nav>
 </div>
-

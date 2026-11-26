@@ -6,9 +6,17 @@
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+        <header class="top-row px-4">
+            <div class="top-row-left">
+                <span class="top-row-title">Hệ thống Quản lý Thư viện</span>
+            </div>
+            <div class="top-row-right">
+                <span class="status-pill">
+                    <span class="status-dot"></span>
+                    Đồng bộ SQL Server
+                </span>
+            </div>
+        </header>
 
         <article class="content px-4">
             @Body
@@ -17,7 +25,7 @@
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
+    Đã xảy ra lỗi kết nối máy chủ.
+    <a href="." class="reload">Tải lại</a>
+    <span class="dismiss">✕</span>
 </div>

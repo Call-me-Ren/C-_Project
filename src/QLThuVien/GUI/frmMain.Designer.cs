@@ -96,9 +96,25 @@ namespace QLThuVien.GUI
             pnlHeader.BackColor = Color.White;
             pnlHeader.Dock = DockStyle.Top;
             pnlHeader.Height = 56;
-            pnlHeader.Padding = new Padding(20, 0, 0, 0);
-            pnlHeader.BorderStyle = BorderStyle.FixedSingle;
+            pnlHeader.Padding = new Padding(20, 0, 20, 0);
+            pnlHeader.BorderStyle = BorderStyle.None;
+            pnlHeader.Paint += (s, e) =>
+            {
+                using Pen pen = new Pen(Color.FromArgb(226, 232, 240), 1);
+                e.Graphics.DrawLine(pen, 0, pnlHeader.Height - 1, pnlHeader.Width, pnlHeader.Height - 1);
+            };
+            Label lblSyncStatus = new Label
+            {
+                Text = "●  Đồng bộ SQL Server",
+                Dock = DockStyle.Right,
+                AutoSize = false,
+                Width = 175,
+                TextAlign = ContentAlignment.MiddleRight,
+                ForeColor = Color.FromArgb(21, 128, 61),
+                Font = new Font("Segoe UI", 8.75F, FontStyle.Bold)
+            };
             pnlHeader.Controls.Add(lblTitle);
+            pnlHeader.Controls.Add(lblSyncStatus);
 
             // 
             // lblTitle
@@ -106,15 +122,15 @@ namespace QLThuVien.GUI
             lblTitle.Dock = DockStyle.Fill;
             lblTitle.Text = "Quản lý mượn - trả sách (Main - Sub)";
             lblTitle.TextAlign = ContentAlignment.MiddleLeft;
-            lblTitle.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
-            lblTitle.ForeColor = Color.FromArgb(30, 41, 59);
+            lblTitle.Font = new Font("Segoe UI", 13.5F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.FromArgb(15, 23, 42);
 
             // 
             // pnlContent
             // 
-            pnlContent.BackColor = Color.FromArgb(241, 245, 249);
+            pnlContent.BackColor = Color.FromArgb(248, 250, 252);
             pnlContent.Dock = DockStyle.Fill;
-            pnlContent.Padding = new Padding(10);
+            pnlContent.Padding = new Padding(12);
 
             // 
             // frmMain
