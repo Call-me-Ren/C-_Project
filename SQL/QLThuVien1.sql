@@ -565,6 +565,16 @@ FROM (VALUES
 ) v(MaPP, MaDG, MaPM, MaNV, NgayLap, TrangThai)
 WHERE NOT EXISTS (SELECT 1 FROM PhieuPhat t WHERE t.MaPhieuPhat = v.MaPP);
 
+-- 14b. QuyDinhPhat (đảm bảo có QD01, QD02 trước khi chèn ChiTietPhieuPhat)
+INSERT INTO QuyDinhPhat (MaQD, TenQD, LoaiPhat, CachTinh, DonViTinh, MucPhat)
+SELECT v.MaQD, v.TenQD, v.LoaiPhat, v.CachTinh, v.DonViTinh, v.MucPhat
+FROM (VALUES
+('QD01', N'Trả sách trễ hạn', N'Phạt tiền', N'Theo ngày trễ', N'Ngày', 5000.00),
+('QD02', N'Làm hư hỏng sách', N'Phạt tiền', N'Cố định', N'Cuốn', 30000.00),
+('QD03', N'Làm mất sách', N'Bồi thường', N'100% Giá bìa sách', N'Hệ số', 1.00)
+) v(MaQD, TenQD, LoaiPhat, CachTinh, DonViTinh, MucPhat)
+WHERE NOT EXISTS (SELECT 1 FROM QuyDinhPhat t WHERE t.MaQD = v.MaQD);
+
 -- 15. ChiTietPhieuPhat (30 dòng trên PP01..PP20)
 INSERT INTO ChiTietPhieuPhat (MaPhieuPhat, MaQD, MaSach, DonGia, SoNgayTre, GhiChu, TienPhat)
 SELECT v.MaPP, v.MaQD, v.MaSach, v.DonGia, v.SoNgayTre, v.GhiChu, v.TienPhat
